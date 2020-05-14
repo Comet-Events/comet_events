@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "642332274162",
+    "firebase_url": "https://comet-events-app.firebaseio.com",
+    "project_id": "comet-events-app",
+    "storage_bucket": "comet-events-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:642332274162:android:d6a93d02e50f5d023a8f6b",
+        "android_client_info": {
+          "package_name": "com.comets.comet_events"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "642332274162-lc9mdj16fpb05e5hgc4rifm86u1dv066.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.comets.comet_events",
+            "certificate_hash": "91952012d2fdcb21528e34b8dc772bc296518d83"
+          }
+        },
+        {
+          "client_id": "642332274162-pgbdcpjpaitisv9k7uk6fpohp8md6glr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsCCifR33W3czEgjQttCs4sMA825zMvhc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "642332274162-pgbdcpjpaitisv9k7uk6fpohp8md6glr.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "642332274162-uomlg95ql6hpo376ifensk8vc5a0sh2p.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.comets.cometEvents"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
