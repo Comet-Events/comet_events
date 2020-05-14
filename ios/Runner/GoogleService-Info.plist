@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>642332274162-uomlg95ql6hpo376ifensk8vc5a0sh2p.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.642332274162-uomlg95ql6hpo376ifensk8vc5a0sh2p</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>642332274162-o3o6ei1v5mqcm7mtfcukvpe64mdamgbt.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBPHjmKHJPD5hXJ3sjv1T8UAayt77G90bU</string>
+	<key>GCM_SENDER_ID</key>
+	<string>642332274162</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.comets.cometEvents</string>
+	<key>PROJECT_ID</key>
+	<string>comet-events-app</string>
+	<key>STORAGE_BUCKET</key>
+	<string>comet-events-app.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:642332274162:ios:86d185d127b032293a8f6b</string>
+	<key>DATABASE_URL</key>
+	<string>https://comet-events-app.firebaseio.com</string>
+</dict>
+</plist>
