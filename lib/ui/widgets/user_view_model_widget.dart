@@ -4,21 +4,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class UserBaseWidget<T extends BaseModel> extends StatefulWidget {
+class UserViewModelWidget<T extends BaseModel> extends StatefulWidget {
   final Widget Function(
       BuildContext context, T model, FirebaseUser user, Widget child) builder;
   final Function(T model) onModelReady;
   final Widget child;
 
-  UserBaseWidget({Key key, this.builder, this.onModelReady, this.child})
+  UserViewModelWidget({Key key, this.builder, this.onModelReady, this.child})
       : super(key: key);
 
   @override
-  _UserBaseWidgetState<T> createState() => _UserBaseWidgetState<T>();
+  _UserViewModelWidgetState<T> createState() => _UserViewModelWidgetState<T>();
 }
 
-class _UserBaseWidgetState<T extends BaseModel>
-    extends State<UserBaseWidget<T>> {
+class _UserViewModelWidgetState<T extends BaseModel>
+    extends State<UserViewModelWidget<T>> {
   T model = locator<T>();
 
   @override

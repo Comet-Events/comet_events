@@ -3,19 +3,19 @@ import 'package:comet_events/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class BaseWidget<T extends BaseModel> extends StatefulWidget {
+class ViewModelWidget<T extends BaseModel> extends StatefulWidget {
   
   final Widget Function(BuildContext context, T model, Widget child) builder;
   final Function(T) onModelReady;
   final Widget child;
 
-  BaseWidget({Key key, this.builder, this.onModelReady, this.child}) : super(key: key);
+  ViewModelWidget({Key key, this.builder, this.onModelReady, this.child}) : super(key: key);
 
   @override
-  _BaseWidgetState<T> createState() => _BaseWidgetState<T>();
+  _ViewModelWidgetState<T> createState() => _ViewModelWidgetState<T>();
 }
 
-class _BaseWidgetState<T extends BaseModel> extends State<BaseWidget<T>> {
+class _ViewModelWidgetState<T extends BaseModel> extends State<ViewModelWidget<T>> {
 
   T model = locator<T>();
 

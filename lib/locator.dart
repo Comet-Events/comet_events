@@ -5,6 +5,6 @@ GetIt locator = GetIt.instance;
 
 setupLocator() {
   // lazy singletons (services)
-  locator.registerLazySingleton(() => Auth());
+  locator.registerLazySingleton(() => AuthService());
   // factories (view models)
 }

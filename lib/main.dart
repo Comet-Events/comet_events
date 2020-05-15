@@ -16,7 +16,7 @@ class CometEvents extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        StreamProvider<FirebaseUser>.value(value: locator<Auth>().user),
+        StreamProvider<FirebaseUser>.value(value: locator<AuthService>().user),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
