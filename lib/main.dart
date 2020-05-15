@@ -1,5 +1,7 @@
 import 'package:comet_events/locator.dart';
 import 'package:comet_events/ui/screens/screens.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +21,10 @@ class CometEvents extends StatelessWidget {
         StreamProvider<FirebaseUser>.value(value: locator<AuthService>().user),
       ],
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Comet Events',
+        navigatorObservers: [
+          FirebaseAnalyticsObserver(analytics: FirebaseAnalytics())
+        ],
         theme: ThemeData(
           primarySwatch: Colors.purple,
         ),
