@@ -1,24 +1,36 @@
 # Comet Event Dev Documentation
 
-Hai! This markdown document is intended for the purpose of assisting developers on the Comet Event team. It includes documentation on how to utilize the **ViewModelWidget** & **UserViewModelWidget** (state management), as well as an explanation and guide to **Git Flow**, this project's Git workflow. 
+Hai! This markdown document is intended for the purpose of assisting developers on the Comet Event team. It includes documentation on how to utilize the **ViewModelBuilder** & **UserViewModelBuilder** (state management), as well as an explanation and guide to **Git Flow**, this project's Git workflow.
 
 # State Management
 
-*Skip to* **ViewModelWidget & UserViewModelWidget** *to get to the important stuff*
-Code to display a button, and code to fetch data from a backend do not belong in the same place. Aside from keeping track of the app state, our state management system serves as a way to split UI and logic components of our app. It is quite difficult to do this in Flutter without ending up with logic and UI code scattered on the same file. Widgets like **FutureBuilder** and **StreamBuilder** may work for  smaller projects, but can be hard to handle when scaling an application, and only keep track of the state of a single **Future/Stream** process, rather than the entire screen. Handling the rebuilding of the widget when a variable changes increases in difficulty the more variables a screen is keeping track of, and is considered 'logic', which goes against our ideology of separating UI and logic.
+[⚠️ Update 05/14] *Our application is now using the '**stacked**' package for our state management system.* The UserViewModelBuilder is a custom widget I designed specifically for our project. 
 
-To solve this, our state management system makes it possible for each widget (can be from a small button to an entire screen) to have **its own corresponding view model**. This **view model** holds all the logic and variables (variables tied to logic) for its widget. From functions that fetch external data, to functions that interact with phone features and user settings, all logic for a screen or widget resides in these **view models**. 
+## Intro [Should Read]
 
-## ViewModelWidget & UserViewModelWidget
+Code to display a button, and code to fetch data from a backend do not belong in the same place. Aside from keeping track of the app state, our state management system serves as a way to split UI and logic components of our app. Our state management system makes it possible for each **view** (can be from a small button to an entire screen) to have **its own corresponding view model**. This **view model** holds all the logic and variables (variables tied to logic) for its widget. From functions that fetch external data, to functions that interact with phone features and user settings, all logic for a **view** (screen, widget, etc.) resides in these **view models**.
 
-The **ViewModelWidget** and **UserViewModelWidget** are custom widgets designed with this state management system in mind. *They are the widgets that tie the logic and UI together.* These widgets are placed in a position in the widget tree whose children require functions and logic to operate (usually at the top of the screen widget). If the whole screen is dependent on the view state/logic, then these widgets will **probably** need to be **the first thing that you'll add after the 'return' statement.**
+## How it works
 
-### Simple Example of 'ViewModelWidget'
+Our application has three parts:
+
+ - **Views:** Files/components that contain Flutter UI code.
+ - **View Models:** Classes that contain the logic code for the **Views**
+ - **Services:** Files that contain functions that work with third-party services. (Firebase, API's, etc.). These service classes are accessed in the **View Models**
+
+After programming a **view**, you need to connect your view 
+
+## ViewModelBuilder & UserViewModelBuilder
+
+The **ViewModelBuilder** and **UserViewModelBuilder** the widgets that tie the logic and UI together. These widgets are placed in a position in the widget tree whose children require functions and logic to operate (usually at the top of the screen widget). If the whole screen is dependent on the view state/logic, then these widgets will **probably** need to be **the first thing that you'll add after the 'return' statement.**
+
+### Simple Example of 'BaseWidget'
 
     // HomeScreen widget
     @override
     Widget build(BuildContext context) {
-	    return ViewModelWidget<HomeModel>(
+	    return ViewModelBuilder<HomeViewModel>.reactive(
+		    viewModelBuilder: () => new HomeViewModel();
 		    builder: (context, model, child) {
 			    // 'model' refers to the view model instance.
 			    // you can access all the variables and functions
@@ -32,14 +44,15 @@ The **ViewModelWidget** and **UserViewModelWidget** are custom widgets designed 
 	    
 	    
 
-### Simple Example of 'ViewModelWidget' that checks for ViewState
+### Simple Example of 'ViewModelBuilder' that checks for ViewState
 
 Each view model has its own 'state' variable of type **ViewState**. 'state' changes depending on what's going on in the model. For example, if the model is fetching data, then 'state' will probably be set to **ViewState.Busy**. When fetching data is done, 'state' will be set to **ViewState.Idle**. When the 'state' variable changes, the widget is rebuilt (UI updates).
 
     // HomeScreen widget
     @override
     Widget build(BuildContext context) {
-	    return ViewModelWidget<HomeModel>(
+	    return ViewModelBuilder<HomeModel>.reactive(
+		    viewModelBuilder: () => new HomeViewModel();
 		    builder: (context, model, child) {
 			    switch(model.state) {
 				    case ViewState.Busy:
@@ -57,14 +70,15 @@ Each view model has its own 'state' variable of type **ViewState**. 'state' chan
 		);
 	}
 
-### Simple Example of 'UserViewModelWidget' + Explaination
+### Simple Example of 'UserViewModelBuilder' + Explaination
 
-**UserViewModelWidget** is an enhanced version of **ViewModelWidget** that I made specifically to work parallel with the Firebase Authentication service. This widget provides an extra 'user' variable, which is a FirebaseUser variable that holds all the data for the currently logged in user. It is a stream, and when the variable updates (ie. when the user signs in/out, etc.), the UI automatically rebuilds, like magic. It's so fking convenient omg y'all gonna love this:
+**UserViewModelBuilder** is an enhanced version of **ViewModelBuilder** that I made specifically to work parallel with the Firebase Authentication service. This widget provides an extra 'user' variable, which is a FirebaseUser variable that holds all the data for the currently logged in user. It is a stream, and when the variable updates (ie. when the user signs in/out, etc.), the UI automatically rebuilds, like magic. It's so fking convenient omg y'all gonna love this:
 
     // HomeScreen widget
     @override
     Widget build(BuildContext context) {
-	    return UserViewModelWidget<HomeModel>(
+	    return UserViewModelBuilder<HomeModel>.reactive(
+		    viewModelBuilder: () => new HomeViewModel();
 		    builder: (context, model, user, child) {
 			    if(user == null) // send them to the login screen
 			    else {
@@ -74,6 +88,7 @@ Each view model has its own 'state' variable of type **ViewState**. 'state' chan
 			}
 		);
 	}
+
 
 ## Development Guide ["Frontend + UI" team]
 

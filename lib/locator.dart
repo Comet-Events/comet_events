@@ -1,10 +1,9 @@
-import 'package:comet_events/core/services/auth.dart';
+import 'package:comet_events/core/services/services.dart';
 import 'package:get_it/get_it.dart';
 
 GetIt locator = GetIt.instance;
 
 setupLocator() {
-  // lazy singletons (services)
+  // lazy singletons (services) here
   locator.registerLazySingleton(() => AuthService());
-  // factories (view models)
 }
