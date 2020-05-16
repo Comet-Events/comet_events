@@ -3,33 +3,33 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:stacked/stacked.dart';
 
-enum _ViewModelBuilderType { NonReactive, Reactive }
+enum _UserViewModelBuilderType { NonReactive, Reactive }
 
 /// A widget that provides base functionality for the Mvvm style provider architecture by FilledStacks.
-class ViewModelBuilder<T extends ChangeNotifier> extends StatefulWidget {
+class UserViewModelBuilder<T extends ChangeNotifier> extends StatefulWidget {
   final Widget staticChild;
   final Function(T) onModelReady;
   final Widget Function(BuildContext, T, FirebaseUser, Widget) builder;
-  final T Function() viewModelBuilder;
+  final T Function() userViewModelBuilder;
   final bool disposeViewModel;
   final bool createNewModelOnInsert;
-  final _ViewModelBuilderType providerType;
+  final _UserViewModelBuilderType providerType;
 
-  const ViewModelBuilder.reactive({
+  const UserViewModelBuilder.reactive({
     @required this.builder,
-    @required this.viewModelBuilder,
+    @required this.userViewModelBuilder,
     this.staticChild,
     this.onModelReady,
     this.disposeViewModel = true,
     this.createNewModelOnInsert = false,
-  }) : providerType = _ViewModelBuilderType.Reactive;
+  }) : providerType = _UserViewModelBuilderType.Reactive;
 
   @override
-  _ViewModelBuilderState<T> createState() => _ViewModelBuilderState<T>();
+  _UserViewModelBuilderState<T> createState() => _UserViewModelBuilderState<T>();
 }
 
-class _ViewModelBuilderState<T extends ChangeNotifier>
-    extends State<ViewModelBuilder<T>> {
+class _UserViewModelBuilderState<T extends ChangeNotifier>
+    extends State<UserViewModelBuilder<T>> {
   T _model;
 
   @override
@@ -46,8 +46,8 @@ class _ViewModelBuilderState<T extends ChangeNotifier>
   }
 
   void _createViewModel() {
-    if (widget.viewModelBuilder != null) {
-      _model = widget.viewModelBuilder();
+    if (widget.userViewModelBuilder != null) {
+      _model = widget.userViewModelBuilder();
     }
 
     _initialiseSpecialViewModels();
