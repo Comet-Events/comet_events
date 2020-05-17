@@ -6,5 +6,5 @@ class DatabaseService {
 
   void setData() {}
 
-  void deleteData() {}
+  void removeData() {}
 }
