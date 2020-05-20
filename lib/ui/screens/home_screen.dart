@@ -1,4 +1,6 @@
 import 'package:comet_events/core/models/home_model.dart';
+import 'package:comet_events/ui/theme/theme.dart';
+import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
@@ -12,13 +14,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+  bool _state = true;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +33,18 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Switch(
+                value: _state, 
+                onChanged: (bool) {
+                  if(bool == false) locator<CometEventsTheme>().changeToDark();
+                  else locator<CometEventsTheme>().changeToLight();
+
+                  setState(() {
+                    print(_state);
+                    _state = !_state;
+                  });
+                }
+              ),
               Text(
                 'You have pushed the button this many times:',
               ),
@@ -46,11 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: model.increment,
-          tooltip: 'Increment',
-          child: Icon(Icons.add),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
     );
   }
