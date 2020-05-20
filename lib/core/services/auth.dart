@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
@@ -9,6 +10,18 @@ class AuthService {
   // two methods of retrieving user data
   Future<FirebaseUser> get getUser => _auth.currentUser();
   Stream<FirebaseUser> get user => _auth.onAuthStateChanged;
+
+  // register with email and password
+  Future<FirebaseUser> registerWithEmailandPassword(String email, String password) async {
+    try {
+       AuthResult result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+       FirebaseUser user = result.user;
+       return user;
+    } catch (err) {
+      print("There was an error attempting to register for Comet Events with your email and password \n" + err);
+      return null;
+    }
+  }
 
   // GoogleSignIn
   Future<FirebaseUser> googleSignIn() async {
