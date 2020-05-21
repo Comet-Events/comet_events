@@ -7,5 +7,5 @@ GetIt locator = GetIt.instance;
 setupLocator() {
   // lazy singletons (services) here
   locator.registerLazySingleton(() => AuthService());
-  locator.registerLazySingleton(() => CometEventsTheme());
+  locator.registerLazySingleton(() => CometThemeManager());
 }

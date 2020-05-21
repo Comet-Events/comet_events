@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           // Here we take the value from the HomeScreen object that was created by
           // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
+          title: Text(widget.title, style: TextStyle(color: locator<CometThemeManager>().theme.mainColor),),
         ),
         body: Center(
           // Center is a layout widget. It takes a single child and positions it
@@ -36,11 +36,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Switch(
                 value: _state, 
                 onChanged: (bool) {
-                  if(bool == false) locator<CometEventsTheme>().changeToDark();
-                  else locator<CometEventsTheme>().changeToLight();
+                  if(bool == false) locator<CometThemeManager>().changeToDark();
+                  else locator<CometThemeManager>().changeToLight();
 
                   setState(() {
-                    print(_state);
                     _state = !_state;
                   });
                 }

@@ -29,14 +29,14 @@ class CometEvents extends StatelessWidget {
       providers: [
         // This provides a stream of the current firebase user to the rest of the app
         StreamProvider<FirebaseUser>.value(value: locator<AuthService>().user),
-        StreamProvider<ThemeData>.value(value: locator<CometEventsTheme>().theme),
+        ChangeNotifierProvider<CometThemeManager>.value(value: locator<CometThemeManager>()),
       ],
       child: LayoutBuilder(
         // this is for the SizeConfig initialization
         builder: (context, constraints) {
           SizeConfig().init(constraints, Orientation.portrait);
-          return Consumer<ThemeData>(
-            builder: (context, themeData, _) => MaterialApp(
+          return Consumer<CometThemeManager>(
+            builder: (context, manager, _) => MaterialApp(
               // title of the app
               title: 'Comet Events',
               // enable firebase analytics
@@ -44,7 +44,7 @@ class CometEvents extends StatelessWidget {
                 FirebaseAnalyticsObserver(analytics: FirebaseAnalytics())
               ],
               // app theme data
-              theme: themeData,
+              theme: manager.theme.themeData,
               home: HomeScreen(title: 'Flutter Demo Home Page'),
             ),
           );
