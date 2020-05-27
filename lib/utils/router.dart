@@ -1,0 +1,31 @@
+import 'package:comet_events/ui/screens/screens.dart';
+import 'package:flutter/material.dart';
+
+class Routes {
+  static const String login = '/login';
+
+  static const String home = '/';
+
+  static const String profile = '/profile';
+  static const String profileEdit = '/profile/edit';
+
+  static const String event = '/event';
+  static const String eventAdd = '/event/add';
+
+  static const String settings = '/settings';
+}
+
+Route<dynamic> generateRoute(RouteSettings settings) {
+  switch(settings.name) {
+    case Routes.home:
+      return MaterialPageRoute(builder: (context) => HomeScreen());
+    default: 
+      return MaterialPageRoute(
+        builder: (context) => Scaffold(
+          body: Center(
+            child: Text("The ${settings.name} path doesn't exist")
+          )
+        )
+      );
+  }
+}

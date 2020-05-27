@@ -1,6 +1,6 @@
-import 'package:comet_events/ui/screens/home_screen.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
+import 'package:comet_events/utils/router.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:comet_events/core/services/services.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 void main() {
   setupLocator();
@@ -44,7 +45,14 @@ class CometEvents extends StatelessWidget {
               ],
               // app theme data
               theme: manager.theme.themeData,
-              home: HomeScreen(),
+              // ROUTING
+              onGenerateRoute: generateRoute,
+              initialRoute: Routes.home,
+              // ^ comment this out when testing
+              navigatorKey: locator<NavigationService>().navigatorKey,
+              /// ! ROUTING FOR TESTING
+              /// When testing a screen, you can comment out the 'initialRoute' param, and use 'home' instead:
+              // home: HomeScreen();
             ),
           );
         }
