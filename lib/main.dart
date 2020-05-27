@@ -1,7 +1,6 @@
+import 'package:comet_events/ui/screens/home_screen.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
-import 'package:comet_events/ui/screens/screens.dart';
-import 'package:comet_events/utils/size_config.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,7 +33,7 @@ class CometEvents extends StatelessWidget {
       child: LayoutBuilder(
         // this is for the SizeConfig initialization
         builder: (context, constraints) {
-          SizeConfig().init(constraints, Orientation.portrait);
+          // SizeConfig().init(constraints, Orientation.portrait);
           return Consumer<CometThemeManager>(
             builder: (context, manager, _) => MaterialApp(
               // title of the app
@@ -45,7 +44,7 @@ class CometEvents extends StatelessWidget {
               ],
               // app theme data
               theme: manager.theme.themeData,
-              home: HomeScreen(title: 'Flutter Demo Home Page'),
+              home: HomeScreen(),
             ),
           );
         }

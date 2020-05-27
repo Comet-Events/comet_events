@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class CometThemeManager extends ChangeNotifier {
 
-  CometThemeData _currentTheme = lightTheme;
+  CometThemeData _currentTheme = darkTheme;
   CometThemeData get theme => _currentTheme;
 
   // ------- COLORS -------
@@ -25,8 +25,8 @@ class CometThemeManager extends ChangeNotifier {
   static const Color secondaryColorLight = Color(0xff8B51CF);
 
   // dark uniques (list custom colors here)
-  static const Color lineBorderDark = Colors.grey;
-  static const Color miniTextDark = Colors.pink;
+  static const Color lineBorderDark = Color.fromARGB(255, 80, 80, 80);
+  static const Color miniTextDark = Color.fromARGB(255, 141, 129, 147);
 
   // light uniques (list custom colors here)
   static const Color lineBorderLight = Colors.grey;
@@ -40,7 +40,7 @@ class CometThemeManager extends ChangeNotifier {
       brightness: Brightness.dark,
       fontFamily: "Lexend Deca"
     ),
-    mainMono: mainColorDark,
+    mainMono: mainMonoDark,
     secondaryMono: secondaryMonoDark,
     mainColor: mainColorDark,
     secondaryColor: secondaryColorDark,
