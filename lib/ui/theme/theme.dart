@@ -35,6 +35,7 @@ class CometThemeManager extends ChangeNotifier {
   // dark theme data
   static CometThemeData darkTheme = CometThemeData(
     themeData: ThemeData(
+      cursorColor: mainColorDark,
       primaryColor: mainMonoDark,
       accentColor: secondaryMonoDark,
       brightness: Brightness.dark,
@@ -51,6 +52,7 @@ class CometThemeManager extends ChangeNotifier {
   // light theme data
   static CometThemeData lightTheme = CometThemeData(
     themeData: ThemeData(
+      cursorColor: mainColorLight,
       primaryColor: mainMonoLight,
       accentColor: secondaryMonoLight,
       brightness: Brightness.light,
