@@ -13,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
-  bool _state = true;
+  bool _state = false;
 
   @override
   Widget build(BuildContext context) {

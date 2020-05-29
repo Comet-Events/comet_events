@@ -18,14 +18,18 @@ class CometSubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
 
     CometThemeData _appTheme = locator<CometThemeManager>().theme;
+    double radius = 22.5;
 
-    return GestureDetector(
+    return InkWell(
+      borderRadius: BorderRadius.all(Radius.circular(radius)),
+      highlightColor: Colors.white,
+      splashColor: Colors.white,
       onTap: onTap,
       child: Container(
         width: width,
         height: 45,
         decoration: BoxDecoration(
-          color: _appTheme.mainColor,
+          color: _appTheme.mainColor.withOpacity(0.9),
           boxShadow: [
             BoxShadow(
               color: Color.fromARGB(90, 0, 0, 0),
@@ -33,7 +37,7 @@ class CometSubmitButton extends StatelessWidget {
               blurRadius: 10,
             )
           ],
-          borderRadius: BorderRadius.all(Radius.circular(22.5)),
+          borderRadius: BorderRadius.all(Radius.circular(radius)),
         ),
         child: Center(
           child: Text(
@@ -46,7 +50,7 @@ class CometSubmitButton extends StatelessWidget {
           ),
         ),
       ),
-    );
+        );
   }
 }
 class CometIconButton extends StatelessWidget {

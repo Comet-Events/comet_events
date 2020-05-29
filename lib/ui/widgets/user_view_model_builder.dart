@@ -1,18 +1,24 @@
+import 'package:comet_events/core/services/services.dart';
+import 'package:comet_events/utils/locator.dart';
+import 'package:comet_events/utils/router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 enum _UserViewModelBuilderType { NonReactive, Reactive }
 
 /// A widget that provides base functionality for the Mvvm style provider architecture by FilledStacks.
 class UserViewModelBuilder<T extends ChangeNotifier> extends StatefulWidget {
   final Widget staticChild;
-  final Function(T) onModelReady;
+  final Function(T, FirebaseUser) onModelReady;
   final Widget Function(BuildContext, T, FirebaseUser, Widget) builder;
   final T Function() userViewModelBuilder;
   final bool disposeViewModel;
   final bool createNewModelOnInsert;
+  final bool autoRedirectToAuth;
   final _UserViewModelBuilderType providerType;
 
   const UserViewModelBuilder.reactive({
@@ -22,6 +28,7 @@ class UserViewModelBuilder<T extends ChangeNotifier> extends StatefulWidget {
     this.onModelReady,
     this.disposeViewModel = true,
     this.createNewModelOnInsert = false,
+    this.autoRedirectToAuth = true,
   }) : providerType = _UserViewModelBuilderType.Reactive;
 
   @override
@@ -54,7 +61,7 @@ class _UserViewModelBuilderState<T extends ChangeNotifier>
 
     // Fire onModelReady after the model has been constructed
     if (widget.onModelReady != null) {
-      widget.onModelReady(_model);
+      widget.onModelReady(_model, locator<AuthService>().u);
     }
   }
 
@@ -103,6 +110,11 @@ class _UserViewModelBuilderState<T extends ChangeNotifier>
       if (model.changeSource ?? false) {
         _initialiseSpecialViewModels();
       }
+    }
+    if (user == null && widget.autoRedirectToAuth) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        locator<NavigationService>().replaceWith(Routes.auth);
+      });
     }
     return widget.builder(context, model, user, child);
   }

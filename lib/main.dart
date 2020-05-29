@@ -48,12 +48,12 @@ class CometEvents extends StatelessWidget {
               theme: manager.theme.themeData,
               // ROUTING
               onGenerateRoute: generateRoute,
-              // initialRoute: Routes.home,
+              initialRoute: Routes.auth,
               // ^ comment this out when testing
               navigatorKey: locator<NavigationService>().navigatorKey,
               /// ! ROUTING FOR TESTING
               /// When testing a screen, you can comment out the 'initialRoute' param, and use 'home' instead:
-              home: AuthScreen()
+              // home: AuthScreen()
             ),
           );
         }

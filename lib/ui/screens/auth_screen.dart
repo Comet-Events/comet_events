@@ -1,10 +1,13 @@
 import 'package:comet_events/core/models/auth/auth_model.dart';
 import 'package:comet_events/core/models/auth/login_block_model.dart';
+import 'package:comet_events/core/models/auth/register_block_model.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/comet_buttons.dart';
 import 'package:comet_events/ui/widgets/comet_text_field.dart';
+import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:stacked/stacked.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -18,8 +21,9 @@ class AuthScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: _appTheme.secondaryMono,
       body: SingleChildScrollView(
-        child: ViewModelBuilder<AuthModel>.reactive(
-          viewModelBuilder: () => AuthModel(),
+        child: UserViewModelBuilder<AuthModel>.reactive(
+          autoRedirectToAuth: false,
+          userViewModelBuilder: () => AuthModel(),
           staticChild: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height/4,
@@ -48,12 +52,12 @@ class AuthScreen extends StatelessWidget {
                         Positioned(
                           top: 0,
                           right: 0,
-                          child: Text('Comet', style: TextStyle(fontSize: 27, shadows: [BoxShadow(color: Colors.black, offset: Offset(0,2), blurRadius: 10)]))
+                          child: Text('Comet', style: TextStyle(fontSize: 27, shadows: [BoxShadow(color: _appTheme.antiOpposite, offset: Offset(0,2), blurRadius: 10)]))
                         ),
                         Positioned(
                           bottom: 0,
                           right: 0,
-                          child: Text('Events', style: TextStyle(fontSize: 35, shadows: [BoxShadow(color: Colors.black, offset: Offset(0,2), blurRadius: 10)]))
+                          child: Text('Events', style: TextStyle(fontSize: 35, shadows: [BoxShadow(color: _appTheme.antiOpposite, offset: Offset(0,2), blurRadius: 10)]))
                         ),
                       ],
                     ),
@@ -62,42 +66,50 @@ class AuthScreen extends StatelessWidget {
               ],
             ),
           ),
-          builder: (context, model, child) => Column(
-            children: <Widget>[
-              child,
-              SizedBox(height: 10),
-              Container(
-                width: MediaQuery.of(context).size.width/1.25,
-                child: Row(
-                  children: [
-                    AuthTab(
-                      title: 'Login',
-                      active: model.currentScreen == 0,
-                      onTap: model.moveToLogin,
-                    ),
-                    AuthTab(
-                      title: 'Register',
-                      active: model.currentScreen == 1,
-                      onTap: model.moveToRegister,
-                    ),
-                  ]
+          builder: (context, model, user, child) {
+            if(user != null) {
+              // runs this after view loads
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                model.moveToHome();
+              });
+            }
+            return Column(
+              children: <Widget>[
+                child,
+                SizedBox(height: 10),
+                Container(
+                  width: MediaQuery.of(context).size.width/1.25,
+                  child: Row(
+                    children: [
+                      AuthTab(
+                        title: 'Login',
+                        active: model.currentScreen == 0,
+                        onTap: model.moveToLogin,
+                      ),
+                      AuthTab(
+                        title: 'Register',
+                        active: model.currentScreen == 1,
+                        onTap: model.moveToRegister,
+                      ),
+                    ]
+                  ),
                 ),
-              ),
-              Container(
-                // height: MediaQuery.of(context).size.height/2 ,
-                height: 450,
-                // color: Colors.red,
-                child: PageView(
-                  controller: model.controller,
-                  onPageChanged: model.pageChanged,
-                  children: <Widget>[
-                    LoginBlock(),
-                    RegisterBlock(),
-                  ],
+                Container(
+                  // height: MediaQuery.of(context).size.height/2 ,
+                  height: 450,
+                  // color: Colors.red,
+                  child: PageView(
+                    controller: model.controller,
+                    onPageChanged: model.pageChanged,
+                    children: <Widget>[
+                      LoginBlock(),
+                      RegisterBlock(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          }
         ),
       )
     );
@@ -171,7 +183,7 @@ class LoginBlock extends StatelessWidget {
             ),
             SizedBox(height: 10),
             GestureDetector(
-              onTap: model.googleLogin,
+              onTap: model.moveToHome,
               child: Image.asset('assets/images/google-auth.png'),
             )
           ],
@@ -182,28 +194,8 @@ class LoginBlock extends StatelessWidget {
 }
 
 // * Register Block
-class RegisterBlock extends StatefulWidget {
+class RegisterBlock extends StatelessWidget {
   const RegisterBlock({Key key}) : super(key: key);
-
-  @override
-  _RegisterBlockState createState() => _RegisterBlockState();
-}
-class _RegisterBlockState extends State<RegisterBlock> {
-  
-  TextEditingController _first = TextEditingController();
-  TextEditingController _last = TextEditingController();
-  TextEditingController _email = TextEditingController();
-  TextEditingController _password = TextEditingController();
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _first.dispose();
-    _last.dispose();
-    _email.dispose();
-    _password.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -211,76 +203,80 @@ class _RegisterBlockState extends State<RegisterBlock> {
     CometThemeData _appTheme = locator<CometThemeManager>().theme;
     double _width = MediaQuery.of(context).size.width/1.25;
 
-    return Container(
-      width: _width,
-      // color: Colors.red,
-      margin: EdgeInsets.symmetric(
-        horizontal: (MediaQuery.of(context).size.width - _width)/2, 
-        vertical: 20
-      ),
-      child: Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: CometTextField(
-                  title: 'First',
-                  hint: 'First Name',
-                  controller: _first,
+    return ViewModelBuilder<RegisterBlockModel>.reactive(
+      viewModelBuilder: () => RegisterBlockModel(),
+      builder: (context, model, _) => Container(
+        width: _width,
+        // color: Colors.red,
+        margin: EdgeInsets.symmetric(
+          horizontal: (MediaQuery.of(context).size.width - _width)/2, 
+          vertical: 20
+        ),
+        child: Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: CometTextField(
+                    title: 'First',
+                    hint: 'First Name',
+                    controller: model.first,
+                  ),
                 ),
-              ),
-              SizedBox(width: 5),
-              Expanded(
-                child: CometTextField(
-                  title: 'Last',
-                  hint: 'Last Name',
-                  controller: _last,
+                SizedBox(width: 5),
+                Expanded(
+                  child: CometTextField(
+                    title: 'Last',
+                    hint: 'Last Name',
+                    controller: model.last,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          CometTextField(
-            width: _width,
-            title: 'Email',
-            hint: 'Enter email',
-            controller: _email,
-          ),
-          SizedBox(height: 20),
-          CometTextField(
-            width: _width,
-            title: 'Password',
-            hint: 'Enter password',
-            obscure: true,
-            controller: _password,
-          ),
-          SizedBox(height: 20),
-          CometSubmitButton(
-            width: _width,
-            text: 'Register',
-          ),
-          SizedBox(height: 15),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                height: 1.0,
-                width: _width/1.1,
-                color: Colors.grey[700]
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 5),
-                color: _appTheme.secondaryMono, 
-                child: Text('OR', style: TextStyle(color: Colors.grey[700]),)
-              )
-            ]
-          ),
-          SizedBox(height: 10),
-          GestureDetector(
-            onTap: () {},
-            child: Image.asset('assets/images/google-auth.png'),
-          )
-        ],
+              ],
+            ),
+            SizedBox(height: 20),
+            CometTextField(
+              width: _width,
+              title: 'Email',
+              hint: 'Enter email',
+              controller: model.email,
+            ),
+            SizedBox(height: 20),
+            CometTextField(
+              width: _width,
+              title: 'Password',
+              hint: 'Enter password',
+              obscure: true,
+              controller: model.password,
+            ),
+            SizedBox(height: 20),
+            CometSubmitButton(
+              onTap: model.register,
+              width: _width,
+              text: 'Register',
+            ),
+            SizedBox(height: 15),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  height: 1.0,
+                  width: _width/1.1,
+                  color: Colors.grey[700]
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 5),
+                  color: _appTheme.secondaryMono, 
+                  child: Text('OR', style: TextStyle(color: Colors.grey[700]),)
+                )
+              ]
+            ),
+            SizedBox(height: 10),
+            GestureDetector(
+              onTap: () {},
+              child: Image.asset('assets/images/google-auth.png'),
+            )
+          ],
+        ),
       ),
     );
   }

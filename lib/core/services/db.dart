@@ -3,8 +3,10 @@ import 'package:comet_events/core/objects/objects.dart';
 
 class DatabaseService {
 
-  final Firestore _db = Firestore.instance;
+  final Firestore db = Firestore.instance;
 
-  Future<bool> addUser(User user) {
-  }
+  // * ----- Collections -----
+  CollectionReference get users => db.collection('/users');
+  CollectionReference get events => db.collection('/events');
+
 }

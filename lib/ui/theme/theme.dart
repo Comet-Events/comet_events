@@ -96,6 +96,8 @@ class CometThemeData {
   // ! in the CometThemeManager ()
   final Color lineBorder;
   final Color miniText;
+  Color opposite;
+  Color antiOpposite;
 
   CometThemeData({ 
     @required this.themeData,
@@ -105,5 +107,8 @@ class CometThemeData {
     @required this.secondaryColor,
     @required this.lineBorder,
     @required this.miniText,
-   });
+   }) {
+     opposite = themeData.brightness == Brightness.dark ? Colors.white : Colors.black;
+     antiOpposite = themeData.brightness == Brightness.dark ? Colors.black : Colors.white;
+   }
 }
