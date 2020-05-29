@@ -1,3 +1,5 @@
+import 'package:comet_events/ui/screens/profile_screen/loading_screen.dart';
+import 'package:comet_events/ui/screens/profile_screen/profile_screen.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:comet_events/utils/router.dart';
@@ -47,12 +49,12 @@ class CometEvents extends StatelessWidget {
               theme: manager.theme.themeData,
               // ROUTING
               onGenerateRoute: generateRoute,
-              initialRoute: Routes.home,
+              //initialRoute: Routes.home,
               // ^ comment this out when testing
               navigatorKey: locator<NavigationService>().navigatorKey,
               /// ! ROUTING FOR TESTING
               /// When testing a screen, you can comment out the 'initialRoute' param, and use 'home' instead:
-              // home: HomeScreen();
+              home: ProfileScreen()
             ),
           );
         }

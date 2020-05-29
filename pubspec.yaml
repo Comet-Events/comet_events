@@ -40,7 +40,7 @@ dependencies:
   table_calendar: ^2.2.3
   fading_edge_scrollview: ^1.1.1
   carousel_slider: ^2.1.0
-
+  flutter_spinkit: "^4.1.2"
 
 
   # The following adds the Cupertino Icons font to your application.
