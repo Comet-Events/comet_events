@@ -11,7 +11,7 @@ class LoadingScreen extends StatelessWidget {
     CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
     return Scaffold(
-      backgroundColor: _appTheme.secondaryMono,
+      backgroundColor: _appTheme.mainMono,
       body: Center(
           child: 
               Column(

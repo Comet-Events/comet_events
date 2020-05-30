@@ -10,6 +10,9 @@ import 'package:flutter/material.dart';
 /// * View Model Variables
 /// 
 /// * View Model Functions
+/// viewAllFollowers()
+/// viewAllEvents()
+/// addUserToFollowing()
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({Key key}) : super(key: key);
