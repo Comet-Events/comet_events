@@ -33,6 +33,7 @@ class CometThemeManager extends ChangeNotifier {
   // dark theme data
   static CometThemeData darkTheme = CometThemeData(
     themeData: ThemeData(
+      cursorColor: mainColorDark,
       primaryColor: mainMonoDark,
       accentColor: secondaryMonoDark,
       brightness: Brightness.dark,
@@ -49,6 +50,7 @@ class CometThemeManager extends ChangeNotifier {
   // light theme data
   static CometThemeData lightTheme = CometThemeData(
     themeData: ThemeData(
+      cursorColor: mainColorLight,
       primaryColor: mainMonoLight,
       accentColor: secondaryMonoLight,
       brightness: Brightness.light,
@@ -92,6 +94,8 @@ class CometThemeData {
   // ! in the CometThemeManager ()
   final Color lineBorder;
   final Color miniText;
+  Color opposite;
+  Color antiOpposite;
 
   CometThemeData({ 
     @required this.themeData,
@@ -101,5 +105,8 @@ class CometThemeData {
     @required this.secondaryColor,
     @required this.lineBorder,
     @required this.miniText,
-   });
+   }) {
+     opposite = themeData.brightness == Brightness.dark ? Colors.white : Colors.black;
+     antiOpposite = themeData.brightness == Brightness.dark ? Colors.black : Colors.white;
+   }
 }

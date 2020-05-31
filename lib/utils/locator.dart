@@ -9,6 +9,10 @@ setupLocator() {
   // lazy singletons (services) here
   locator.registerLazySingleton(() => AuthService());
   locator.registerLazySingleton(() => CometThemeManager());
+  /// database services
+  locator.registerLazySingleton(() => DatabaseService());
+  locator.registerLazySingleton(() => UserService());
+  locator.registerLazySingleton(() => EventService());
   /// stacked services
   locator.registerLazySingleton(() => NavigationService());
   locator.registerLazySingleton(() => SnackbarService());
