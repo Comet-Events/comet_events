@@ -8,8 +8,10 @@ import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
 
 /// * View Model Variables
-/// 
+/// changeFollowButton **follow button reads "follow" or "following" based on whether user is following the account
 /// * View Model Functions
+/// User createUser()
+/// shareButton()
 /// viewAllFollowers()
 /// viewAllEvents()
 /// addUserToFollowing()
