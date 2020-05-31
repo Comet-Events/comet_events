@@ -1,4 +1,5 @@
-import 'package:comet_events/ui/screens/profile_screen/user.dart';
+
+import 'package:comet_events/core/objects/User.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/comet_buttons.dart';
 import 'package:comet_events/ui/widgets/event_list.dart';
@@ -7,14 +8,17 @@ import 'package:comet_events/ui/widgets/user_list.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
 
-/// * View Model Variables
-/// changeFollowButton **follow button reads "follow" or "following" based on whether user is following the account
-/// * View Model Functions
+///* View Model Variables
+///
+///* View Model Functions
 /// User createUser()
-/// shareButton()
-/// viewAllFollowers()
-/// viewAllEvents()
-/// addUserToFollowing()
+/// void shareButton()
+/// void viewAllFollowers()
+/// void viewAllEvents()
+/// bool followUser()
+/// bool unfollowUser()
+/// void goToUserProfile()
+/// void goToEventDetails()
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({Key key}) : super(key: key);
@@ -22,14 +26,15 @@ class ProfileScreen extends StatelessWidget {
   final CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
   // Dummy User Data 
+  // User object needs to be updated to contain location info
   User user = User(
-    name: "John Applepie",
-    location: "Dallas, TX",
+    uid: "tryme",
+    name: UserName(first: "John", last: "Applepie"),
     description:"I’m an influencer, world wide chad. I’m really into anime I love anime I’m kinda weeb quirky hehe.",
-    profilePic: Image.network('https://img.stackshare.io/service/1161/vI0ZZlhZ_400x400.png', fit: BoxFit.cover),
-    followers: List.filled(129, "Bob", growable: true),
-    events: List.filled(39, "Bob", growable: true),
-    following: List.filled(689, "Bob", growable: true),
+    pfpUrl: "https://img.stackshare.io/service/1161/vI0ZZlhZ_400x400.png",
+    events: UserEvents(hosted: List.filled(38, "events", growable: true)),
+    followers: List.filled(129, "Follower Bob", growable: true),
+    following: List.filled(689, "Following Bob", growable: true),
   );
 
   @override
@@ -131,7 +136,7 @@ class ProfileScreen extends StatelessWidget {
         // Profile Pic
         child: ClipRRect(
           borderRadius: BorderRadius.all(Radius.elliptical(54.0, 54.0)),
-          child: user.getProfilePic
+          child: Image.network(user.pfpUrl, fit: BoxFit.cover)
         )
       )
     );
@@ -141,12 +146,14 @@ class ProfileScreen extends StatelessWidget {
     return Column(
       children: <Widget>[
         Text(
-          user.getName,
+          // to be changed once company info is decided on
+          (user.name.first + " " + user.name.last),
           textAlign: TextAlign.left,
           style: TextStyle( fontSize: 28 ),
         ),
         Text(
-          user.getLocation,
+          // to be changed once User object holds location info
+          "Dallas, TX",
           textAlign: TextAlign.left,
           style: TextStyle(
             color: Color.fromARGB(255, 159, 159, 159),
@@ -161,7 +168,7 @@ class ProfileScreen extends StatelessWidget {
             children: <Widget>[
               Flexible(
                 child: Text(
-                  user.getDescription,
+                  user.description,
                   textAlign: TextAlign.center,
                   style: TextStyle( fontSize: 17 ),
                 ),
@@ -174,6 +181,8 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _socialButtons(double screenWidth){
+    // to be implemented later: string on follow button changes depending on whether current user is following this profile
+    String _followStatus = "Follow";
     return Container(
       width: screenWidth/1.4,
       child: Row(
@@ -184,7 +193,6 @@ class ProfileScreen extends StatelessWidget {
           Flexible(
             flex: 8,
             child: Container(
-              // width: 175,
               height: 45,
               decoration: BoxDecoration(
                 color: _appTheme.mainColor,
@@ -199,7 +207,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  "Follow",
+                  _followStatus,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
@@ -234,7 +242,7 @@ class ProfileScreen extends StatelessWidget {
                   width: 80,
                   margin: EdgeInsets.symmetric(horizontal: 13),
                   child: Text(
-                    user.getFollowing.length.toString(),
+                    user.following.length.toString(),
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 23),
                   ),
@@ -266,7 +274,7 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 13),
                 child: Text(
-                  user.getFollowers.length.toString(),
+                  user.followers.length.toString(),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 23),
                 ),
@@ -300,7 +308,7 @@ class ProfileScreen extends StatelessWidget {
                   width: 80,
                   margin: EdgeInsets.symmetric(horizontal: 13),
                   child: Text(
-                    user.getEvents.length.toString(),
+                    user.events.hosted.length.toString(),
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 23),
                   ),
