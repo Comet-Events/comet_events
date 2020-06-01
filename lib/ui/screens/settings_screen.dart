@@ -1,5 +1,7 @@
+import 'package:comet_events/core/models/settings_model.dart';
 import 'package:comet_events/core/services/auth.dart';
 import 'package:comet_events/ui/theme/theme.dart';
+import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
 
@@ -36,76 +38,79 @@ class SettingsScreen extends StatelessWidget {
         // title: Text("Settings", textAlign: TextAlign.left,),
         // title: Hero(tag: "logo", child: Image.asset("assets/images/logo.png"))
       ),
-      body: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          SingleChildScrollView(
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[ 
-                      SettingCategory(
-                        categoryIcon: Icons.person_outline,
-                        categoryTitle: "Account",
-                        settings: <Widget>[
-                          RegularSetting(
-                            title: "Edit Account",
-                            callback: () {print("clicked on edit account");},
-                          ),
-                          RegularSetting(
-                            title: "Reset Password",
-                            callback: () {print("clicked on reset password");},
-                          ),
-                          RegularSetting(
-                            title: "Clear Cache",
-                            callback: () {print("cleared cache");},
-                          ),
-                          RegularSetting(
-                            title: "Sign Out",
-                            special: true,
-                            callback: _auth.signOut,
-                          ),
-                        ],
-                      ),
-                      SettingCategory(
-                        categoryIcon: Icons.format_paint,
-                        categoryTitle: "Appearance",
-                        settings: <Widget>[
-                          IOSetting(
-                            title: "Dark Theme",
-                            defaultValue: Theme.of(context).brightness == Brightness.dark,
-                            onCallback: () {locator<CometThemeManager>().changeToDark();},
-                            offCallback: () {locator<CometThemeManager>().changeToLight();}
-                          ),
-                        ],
-                      ),
-                      SettingCategory(
-                        categoryIcon: Icons.location_on,
-                        categoryTitle: "Location",
-                        settings: <Widget>[
-                          IOSetting(
-                            title: "Current Location",
-                            defaultValue: false,
-                            onCallback: () {print("it is on");},
-                            offCallback: () {print("it is off");}
-                          ),
-                        ],
-                      ),
-                    ]
-                  ),
-                  SizedBox(height: 30),
-                  Image.asset('assets/images/logo-purp.png', height: 100, width: 100,)
-                ],
+      body: UserViewModelBuilder<SettingsModel>.reactive(
+        userViewModelBuilder: () => SettingsModel(),
+        builder: (context, model, user, _) => Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            SingleChildScrollView(
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[ 
+                        SettingCategory(
+                          categoryIcon: Icons.person_outline,
+                          categoryTitle: "Account",
+                          settings: <Widget>[
+                            RegularSetting(
+                              title: "Edit Account",
+                              callback: model.editAccount,
+                            ),
+                            RegularSetting(
+                              title: "Reset Password",
+                              callback: model.resetPassword,
+                            ),
+                            RegularSetting(
+                              title: "Clear Cache",
+                              callback: model.clearCache,
+                            ),
+                            RegularSetting(
+                              title: "Sign Out",
+                              special: true,
+                              callback: model.signOut,
+                            ),
+                          ],
+                        ),
+                        SettingCategory(
+                          categoryIcon: Icons.format_paint,
+                          categoryTitle: "Appearance",
+                          settings: <Widget>[
+                            IOSetting(
+                              title: "Dark Theme",
+                              defaultValue: Theme.of(context).brightness == Brightness.dark,
+                              onCallback: model.darkThemeOn,
+                              offCallback: () {locator<CometThemeManager>().changeToLight();}
+                            ),
+                          ],
+                        ),
+                        SettingCategory(
+                          categoryIcon: Icons.location_on,
+                          categoryTitle: "Location",
+                          settings: <Widget>[
+                            IOSetting(
+                              title: "Current Location",
+                              defaultValue: false,
+                              onCallback: () {print("it is on");},
+                              offCallback: () {print("it is off");}
+                            ),
+                          ],
+                        ),
+                      ]
+                    ),
+                    SizedBox(height: 30),
+                    Image.asset('assets/images/logo-purp.png', height: 100, width: 100,)
+                  ],
+                ),
               ),
             ),
-          ),
-        ]
+          ]
+        ),
       )
     );
   }
