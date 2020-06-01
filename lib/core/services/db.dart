@@ -6,7 +6,11 @@ class DatabaseService {
   final Firestore db = Firestore.instance;
 
   // * ----- Collections -----
-  CollectionReference get users => db.collection('/users');
-  CollectionReference get events => db.collection('/events');
+  CollectionReference get usersCollection => db.collection('/users');
+  CollectionReference get eventsCollection => db.collection('/events');
 
+  // * ----- ~~~~~~~ Streams uwu wavey ~~~~~~~~ -----
+  Stream<QuerySnapshot> get users => usersCollection.snapshots();
+  Stream<QuerySnapshot> get events => eventsCollection.snapshots();
+  
 }
