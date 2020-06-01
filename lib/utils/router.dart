@@ -1,4 +1,5 @@
 import 'package:comet_events/ui/screens/screens.dart';
+import 'package:comet_events/ui/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
@@ -21,6 +22,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => AuthScreen());
     case Routes.home:
       return MaterialPageRoute(builder: (context) => HomeScreen());
+    case Routes.settings:
+      return MaterialPageRoute(builder: (context) => SettingsScreen());
 
     // ! in the case there is an invalid path entered
     default: 
