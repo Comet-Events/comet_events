@@ -28,7 +28,6 @@ class RegisterBlockModel extends AuthModel {
     if(!nameCheck()) return;
     if(!emailCheck()) return;
     if(!passwordCheck()) return;
-    print(_first.text);
     AuthResponse response = await _auth.registerWithEmailandPassword(email.text, password.text);
     if(response.user == null && response.exception != null) {
       showExceptionSnackbar(
@@ -61,8 +60,6 @@ class RegisterBlockModel extends AuthModel {
       );
       return;
     }
-    // success
-    moveToHome();
   }
 
   // * ----- Utilities -----
