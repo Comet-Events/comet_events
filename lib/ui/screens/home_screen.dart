@@ -225,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }).toList(),
         options: CarouselOptions(
-          height: MediaQuery.of(context).size.height*0.12,
+          height: MediaQuery.of(context).size.height*0.13,
           autoPlay: false
         ),      
       ),
@@ -251,8 +251,8 @@ class MapState extends State<Map> {
   }
 
   static final CameraPosition _kHome = CameraPosition(
-    //target: LatLng(29.722151, -95.389622),
-    target: LatLng(-50.606805, 165.972134),
+    target: LatLng(29.722151, -95.389622),
+    //target: LatLng(-50.606805, 165.972134),
     zoom: 14.4746,
   );
 
@@ -271,7 +271,7 @@ class MapState extends State<Map> {
               },
             ),
             Positioned(
-              top: 100,
+              top: MediaQuery.of(context).size.height * 0.12 + 5,
               left: MediaQuery.of(context).size.width * 0.05,
               child: SearchMapPlaceWidget(
                 darkMode: true,
