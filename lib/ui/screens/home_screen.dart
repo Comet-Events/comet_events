@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:comet_events/core/models/home_model.dart';
 import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/ui/theme/theme.dart';
+import 'package:comet_events/ui/widgets/event_tile.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:search_map_place/search_map_place.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:carousel_slider/carousel_slider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,6 +22,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   bool _state = false;
+  List<EventTile> events = [
+    EventTile(imageURL: 'https://picsum.photos/200',
+     title: 'Fwood Pwarty', date: 'January 9, 1876', category: 'Food', tags: ['Fun', 'Cool', 'Fresh'], description: 'Free buffet for all'),
+    EventTile(imageURL: 'https://picsum.photos/200', title: "Neha's the best", date: 'Everyday', category: 'Relegious', tags: ['True', 'Words', 'to' ,'Live', 'By'], description: 'Rare chance to hangout wiht the best person on earth!'),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -51,47 +58,13 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           ),
           backgroundColor: locator<CometThemeManager>().theme.secondaryMono,
-          // body: Center(
-          //   // Center is a layout widget. It takes a single child and positions it
-          //   // in the middle of the parent.
-          //   child: Column(
-          //     mainAxisAlignment: MainAxisAlignment.center,
-          //     children: <Widget>[
-          //       Switch(
-          //         value: _state, 
-          //         onChanged: (bool) {
-          //           if(bool == false) locator<CometThemeManager>().changeToDark();
-          //           else locator<CometThemeManager>().changeToLight();
-
-          //           setState(() {
-          //             _state = !_state;
-          //           });
-          //         }
-          //       ),
-          //       Text(
-          //         'You have pushed the button this many times:',
-          //       ),
-          //       Text(
-          //         '${model.count}',
-          //         style: Theme.of(context).textTheme.display1,
-          //       ),
-          //       FlatButton(
-          //         onPressed: model.increment,
-          //         child: Text('increment')
-          //       ),
-          //       FlatButton(
-          //         onPressed: model.signOut,
-          //         child: Text('sign out')
-          //       ),
-          //     ],
-          //   ),
-          // ),
       ),
     );
   }
 
   Widget topAppBar(){
     return Container(
+      height: MediaQuery.of(context).size.height*0.12,
       padding: EdgeInsets.fromLTRB(15, 40, 30, 5),
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
@@ -122,28 +95,20 @@ class _HomeScreenState extends State<HomeScreen> {
       )
     );
   }
-
-  Widget searchBar(){
-    return Scaffold(
-      body: Center(
-        child: SearchMapPlaceWidget(
-          apiKey: "AIzaSyCsCCifR33W3czEgjQttCs4sMA825zMvhc"
-        )
-      )
-  );
-  }
   
   Widget bottomAppBar(){
     return Stack(
       overflow: Overflow.visible,
+      alignment: Alignment.topCenter,
       children: <Widget>[
         Container(
+          height: MediaQuery.of(context).size.height*0.10,
           decoration: BoxDecoration(
             color: locator<CometThemeManager>().theme.mainMono,
             borderRadius: BorderRadius.circular(20.0),
           ),
           margin: EdgeInsets.fromLTRB(5, 0, 5, 5),
-          padding: EdgeInsets.fromLTRB(50, 10, 50, 10),
+          padding: EdgeInsets.fromLTRB(60, 5, 60, 5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -151,15 +116,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: (){},
                 child: Column(
                   children: <Widget>[
-                    Icon(
-                      Icons.people,
-                      size: 50,
-                      color: locator<CometThemeManager>().theme.mainColor,
+                    Stack(
+                      children: <Widget>[
+                        Positioned(
+                          top: 2.0,
+                          left: 2.0,
+                          child: Icon(
+                            Icons.people,
+                            size: 50,
+                            color: Colors.black26,
+                          ),
+                        ),
+                        Icon(Icons.people, size: 50,color: locator<CometThemeManager>().theme.mainColor )
+                      ],
                     ),
-                    Text(
-                      'Fwends',
-                      style: TextStyle(color: locator<CometThemeManager>().theme.mainColor)
-                    )
+                    Text('Fwends', style: TextStyle(color: locator<CometThemeManager>().theme.mainColor)),
                   ],
                 ),
               ),
@@ -167,39 +138,53 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: (){},
                 child: Column(
                   children: <Widget>[
-                    Icon(
-                      Icons.people,
-                      size: 50,
-                      color: locator<CometThemeManager>().theme.mainColor,
+                    Stack(
+                      children: <Widget>[
+                        Positioned(
+                          top: 2.0,
+                          left: 2.0,
+                          child: Icon(
+                            Icons.message,
+                            size: 50,
+                            color: Colors.black26,
+                          ),
+                        ),
+                        Icon(Icons.message, size: 50,color: locator<CometThemeManager>().theme.mainColor )
+                      ],
                     ),
-                    Text(
-                      'Mwessages',
-                      style: TextStyle(color: locator<CometThemeManager>().theme.mainColor)
-                    )
+                    Text('Mwessages', style: TextStyle(color: locator<CometThemeManager>().theme.mainColor)),
                   ],
                 ),
               )
             ],
           )
         ), 
-        Center(
-          child: Positioned(
-            top: -20,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: locator<CometThemeManager>().theme.mainColor
+        Positioned(
+          top: -20,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [locator<CometThemeManager>().theme.mainColor, CometThemeManager.mainColorDark]
               ),
-              child: GestureDetector(
-                //add event
-                onTap: (){},
-                child: Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 65
-                ),
-              )
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3)
+                )
+              ]
             ),
+            child: GestureDetector(
+              //add event
+              onTap: (){},
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+                size: 65
+              ),
+            )
           ),
         )
       ],
@@ -220,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 2.0
           )
         ),
-        child: Icon( Icons.list, color: locator<CometThemeManager>().theme.mainColor, size: 30 )
+        child: Icon(Icons.filter_list, color: locator<CometThemeManager>().theme.mainColor, size: 30 )
       )
     );
   }
@@ -229,22 +214,18 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       margin: EdgeInsets.only(bottom: 30),
       child: CarouselSlider(
-        items: [1,2,3,4,5].map((i) {
+        items: events.map((i) {
           return Builder(
             builder: (BuildContext context) {
-              return Container(
-                width: MediaQuery.of(context).size.width,
-                margin: EdgeInsets.symmetric(horizontal: 5.0),
-                decoration: BoxDecoration(
-                  color: locator<CometThemeManager>().theme.mainMono
-                ),
-                child: Text('text $i', style: TextStyle(fontSize: 16.0),)
+              return Padding(
+                child: i,
+                padding: EdgeInsets.symmetric(horizontal: 3),
               );
             },
           );
         }).toList(),
         options: CarouselOptions(
-          height: 80,
+          height: MediaQuery.of(context).size.height*0.12,
           autoPlay: false
         ),      
       ),
@@ -256,32 +237,55 @@ class Map extends StatefulWidget {
   @override
   State<Map> createState() => MapState();
 }
+
 class MapState extends State<Map> {
-  
+  String _mapStyle;
   Completer<GoogleMapController> _controller = Completer();
 
-  static final CameraPosition _kGooglePlex = CameraPosition(
+  @override
+  void initState() {
+    super.initState();
+    rootBundle.loadString('assets/map_style.txt').then((string) {
+      _mapStyle = string;
+    });
+  }
+
+  static final CameraPosition _kHome = CameraPosition(
+    //target: LatLng(29.722151, -95.389622),
     target: LatLng(-50.606805, 165.972134),
     zoom: 14.4746,
-  );
-
-  static final CameraPosition _kLake = CameraPosition(
-    bearing: 192.8334901395799,
-    target: LatLng(-50.606805, 165.972134),
-    tilt: 59.440717697143555,
-    zoom: 19.151926040649414
   );
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: GoogleMap(
-        mapType: MapType.hybrid,
-        initialCameraPosition: _kGooglePlex,
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-      ),
+      resizeToAvoidBottomPadding: false,
+      body:
+        Stack(
+          children: <Widget>[
+            GoogleMap(
+              initialCameraPosition: _kHome,
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+                controller.setMapStyle(_mapStyle);
+              },
+            ),
+            Positioned(
+              top: 100,
+              left: MediaQuery.of(context).size.width * 0.05,
+              child: SearchMapPlaceWidget(
+                darkMode: true,
+                apiKey: Theme.of(context).platform == TargetPlatform.iOS ? "AIzaSyDgldMROs1VzrXoEiCfurKutmOps1sJR-8" : "AIzaSyAeD2KtPAnoJJXvINv6ZYUzLvmZTff406M",
+                onSelected: (place) async {
+                  final geolocation = await place.geolocation;
+                  final GoogleMapController controller = await _controller.future;
+                  controller.animateCamera(CameraUpdate.newLatLng(geolocation.coordinates));
+                  controller.animateCamera(CameraUpdate.newLatLngBounds(geolocation.bounds, 0));
+                },
+              ),
+            ),
+          ],
+        )
     );
-  }
+  }  
 }
