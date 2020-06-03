@@ -13,6 +13,7 @@ setupLocator() {
   locator.registerLazySingleton(() => DatabaseService());
   locator.registerLazySingleton(() => UserService());
   locator.registerLazySingleton(() => EventService());
+  locator.registerLazySingleton(() => GeoService());
   /// stacked services
   locator.registerLazySingleton(() => NavigationService());
   locator.registerLazySingleton(() => SnackbarService());

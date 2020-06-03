@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Event {
   String name;
   String description;
+  List<String> instructions;
   String host;
   bool active;
   Dates dates;
@@ -13,6 +16,7 @@ class Event {
   Event(
       {this.name,
       this.description,
+      this.instructions,
       this.host,
       this.active,
       this.dates,
@@ -23,12 +27,13 @@ class Event {
       this.settings});
 
   Event.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    description = json['description'];
+    name = json['name'] ?? "Untitled Event";
+    description = json['description'] ?? "This event has no description...";
+    instructions = json['instructions'].cast<String>() ?? [];
     host = json['host'];
-    active = json['active'];
+    active = json['active'] ?? true;
     dates = json['dates'] != null ? new Dates.fromJson(json['dates']) : null;
-    tags = json['tags'].cast<String>();
+    tags = json['tags'].cast<String>() ?? [];
     category = json['category'];
     stats = json['stats'] != null ? new Stats.fromJson(json['stats']) : null;
     location = json['location'] != null
@@ -64,16 +69,16 @@ class Event {
 }
 
 class Dates {
-  String premiere;
-  String start;
-  String end;
+  Timestamp premiere;
+  Timestamp start;
+  Timestamp end;
 
   Dates({this.premiere, this.start, this.end});
 
   Dates.fromJson(Map<String, dynamic> json) {
-    premiere = json['premiere'];
-    start = json['start'];
-    end = json['end'];
+    premiere = json['premiere'] as Timestamp;
+    start = json['start'] as Timestamp;
+    end = json['end'] as Timestamp;
   }
 
   Map<String, dynamic> toJson() {
@@ -92,14 +97,14 @@ class Stats {
   Stats({this.rsvps, this.likes});
 
   Stats.fromJson(Map<String, dynamic> json) {
-    rsvps = json['rsvps'].cast<String>();
-    likes = json['likes'].cast<String>();
+    rsvps = json['rsvps'].cast<String>() ?? [];
+    likes = json['likes'].cast<String>() ?? [];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['rsvps'] = this.rsvps;
-    data['likes'] = this.likes;
+    data['rsvps'] = this.rsvps ?? [];
+    data['likes'] = this.likes ?? [];
     return data;
   }
 }
@@ -130,13 +135,13 @@ class Location {
 
 class Geo {
   String geohash;
-  List<int> geopoint;
+  GeoPoint geopoint;
 
   Geo({this.geohash, this.geopoint});
 
   Geo.fromJson(Map<String, dynamic> json) {
     geohash = json['geohash'];
-    geopoint = json['geopoint'].cast<int>();
+    geopoint = json['geopoint'] as GeoPoint;
   }
 
   Map<String, dynamic> toJson() {

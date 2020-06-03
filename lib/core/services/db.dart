@@ -9,7 +9,7 @@ class DatabaseService {
   CollectionReference get usersCollection => db.collection('/users');
   CollectionReference get eventsCollection => db.collection('/events');
 
-  // * ----- ~~~~~~~ Streams uwu wavey ~~~~~~~~ -----
+  // * ----- ~~~~~~~ streams uwu wavey ~~~~~~~~ -----
   Stream<QuerySnapshot> get users => usersCollection.snapshots();
   Stream<QuerySnapshot> get events => eventsCollection.snapshots();
   
