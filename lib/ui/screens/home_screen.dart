@@ -179,7 +179,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   Row _searchWidget() {
     return Row(
       children: <Widget>[

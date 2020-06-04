@@ -50,7 +50,7 @@ class CometSubmitButton extends StatelessWidget {
           ),
         ),
       ),
-        );
+    );
   }
 }
 class CometIconButton extends StatelessWidget {

@@ -1,4 +1,5 @@
 import 'package:comet_events/ui/screens/auth_screen.dart';
+import 'package:comet_events/ui/screens/filter_screen.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:comet_events/utils/router.dart';
@@ -48,12 +49,12 @@ class CometEvents extends StatelessWidget {
               theme: manager.theme.themeData,
               // ROUTING
               onGenerateRoute: generateRoute,
-              initialRoute: Routes.auth,
+              //initialRoute: Routes.auth,
               // ^ comment this out when testing
               navigatorKey: locator<NavigationService>().navigatorKey,
               /// ! ROUTING FOR TESTING
               /// When testing a screen, you can comment out the 'initialRoute' param, and use 'home' instead:
-              // home: AuthScreen()
+              home: FilterScreen()
             ),
           );
         }
