@@ -58,6 +58,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: model.signOut,
                   child: Text('sign out')
                 ),
+                Hero(
+                  tag: 'backdrop',
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.purple,
+                    ),
+                  ),
+                )
               ],
             ),
           ),
