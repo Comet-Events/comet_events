@@ -1,60 +1,55 @@
+import 'dart:ui';
+
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/comet_buttons.dart';
 import 'package:comet_events/ui/widgets/event_tile.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_tags/flutter_tags.dart';
 
-class FilterScreen extends StatefulWidget {
-  @override
-  _FilterScreenState createState() => _FilterScreenState();
-}
-class _FilterScreenState extends State<FilterScreen> {
-
-  CometThemeData _appTheme = locator<CometThemeManager>().theme;
+class FilterScreen extends StatelessWidget{
+  final CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _appTheme.secondaryMono,
-      appBar: AppBar(
-        backgroundColor: _appTheme.secondaryMono,
-        elevation: 0.0,
-        titleSpacing: 25.0,
-        title: Text(
-          'Filters',
-          textAlign: TextAlign.left,
-          style: TextStyle(
-            fontSize: 35,
-            shadows: [
-              Shadow(
-                color: Colors.black38,
-                offset: Offset(1,3)
-              )
-            ]
-          )
-        ),
-      ),
-      body: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric( horizontal: 25 ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                horizontalLine(),
-                DistanceRadiusFilter(min: 0, max: 200),
-                horizontalLine(),
-                TimeFilter(),
-                horizontalLine(),
-                CategoriesFilter(),
-                horizontalLine(),
-                TagsFilter(),
-                horizontalLine(),
-                filterChanges(),
-              ],
+      body: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: SafeArea(
+          bottom: false,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric( horizontal: 25 ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                   Text(
+                    'Filters',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 35,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black38,
+                          offset: Offset(1,3)
+                        )
+                      ]
+                    )
+                  ),
+                  horizontalLine(context),
+                  DistanceRadiusFilter(min: 0, max: 200),
+                  horizontalLine(context),
+                  TimeFilter(),
+                  horizontalLine(context),
+                  categoriesSection(),
+                  horizontalLine(context),
+                  tagsSection(),
+                  horizontalLine(context),
+                  filterChanges(),
+                ],
+              ),
             ),
           ),
         ),
@@ -62,7 +57,7 @@ class _FilterScreenState extends State<FilterScreen> {
     );
   }
 
-  Widget horizontalLine(){
+  Widget horizontalLine(BuildContext context){
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 25),
@@ -121,6 +116,57 @@ class _FilterScreenState extends State<FilterScreen> {
     );
   }
 
+  Column tagsSection(){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Text(
+              'Tags',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontSize: 22,
+                shadows: [Shadow( color: Colors.black26, offset: Offset(1,3))]
+              )
+            ),
+            // SearchBar<TagChip>(
+            //   onSearch: search,
+            //   onItemFound: (TagChip tag, int index) {
+            //     return ListTile(
+            //       title: Text(tag.title),
+            //     );
+            //   },
+            // ),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: ChipsFilter(title: "Tags"),
+        )
+      ],
+    );
+  }
+
+  Column categoriesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          'Categories',
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontSize: 22,
+            shadows: [Shadow( color: Colors.black26, offset: Offset(1,3))]
+          )
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 20),
+          child: ChipsFilter(title: "Categories", categories: true)
+        )
+      ],
+    );
+  }
 }
 
   class DistanceRadiusFilter extends StatefulWidget {
@@ -140,62 +186,74 @@ class _FilterScreenState extends State<FilterScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text(
-                'Distance Radius',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 22,
-                  shadows: [
-                    Shadow( color: Colors.black26, offset: Offset(1,3))
-                  ]
-                )
-              ),
-              Text(
-                showNewVal ? '${radius.toStringAsFixed(1)} mi' : '',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: CometThemeManager.lighten(locator<CometThemeManager>().theme.mainColor)
-                )
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only( top: 60 ),
-            child: Slider.adaptive(
-              value: radius,
-              onChanged: (newRadius){
-                setState(() => radius = newRadius );
-              },
-              onChangeEnd: (newRadius){
-                setState(() => radius = newRadius );
-                radius == widget.min ? showNewVal = false : showNewVal = true;
-              },
-              min: widget.min,
-              max: widget.max,
-              divisions: 100,
-              label: "${radius.toStringAsFixed(1)} m",
-              activeColor: locator<CometThemeManager>().theme.mainColor,
-              inactiveColor: locator<CometThemeManager>().theme.mainMono,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text('${widget.min} miles',
-                  style: TextStyle(color: CometThemeManager.darken(locator<CometThemeManager>().theme.opposite))
-                ),
-                Text('${widget.max} miles',
-                  style: TextStyle(color: CometThemeManager.darken(locator<CometThemeManager>().theme.opposite))
-                )
-              ],
-            ),
-          )
+          sectionHeader(),
+          distanceSlider(),
+          sliderLabels()
         ],
+      );
+    }
+
+    Row sectionHeader(){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            'Distance Radius',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: 22,
+              shadows: [
+                Shadow( color: Colors.black26, offset: Offset(1,3))
+              ]
+            )
+          ),
+          Text(
+            showNewVal ? '${radius.toStringAsFixed(1)} mi' : '',
+            style: TextStyle(
+              fontSize: 20,
+              color: CometThemeManager.lighten(locator<CometThemeManager>().theme.mainColor)
+            )
+          ),
+        ],
+      );
+    }
+    
+    Widget distanceSlider(){
+      return Padding(
+        padding: const EdgeInsets.only( top: 60 ),
+        child: Slider.adaptive(
+          value: radius,
+          onChanged: (newRadius){
+            setState(() => radius = newRadius );
+          },
+          onChangeEnd: (newRadius){
+            setState(() => radius = newRadius );
+            radius == widget.min ? showNewVal = false : showNewVal = true;
+          },
+          min: widget.min,
+          max: widget.max,
+          divisions: 100,
+          label: "${radius.toStringAsFixed(1)} m",
+          activeColor: locator<CometThemeManager>().theme.mainColor,
+          inactiveColor: locator<CometThemeManager>().theme.mainMono,
+        ),
+      );
+    }
+
+    Widget sliderLabels(){
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text('${widget.min} miles',
+              style: TextStyle(color: CometThemeManager.darken(locator<CometThemeManager>().theme.opposite))
+            ),
+            Text('${widget.max} miles',
+              style: TextStyle(color: CometThemeManager.darken(locator<CometThemeManager>().theme.opposite))
+            )
+          ],
+        ),
       );
     }
   }
@@ -207,8 +265,14 @@ class _FilterScreenState extends State<FilterScreen> {
   class _TimeFilterState extends State<TimeFilter> {
     
     Color labelTextColor = CometThemeManager.lighten(locator<CometThemeManager>().theme.secondaryMono);
-    DateTime fromTime = DateTime.now();
-    DateTime toTime = DateTime.now().add(Duration(hours: 4));
+    
+    DateTime now = DateTime.now();
+    
+    DateTime fromDate = DateTime.now();
+    TimeOfDay fromTime = TimeOfDay.now();
+
+    DateTime toDate = DateTime.now().add(Duration(days: 1));
+    TimeOfDay toTime = TimeOfDay.now();
 
     @override
     Widget build(BuildContext context) {
@@ -225,31 +289,14 @@ class _FilterScreenState extends State<FilterScreen> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text('From', style: TextStyle(color: labelTextColor)),
-                    customDateTimePicker(
-                      fromTime,
-                      fromTime.add(Duration(days: 2)), 
-                      fromTime,
-                    )
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text('To', style: TextStyle(color: labelTextColor)),
-                    customDateTimePicker(
-                      toTime,
-                      toTime.add(Duration(days: 2)), 
-                      toTime,
-                    )
-                  ],
-                )
+                Text('From', style: TextStyle(color: labelTextColor)),
+                fromDateTime(),
+                SizedBox(height: 10),
+                Text('To', style: TextStyle(color: labelTextColor)),
+                toDateTime()
               ],
             ),
           ),
@@ -277,148 +324,257 @@ class _FilterScreenState extends State<FilterScreen> {
     }
     
     String showRelativeWeekday(int weekday){
-      if( weekday == DateTime.now().weekday )
+      if( weekday == now.weekday )
         return 'Today';
-      else if( weekday == DateTime.now().weekday+1)
+      else if( weekday == now.weekday+1)
         return 'Tomorrow';
       else
         return showWeekday(weekday);
     }
 
-    FlatButton customDateTimePicker(DateTime min, DateTime max, DateTime displayTime){
-      return  FlatButton(
-        onPressed: () {
-          DatePicker.showDateTimePicker(context,
-            showTitleActions: true,
-            minTime: min,
-            maxTime: max,
-            onConfirm: (newTime){
-              setState(() => displayTime = newTime);
-            },
-            theme: DatePickerTheme(
-              backgroundColor: locator<CometThemeManager>().theme.mainMono,
-              headerColor: locator<CometThemeManager>().theme.secondaryMono,
-              itemStyle: TextStyle( color: locator<CometThemeManager>().theme.opposite),
-              cancelStyle: TextStyle( color: locator<CometThemeManager>().theme.opposite),
-              doneStyle: TextStyle(
-                color: CometThemeManager.lighten(locator<CometThemeManager>().theme.mainColor),
-                fontSize: 20
-              )
-            )
+    String getMonth(int month){
+      switch (month) {
+        case 1:
+          return 'January';
+        case 2:
+          return 'February';
+        case 3:
+          return 'March';
+        case 4:
+          return 'April';
+        case 5:
+          return 'May';
+        case 6:
+          return 'June';
+        case 7:
+          return 'July';
+        case 8:
+          return 'August';
+        case 9:
+          return 'September';
+        case 10:
+          return 'October';
+        case 11:
+          return 'November';
+        default:
+          return 'December';
+      }
+    }
+
+    Future selectFromDate() async {
+      DateTime pickedDate = await showDatePicker(
+        context: context,
+        initialDate: fromDate == null ? now : fromDate,
+        firstDate: now,
+        lastDate: now.add(Duration(days: 2))
+      );
+
+      if( pickedDate != null )
+        setState((){fromDate = pickedDate;});
+    }
+
+    Future selectToDate() async {
+      DateTime pickedDate = await showDatePicker(
+        context: context,
+        initialDate: toDate,
+        firstDate: now,
+        lastDate: now.add(Duration(days: 2))
+      );
+
+      if( pickedDate != null )
+        setState((){toDate = pickedDate;});
+    }
+
+    Future selectFromTime() async{
+      TimeOfDay pickedTime = await showTimePicker(
+        context: context,
+        initialTime: fromTime
+      );
+
+      if( pickedTime != null)
+        setState((){fromTime = pickedTime;});
+    }
+
+    Future selectToTime() async{
+      TimeOfDay pickedTime = await showTimePicker(
+        context: context,
+        initialTime: toTime
+      );
+
+      if( pickedTime != null )
+        setState((){toTime = pickedTime;});
+    }
+  
+    Row fromDateTime(){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          FlatButton(
+            onPressed:(){selectFromDate();},
+            child: Text(
+              '${showRelativeWeekday(fromDate.weekday)}, ${getMonth(fromDate.month)} ${fromDate.day}',
+              style: TextStyle(fontSize: 18)
+            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
+            color: locator<CometThemeManager>().theme.mainMono,
+          ),
+          FlatButton(
+            onPressed:(){selectFromTime();},
+            child: Text(
+              '${fromTime.format(context)}',
+              style: TextStyle(fontSize: 18)
+            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
+            color: locator<CometThemeManager>().theme.mainMono,
+          ),
+        ],
+      );
+    }
+  
+    Row toDateTime(){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          FlatButton(
+            onPressed:(){selectToDate();},
+            child: Text(
+              '${showRelativeWeekday(toDate.weekday)}, ${getMonth(toDate.month)} ${toDate.day}',
+              style: TextStyle(fontSize: 18)
+            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
+            color: locator<CometThemeManager>().theme.mainMono,
+          ),
+          FlatButton(
+            onPressed:(){selectToTime();},
+            child: Text(
+              '${toTime.format(context)}',
+              style: TextStyle(fontSize: 18)
+            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
+            color: locator<CometThemeManager>().theme.mainMono,
+          ),
+        ],
+      );
+    }
+  }
+
+  class ChipsFilter extends StatefulWidget {
+    final String title;
+    final bool categories;
+
+    ChipsFilter({Key key,
+     this.title,
+     this.categories = false
+    }) : super(key: key);
+
+    @override
+    _ChipsFilterState createState() => _ChipsFilterState();
+  }
+  class _ChipsFilterState extends State<ChipsFilter> {
+    bool showSuggestions = true;
+    double fontSize = 18;
+    List displayItems = [];
+    List allItems = [
+      'Education',
+      'Active',
+      'Social',
+      'Religious',
+      'Food',
+      'Protest'
+    ];
+    //here, displayItems is the list of all tags that are being shown on the screen
+    //allItems is intended to be the list of all existing tags or categories in the db
+    //there should be no tags showing until the user adds them
+
+    final CometThemeData _appTheme = locator<CometThemeManager>().theme;
+
+    @override
+    void initState(){
+      super.initState();
+      if( widget.categories )
+        displayItems = allItems.toList();
+    }
+
+    @override
+    Widget build(BuildContext context) {
+      return Center(
+         child: _tagsList
+      );
+    }
+
+    Widget get _tagsList{
+      return Tags(
+        key: Key("2"),
+        symmetry: false,
+        columns: 0,
+        textField: widget.categories ? null :
+          TagsTextField(
+            duplicates: false,
+            autofocus: false,
+            lowerCase: true,
+            textStyle: TextStyle(fontSize: 18),
+            suggestionTextColor: _appTheme.mainColor,
+            //this should eventually suggest the contents of allItems
+            suggestions: showSuggestions ? [
+              "brunch",
+              "casual",
+              "workshop",
+              "dance",
+              "afro jazz"
+            ] : null,
+          //when they search a tag, add it to the displaying tags,
+          //if it doesn't already exist, also add it to the db
+          onSubmitted: (String str){
+            setState((){
+              displayItems.add(str);
+              allItems.contains(str) ? null : allItems.add(str);
+            });
+          }
+        ),
+        itemCount: displayItems.length,
+        itemBuilder: (index){
+          final item = displayItems[index];
+
+          return GestureDetector(
+            child: ItemTags(
+              key: Key(index.toString()),
+              index: index,
+              title: item,
+              pressEnabled: false,
+              //TO DO: change this so that the active color is white if
+              //a pre-existing tag is selected and purple if the user creates a new tag
+              activeColor: widget.categories ? 
+                _appTheme.mainColor.withOpacity(0.25) :             
+                _appTheme.themeData.brightness == Brightness.dark ? Colors.white.withOpacity(0.25) : Colors.black.withOpacity(0.25),
+              border: Border.all(
+                width: 1,
+                color: widget.categories ? 
+                  _appTheme.mainColor :
+                  _appTheme.themeData.brightness == Brightness.dark ? Colors.white : Colors.black,
+              ),
+              borderRadius: BorderRadius.all(Radius.circular(30)),
+              combine: ItemTagsCombine.onlyText,
+              removeButton: widget.categories ? null : 
+                ItemTagsRemoveButton(
+                  color: _appTheme.secondaryMono,
+                  backgroundColor: _appTheme.themeData.brightness == Brightness.dark ?
+                    Colors.white.withOpacity(0.8) : Colors.black.withOpacity(0.8),
+                  onRemoved: (){
+                    setState((){
+                      displayItems.removeAt(index);
+                    });
+                  }
+                ),
+              textStyle: TextStyle(
+                color: widget.categories ?
+                  _appTheme.mainColor :
+                  _appTheme.opposite,
+                fontSize: 18
+              ),
+            ),
           );
         },
-        child: Text(
-          '${showRelativeWeekday(displayTime.weekday)}, ${displayTime.hour}:${displayTime.minute}',
-          style: TextStyle(fontSize: 18)
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
-        color: locator<CometThemeManager>().theme.mainMono,
       );
     }
-  }
-
-  class CategoriesFilter extends StatefulWidget {
-    @override
-    _CategoriesFilterState createState() => _CategoriesFilterState();
-  }
-  class _CategoriesFilterState extends State<CategoriesFilter> {
-    @override
-    Widget build(BuildContext context) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'Categories',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 22,
-              shadows: [Shadow( color: Colors.black26, offset: Offset(1,3))]
-            )
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              direction: Axis.horizontal,
-              runSpacing: 10.0,
-              spacing: 8.0,
-              children: <Widget>[
-                CategoryChip('Faith', scale: 2),
-                CategoryChip('Trust', scale: 2),
-                CategoryChip('and', scale: 2),
-                CategoryChip('Pixie', scale: 2),
-                CategoryChip('Dust', scale: 2),
-                CategoryChip('#TinkerBell', scale: 2),
-                CategoryChip('#Was', scale: 2),
-                CategoryChip('#Overrated', scale: 2),
-                CategoryChip('#TeamVidiaForLife', scale: 2)
-              ],
-            ),
-          )
-        ],
-      );
-    }
-  }
-
-  class TagsFilter extends StatefulWidget {
-    @override
-    _TagsFilterState createState() => _TagsFilterState();
-  }
-  class _TagsFilterState extends State<TagsFilter> {
-    @override
-    Widget build(BuildContext context) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Text(
-                'Tags',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 22,
-                  shadows: [Shadow( color: Colors.black26, offset: Offset(1,3))]
-                )
-              ),
-              SearchBar<TagChip>(
-                onSearch: search,
-                onItemFound: (TagChip tag, int index) {
-                  return ListTile(
-                    title: Text(tag.title),
-                  );
-                },
-              ),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 20),
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              direction: Axis.horizontal,
-              runSpacing: 10.0,
-              spacing: 8.0,
-              children: <Widget>[
-                TagChip('Pop it', scale: 2),
-                TagChip('Lock it', scale: 2),
-                TagChip('Polka dot it', scale: 2),
-                TagChip('Country fivin', scale: 2),
-                TagChip('Hip hop it', scale: 2),
-                TagChip('Put your hawk in the sky', scale: 2),
-                TagChip('Move side to side', scale: 2),
-                TagChip('Jump to the left', scale: 2),
-                TagChip('Stick it', scale: 2),
-                TagChip('Glide', scale: 2)
-              ],
-            ),
-          )
-        ],
-      );
-    }
-
-    Future<List<TagChip>> search(String search) async {
-      await Future.delayed(Duration(seconds: 2));
-      return List.generate(search.length, (int index) {
-        return TagChip("$search");
-      });
-    }
+  
   }

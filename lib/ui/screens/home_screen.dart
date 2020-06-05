@@ -9,6 +9,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'dart:async';
 
+import 'filter_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key,}) : super(key: key);
 
@@ -188,7 +190,9 @@ class _HomeScreenState extends State<HomeScreen> {
         // ),
         Spacer(),
         GestureDetector(
-          onTap: (){}, //go to filter page
+          onTap: (){
+            HomeModel().moveToFilterScreen();
+          }, //go to filter page
           child: Container(
             padding: EdgeInsets.all(10),
             margin: EdgeInsets.only(right: 10),

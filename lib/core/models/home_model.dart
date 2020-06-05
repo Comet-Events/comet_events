@@ -1,12 +1,15 @@
 import 'package:comet_events/core/models/base_model.dart';
 import 'package:comet_events/core/services/services.dart';
+import 'package:comet_events/ui/screens/filter_screen.dart';
 import 'package:comet_events/ui/widgets/event_tile.dart';
 import 'package:comet_events/utils/locator.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class HomeModel extends BaseModel {
 
   // * ----- Services -----
   AuthService _auth = locator<AuthService>();
+  NavigationService _navigation;
 
   // * ----- Variables -----
   List<EventTile> _events = [
@@ -24,6 +27,14 @@ class HomeModel extends BaseModel {
     _count++;
     // changeState(ViewState.Idle);
     notifyListeners();
+  }
+
+  moveToFilterScreen(){
+    _navigation.navigateWithTransition(
+      FilterScreen(),
+      opaque: false,
+      transition: NavigationTransition.Fade
+    );
   }
 
   signOut() {
