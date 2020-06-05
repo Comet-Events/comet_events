@@ -23,6 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  geoflutterfire: ^2.1.0
   # state management 
   stacked: ^1.5.0
   # routing
@@ -33,7 +34,7 @@ dependencies:
   firebase_core: ^0.4.0+9
   firebase_analytics: ^5.0.2
   firebase_auth: ^0.14.0+5
-  cloud_firestore: ^0.12.9+5
+  cloud_firestore: ^0.13.0+1
   google_sign_in: ^4.4.6
   # ui
   auto_size_text: ^2.1.0
