@@ -1,7 +1,9 @@
 import 'package:comet_events/core/models/add_event_model.dart';
+import 'package:comet_events/core/objects/Tag.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/comet_text_field.dart';
 import 'package:comet_events/ui/widgets/date_time.dart';
+import 'package:comet_events/ui/widgets/tag_category.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
@@ -181,25 +183,26 @@ class AddEventScreen extends StatelessWidget {
 
   Widget _tagBlock(BuildContext context, AddEventModel model) {
     return BlockContainer(
-      title: 'Dates & Times',
+      title: 'Categories & Tags',
       children: [
-        HourPickerRow(
-          hours: 12,
-          title: "Premiere (hours before start)",
-          onChange: (number) {print(number);},
+        CategoryPicker(
+          onChanged: (c, d) {},
+          maxChoices: 6,
+          categories: <Tag>[
+            Tag(name: 'education', popularity: 12, category: Category(category: true, iconCode: 0xe865)),
+            Tag(name: 'food', popularity: 12, category: Category(category: true, iconCode: 0xe865)),
+            Tag(name: 'fun', popularity: 12, category: Category(category: true, iconCode: 0xe865)),
+            Tag(name: 'party', popularity: 12, category: Category(category: true, iconCode: 0xe865)),
+            Tag(name: 'night', popularity: 12, category: Category(category: true, iconCode: 0xe865)),
+            Tag(name: 'day', popularity: 12, category: Category(category: true, iconCode: 0xe865)),
+            Tag(name: 'something', popularity: 12, category: Category(category: true, iconCode: 0xe865)),
+          ]
         ),
         SizedBox(height: 10),
-        DateTimeRow(
-          dateOnChange: (date) {}, 
-          timeOnChange: (time) {}, 
-          title: "Start"
+        TagPicker(
+          onChange: (list) {},
         ),
-        SizedBox(height: 10),
-        DateTimeRow(
-          dateOnChange: (date) {}, 
-          timeOnChange: (time) {}, 
-          title: "End"
-        ),
+        // SizedBox(height: 10),
       ],
     );
   }

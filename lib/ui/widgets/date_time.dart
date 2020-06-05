@@ -17,7 +17,7 @@ class SubBlockContainer extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(title, style: TextStyle(color: labelTextColor)),
+        Text(title, style: TextStyle(color: labelTextColor), overflow: TextOverflow.fade, maxLines: 4,),
         SizedBox(height: space),
         child
       ]
