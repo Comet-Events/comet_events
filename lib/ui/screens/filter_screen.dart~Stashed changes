@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/comet_buttons.dart';
 import 'package:comet_events/utils/locator.dart';
+import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 
@@ -114,7 +115,7 @@ class FilterScreen extends StatelessWidget{
         padding: const EdgeInsets.symmetric(vertical: 25),
         child: Container(
           color: _appTheme.secondaryMono,
-          height: 1,
+          height: 2.5,
           width: MediaQuery.of(context).size.width
         ),
       ),

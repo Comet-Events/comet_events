@@ -82,7 +82,7 @@ class CometThemeManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  // * ----- Utilities -----
+    // * ----- Utilities -----
   static Color darken(Color color, [double amount = .1]) {
     assert(amount >= 0 && amount <= 1);
 

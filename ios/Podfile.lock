@@ -302,6 +302,7 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 6.6)
     - PromisesObjC (~> 1.2)
   - Flutter (1.0.0)
+<<<<<<< HEAD
   - flutter_plugin_android_lifecycle (0.0.1):
     - Flutter
   - geoflutterfire (0.0.1):
@@ -309,6 +310,10 @@ PODS:
   - google_maps_flutter (0.0.1):
     - Flutter
     - GoogleMaps
+=======
+  - geoflutterfire (0.0.1):
+    - Flutter
+>>>>>>> develop
   - google_sign_in (0.0.1):
     - Flutter
     - GoogleSignIn (~> 5.0)
@@ -400,9 +405,13 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_core_web (from `.symlinks/plugins/firebase_core_web/ios`)
   - Flutter (from `Flutter`)
+<<<<<<< HEAD
   - flutter_plugin_android_lifecycle (from `.symlinks/plugins/flutter_plugin_android_lifecycle/ios`)
   - geoflutterfire (from `.symlinks/plugins/geoflutterfire/ios`)
   - google_maps_flutter (from `.symlinks/plugins/google_maps_flutter/ios`)
+=======
+  - geoflutterfire (from `.symlinks/plugins/geoflutterfire/ios`)
+>>>>>>> develop
   - google_sign_in (from `.symlinks/plugins/google_sign_in/ios`)
   - google_sign_in_web (from `.symlinks/plugins/google_sign_in_web/ios`)
 
@@ -449,12 +458,17 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_core_web/ios"
   Flutter:
     :path: Flutter
+<<<<<<< HEAD
   flutter_plugin_android_lifecycle:
     :path: ".symlinks/plugins/flutter_plugin_android_lifecycle/ios"
   geoflutterfire:
     :path: ".symlinks/plugins/geoflutterfire/ios"
   google_maps_flutter:
     :path: ".symlinks/plugins/google_maps_flutter/ios"
+=======
+  geoflutterfire:
+    :path: ".symlinks/plugins/geoflutterfire/ios"
+>>>>>>> develop
   google_sign_in:
     :path: ".symlinks/plugins/google_sign_in/ios"
   google_sign_in_web:
@@ -480,9 +494,13 @@ SPEC CHECKSUMS:
   FirebaseFirestore: deb7242803734c97376278698de097499cf5194f
   FirebaseInstallations: 2119fb3e46b0a88bfdbf12562f855ee3252462fa
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+<<<<<<< HEAD
   flutter_plugin_android_lifecycle: dc0b544e129eebb77a6bfb1239d4d1c673a60a35
   geoflutterfire: 2a6493e01fb6eef1a6c9046b1baf9a943d0c5ffe
   google_maps_flutter: df4e7de95264aa0a2f11aac0fc7e313acb8ffc7e
+=======
+  geoflutterfire: 2a6493e01fb6eef1a6c9046b1baf9a943d0c5ffe
+>>>>>>> develop
   google_sign_in: 6bd214b9c154f881422f5fe27b66aaa7bbd580cc
   google_sign_in_web: 52deb24929ac0992baff65c57956031c44ed44c3
   GoogleAppMeasurement: 137afe68bfa406c3f4221b9395253d9e5d4654cf

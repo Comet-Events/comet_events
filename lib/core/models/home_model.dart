@@ -9,7 +9,7 @@ class HomeModel extends BaseModel {
 
   // * ----- Services -----
   AuthService _auth = locator<AuthService>();
-  NavigationService _navigation;
+  NavigationService _navigation = locator<NavigationService>() ;
 
   // * ----- Variables -----
   List<EventTile> _events = [

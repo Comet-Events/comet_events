@@ -12,7 +12,6 @@ class EventTile extends StatelessWidget {
   final String category;
   final List<String> tags;
   final String description;
-  final double scale;
 
   EventTile({
     Key key, 
@@ -22,8 +21,7 @@ class EventTile extends StatelessWidget {
     @required this.date, 
     @required this.category, 
     @required this.tags, 
-    @required this.description, 
-    this.scale = 1,
+    @required this.description, double scale,
   }) : super(key: key);
 
   final ScrollController controller = ScrollController();
@@ -32,19 +30,17 @@ class EventTile extends StatelessWidget {
   Widget build(BuildContext context) {
 
     CometThemeData _appTheme = locator<CometThemeManager>().theme;
-    double titleScale = scale;
-    double textScale = scale < 1 ? scale*0.93 : 1;
 
     return Container(
       width: width,
-      height: 90*scale,
+      height: 90,
       decoration: BoxDecoration(
         color: _appTheme.secondaryMono,
-        borderRadius: BorderRadius.all(Radius.circular(15.0*scale)),
+        borderRadius: BorderRadius.all(Radius.circular(15.0)),
         boxShadow: [
           BoxShadow(
             color: Color.fromARGB(41, 0, 0, 0),
-            offset: Offset(0, 4*scale),
+            offset: Offset(0, 4),
             blurRadius: 10,
           )
         ]
@@ -53,29 +49,29 @@ class EventTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Container(
-            width: 85*scale,
-            height: 85*scale,
-            margin: EdgeInsets.all(3.5*scale),
+            width: 85,
+            height: 85,
+            margin: const EdgeInsets.all(3.5),
             decoration: BoxDecoration(
               color: _appTheme.secondaryMono,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12.0*scale),
-                topRight: Radius.circular(12.0*scale),
-                bottomLeft: Radius.circular(12.0*scale),
+                topLeft: Radius.circular(12.0),
+                topRight: Radius.circular(12.0),
+                bottomLeft: Radius.circular(12.0),
               ),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12.0*scale),
-                topRight: Radius.circular(12.0*scale),
-                bottomLeft: Radius.circular(12.0*scale),
+                topLeft: Radius.circular(12.0),
+                topRight: Radius.circular(12.0),
+                bottomLeft: Radius.circular(12.0),
               ),
               child: Image.network(imageURL, fit: BoxFit.cover),
             )
           ),
           Expanded(
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 7.0, vertical: 10.0*scale),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 //mainAxisSize: MainAxisSize.max,
@@ -85,16 +81,16 @@ class EventTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           title,
-                          style: TextStyle(fontSize: 14*titleScale),
+                          style: TextStyle(fontSize: 14),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(right: 8.0),
+                        padding: const EdgeInsets.only(right: 8.0),
                         child: Text(
                           date,
                           style: TextStyle(
-                            fontSize: 14*titleScale,
+                            fontSize: 14,
                             color: _appTheme.mainColor,
                             // decoration: TextDecoration.underline,
                           ),
@@ -102,24 +98,24 @@ class EventTile extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 4.5*textScale),
+                  SizedBox(height: 4.5),
                   FadingEdgeScrollView.fromSingleChildScrollView(
                     child: SingleChildScrollView(
                       controller: controller,
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: <Widget>[
-                          CategoryChip(category, scale: textScale),
-                          ...tags.map((t) => TagChip(t, scale: textScale)),
+                          CategoryChip(category),
+                          ...tags.map((t) => TagChip(t)),
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(height: 4.5*scale),
+                  SizedBox(height: 4.5),
                   Expanded(
                     // width: 220,
                     child: Text(description,
-                      style: TextStyle(fontSize: 9.5*scale),
+                      style: TextStyle(fontSize: 9.5),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -141,7 +137,6 @@ class CategoryChip extends StatelessWidget {
   final EdgeInsets spacing;
   final double radius;
   final EdgeInsets margin;
-  final double scale;
 
   const CategoryChip(
     this.title, 
@@ -149,8 +144,7 @@ class CategoryChip extends StatelessWidget {
     this.fontSize = 9, 
     this.spacing = const EdgeInsets.only(left: 9.5, right: 9.5, top: 3, bottom: 3), 
     this.radius = 30,
-    this.margin = const EdgeInsets.only(right: 6.0), 
-    this.scale = 1,
+    this.margin = const EdgeInsets.only(right: 6.0),
   }) : super(key: key);
 
   @override
@@ -175,7 +169,7 @@ class CategoryChip extends StatelessWidget {
           textAlign: TextAlign.left,
           style: TextStyle(
             color: Color.fromARGB(255, 152, 125, 225),
-            fontSize: fontSize*scale,
+            fontSize: fontSize,
           ),
         ),
       ),
@@ -190,7 +184,6 @@ class TagChip extends StatelessWidget {
   final EdgeInsets spacing;
   final double radius;
   final EdgeInsets margin;
-  final double scale;
 
   const TagChip(
     this.title, 
@@ -198,8 +191,7 @@ class TagChip extends StatelessWidget {
     this.fontSize = 9, 
     this.spacing = const EdgeInsets.only(left: 9.5, right: 9.5, top: 3, bottom: 3), 
     this.radius = 30,
-    this.margin = const EdgeInsets.only(right: 6.0), 
-    this.scale = 1,
+    this.margin = const EdgeInsets.only(right: 6.0),
   }) : super(key: key);
 
   @override
@@ -222,7 +214,7 @@ class TagChip extends StatelessWidget {
         child: Text(
           title,
           textAlign: TextAlign.left,
-          style: TextStyle(fontSize: fontSize*scale),
+          style: TextStyle(fontSize: fontSize),
         ),
       ),
     );
