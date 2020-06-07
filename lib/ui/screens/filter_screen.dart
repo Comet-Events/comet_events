@@ -1,5 +1,6 @@
 import 'dart:ui';
-
+import 'package:comet_events/ui/widgets/date_time.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/comet_buttons.dart';
 import 'package:comet_events/utils/locator.dart';
@@ -21,23 +22,15 @@ class FilterScreen extends StatelessWidget{
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: InkWell(onTap: () {Navigator.of(context).pop();}, child: Icon(Icons.arrow_back, size: 35)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Icon(Icons.more_horiz, size: 35),
-                    )
-                  ],
+                Container(
+                  alignment: Alignment.topRight,
+                  padding: const EdgeInsets.all(16.0),
+                  child: InkWell(onTap: () {Navigator.of(context).pop();}, child: Icon(Icons.arrow_forward, size: 35)),
                 ),
                 Container(
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
-                    color: _appTheme.mainMono,
+                    color: _appTheme.secondaryMono,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30.0),
                       topRight: Radius.circular(30.0),
@@ -62,7 +55,7 @@ class FilterScreen extends StatelessWidget{
                                 width: 2.0
                               )
                             ),
-                            child: Icon(Icons.filter_list, color: _appTheme.mainColor, size: 60 )
+                            child: Icon(MdiIcons.filter, color: _appTheme.mainColor, size: 60 )
                           )
                         )
                       ),
@@ -113,8 +106,8 @@ class FilterScreen extends StatelessWidget{
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 25),
         child: Container(
-          color: _appTheme.secondaryMono,
-          height: 1,
+          color: CometThemeManager.darken(_appTheme.lineBorder, 0.01),
+          height: 2,
           width: MediaQuery.of(context).size.width
         ),
       ),
@@ -314,16 +307,6 @@ class FilterScreen extends StatelessWidget{
     _TimeFilterState createState() => _TimeFilterState();
   }
   class _TimeFilterState extends State<TimeFilter> {
-    
-    Color labelTextColor = CometThemeManager.lighten(locator<CometThemeManager>().theme.secondaryMono);
-    
-    DateTime now = DateTime.now();
-    
-    DateTime fromDate = DateTime.now();
-    TimeOfDay fromTime = TimeOfDay.now();
-
-    DateTime toDate = DateTime.now().add(Duration(days: 1));
-    TimeOfDay toTime = TimeOfDay.now();
 
     @override
     Widget build(BuildContext context) {
@@ -343,166 +326,21 @@ class FilterScreen extends StatelessWidget{
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('From', style: TextStyle(color: labelTextColor)),
-                fromDateTime(),
+                DateTimeRow(
+                  title: 'From',
+                  backgroundColor: locator<CometThemeManager>().theme.mainMono,
+                  dateOnChange: (DateTime newDate){},
+                  timeOnChange: (TimeOfDay newTime){},
+                ),
                 SizedBox(height: 10),
-                Text('To', style: TextStyle(color: labelTextColor)),
-                toDateTime()
+                DateTimeRow(
+                  title: 'To',
+                  backgroundColor: locator<CometThemeManager>().theme.mainMono,
+                  dateOnChange: (DateTime newDate){},
+                  timeOnChange: (TimeOfDay newTime){}
+                )
               ],
             ),
-          ),
-        ],
-      );
-    }
-
-    String showWeekday( int weekday ){
-      switch (weekday) {
-        case 1:
-          return 'Monday';
-        case 2:
-          return 'Tuesday';
-        case 3: 
-          return 'Wednesday';
-        case 4:
-          return 'Thursday';
-        case 5:
-          return 'Friday';
-        case 6:
-          return 'Saturday';
-        default:
-          return 'Sunday';
-      }
-    }
-    
-    String showRelativeWeekday(int weekday){
-      if( weekday == now.weekday )
-        return 'Today';
-      else if( weekday == now.weekday+1)
-        return 'Tomorrow';
-      else
-        return showWeekday(weekday);
-    }
-
-    String getMonth(int month){
-      switch (month) {
-        case 1:
-          return 'January';
-        case 2:
-          return 'February';
-        case 3:
-          return 'March';
-        case 4:
-          return 'April';
-        case 5:
-          return 'May';
-        case 6:
-          return 'June';
-        case 7:
-          return 'July';
-        case 8:
-          return 'August';
-        case 9:
-          return 'September';
-        case 10:
-          return 'October';
-        case 11:
-          return 'November';
-        default:
-          return 'December';
-      }
-    }
-
-    Future selectFromDate() async {
-      DateTime pickedDate = await showDatePicker(
-        context: context,
-        initialDate: fromDate == null ? now : fromDate,
-        firstDate: now,
-        lastDate: now.add(Duration(days: 2))
-      );
-
-      if( pickedDate != null )
-        setState((){fromDate = pickedDate;});
-    }
-
-    Future selectToDate() async {
-      DateTime pickedDate = await showDatePicker(
-        context: context,
-        initialDate: toDate,
-        firstDate: now,
-        lastDate: now.add(Duration(days: 2))
-      );
-
-      if( pickedDate != null )
-        setState((){toDate = pickedDate;});
-    }
-
-    Future selectFromTime() async{
-      TimeOfDay pickedTime = await showTimePicker(
-        context: context,
-        initialTime: fromTime
-      );
-
-      if( pickedTime != null)
-        setState((){fromTime = pickedTime;});
-    }
-
-    Future selectToTime() async{
-      TimeOfDay pickedTime = await showTimePicker(
-        context: context,
-        initialTime: toTime
-      );
-
-      if( pickedTime != null )
-        setState((){toTime = pickedTime;});
-    }
-  
-    Row fromDateTime(){
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          FlatButton(
-            onPressed:(){selectFromDate();},
-            child: Text(
-              '${showRelativeWeekday(fromDate.weekday)}, ${getMonth(fromDate.month)} ${fromDate.day}',
-              style: TextStyle(fontSize: 18)
-            ),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
-            color: locator<CometThemeManager>().theme.mainMono,
-          ),
-          FlatButton(
-            onPressed:(){selectFromTime();},
-            child: Text(
-              '${fromTime.format(context)}',
-              style: TextStyle(fontSize: 18)
-            ),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
-            color: locator<CometThemeManager>().theme.mainMono,
-          ),
-        ],
-      );
-    }
-  
-    Row toDateTime(){
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          FlatButton(
-            onPressed:(){selectToDate();},
-            child: Text(
-              '${showRelativeWeekday(toDate.weekday)}, ${getMonth(toDate.month)} ${toDate.day}',
-              style: TextStyle(fontSize: 18)
-            ),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
-            color: locator<CometThemeManager>().theme.mainMono,
-          ),
-          FlatButton(
-            onPressed:(){selectToTime();},
-            child: Text(
-              '${toTime.format(context)}',
-              style: TextStyle(fontSize: 18)
-            ),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
-            color: locator<CometThemeManager>().theme.mainMono,
           ),
         ],
       );
@@ -548,7 +386,8 @@ class FilterScreen extends StatelessWidget{
 
     @override
     Widget build(BuildContext context) {
-      return Center(
+      return Container(
+         alignment: Alignment.center,
          child: _chipsList
       );
     }
@@ -560,6 +399,7 @@ class FilterScreen extends StatelessWidget{
         columns: 0,
         textField: widget.categories ? null :
           TagsTextField(
+            autofocus: false,
             duplicates: false,
             lowerCase: true,
             textStyle: TextStyle(fontSize: 18),
@@ -626,5 +466,4 @@ class FilterScreen extends StatelessWidget{
         },
       );
     }
-  
   }

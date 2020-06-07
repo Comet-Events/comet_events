@@ -23,7 +23,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  geoflutterfire: ^2.1.0
   # state management 
   stacked: ^1.5.0
   # routing
@@ -43,6 +42,7 @@ dependencies:
   carousel_slider: ^2.1.0
   flappy_search_bar: ^1.7.2
   flutter_tags: ^0.4.8+2
+  material_design_icons_flutter: 4.0.5345
   # google maps
   geoflutterfire: ^2.1.0
   google_maps_flutter: ^0.5.28+1

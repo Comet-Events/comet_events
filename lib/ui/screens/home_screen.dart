@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'dart:async';
 
 import 'filter_screen.dart';
@@ -21,12 +22,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   bool _state = false;
+  CometThemeData _appTheme = locator<CometThemeManager>().theme;
+
   
   @override
   Widget build(BuildContext context) {
-
-    CometThemeData _appTheme = locator<CometThemeManager>().theme;
-
     return Scaffold(
       backgroundColor: _appTheme.secondaryMono,
       body: UserViewModelBuilder<HomeModel>.reactive(
@@ -198,13 +198,13 @@ class _HomeScreenState extends State<HomeScreen> {
             margin: EdgeInsets.only(right: 10),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: locator<CometThemeManager>().theme.secondaryMono,
+              color: _appTheme.secondaryMono,
               border: Border.all(
-                color: locator<CometThemeManager>().theme.mainMono,
+                color: _appTheme.mainMono,
                 width: 2.0
               )
             ),
-            child: Icon(Icons.filter_list, color: locator<CometThemeManager>().theme.mainColor, size: 30 )
+            child: Icon(MdiIcons.filter, color: _appTheme.mainColor, size: 30 )
           )
         )
       ],
@@ -257,8 +257,8 @@ class MapState extends State<Map> {
   }
 
   static final CameraPosition _kHome = CameraPosition(
-    //target: LatLng(29.722151, -95.389622),
-    target: LatLng(-50.606805, 165.972134),
+    target: LatLng(29.722151, -95.389622),
+    //target: LatLng(-50.606805, 165.972134),
     zoom: 14.4746,
   );
 
