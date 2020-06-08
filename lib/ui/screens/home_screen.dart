@@ -10,8 +10,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'dart:async';
 
-import 'filter_screen.dart';
-
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key,}) : super(key: key);
 
