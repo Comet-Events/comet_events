@@ -43,7 +43,7 @@ class FilterScreen extends StatelessWidget{
                       Positioned(
                         top: -50,
                         child: Hero(
-                          tag: 'backdrop',
+                          tag: 'filterIcon',
                           child: Container(
                             height: 108,
                             width: 108,

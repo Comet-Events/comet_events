@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:comet_events/core/models/home_model.dart';
 import 'package:comet_events/ui/theme/theme.dart';
+import 'package:comet_events/ui/widgets/location_marker.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/utils/locator.dart';
+import 'package:countdown_flutter/countdown_flutter.dart';
 import 'package:flappy_search_bar/flappy_search_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +13,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'dart:async';
+import 'dart:ui' as ui;
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key,}) : super(key: key);
@@ -22,7 +28,48 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _state = false;
   CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
+  ValueNotifier<String> countdown = ValueNotifier("loading...");
+
+  ui.Image image;
+  bool isImageloaded = false;
+
+  @override
+  void initState(){
+    super.initState();
+    init();
+    //this is doing literally nothing very cool very freh
+    _startTimer(Duration(hours: 1));
+  }
+
+  _startTimer(Duration _duration){
+    return CountdownFormatted(
+      duration: _duration,
+      builder: (BuildContext context, String remaining){
+        countdown.value = remaining;
+        return Text(remaining);
+      }
+    );
+  }
   
+
+  Future<Null> init() async {
+    http.Response response = await http.get(
+    'https://picsum.photos/200',
+    );   
+    image = await loadImage( response.bodyBytes );
+  }
+
+  Future<ui.Image> loadImage(List<int> img) async {
+    final Completer<ui.Image> completer = new Completer();
+    ui.decodeImageFromList(img, (ui.Image img) {
+      setState(() {
+        isImageloaded = true;
+      });
+      return completer.complete(img);
+    });
+    return completer.future;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,6 +91,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   )
                 ),
+                Container(
+                  //65x77
+                  width: 130,
+                  height: 154, 
+                  child: 
+                    isImageloaded ? 
+                    CustomPaint(
+                      painter: MarkerPainter(
+                        time: countdown,
+                        image: image,
+                        markerScale: 2
+                      )
+                    ) : 
+                    Text('loading')
+                ),
+                _startTimer( Duration(hours: 1)),
+                SizedBox(height: 135),
                 _eventCarousel(model),
                 SizedBox(height: 35),
                 _bottomAppBar(),
@@ -191,18 +255,21 @@ class _HomeScreenState extends State<HomeScreen> {
           onTap: (){
             HomeModel().moveToFilterScreen();
           }, //go to filter page
-          child: Container(
-            padding: EdgeInsets.all(10),
-            margin: EdgeInsets.only(right: 10),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _appTheme.secondaryMono,
-              border: Border.all(
-                color: _appTheme.mainMono,
-                width: 2.0
-              )
+          child: Hero(
+            tag: 'filterIcon',
+            child: Container(
+              padding: EdgeInsets.all(10),
+              margin: EdgeInsets.only(right: 10),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _appTheme.secondaryMono,
+                border: Border.all(
+                  color: _appTheme.mainMono,
+                  width: 2.0
+                )
+              ),
+              child: Icon(MdiIcons.filter, color: _appTheme.mainColor, size: 30 )
             ),
-            child: Icon(MdiIcons.filter, color: _appTheme.mainColor, size: 30 )
           )
         )
       ],
@@ -229,13 +296,18 @@ class _HomeScreenState extends State<HomeScreen> {
           reverse: false,
           autoPlay: false,
           enlargeCenterPage: true,
-          onPageChanged: (number, reason) {},
+          onPageChanged: (number, reason) {
+            //update google maps camera position
+          },
           scrollDirection: Axis.horizontal,
         )  
       ),
     );
   }
 }
+
+
+
 
 class Map extends StatefulWidget {
   @override
@@ -245,6 +317,7 @@ class Map extends StatefulWidget {
 class MapState extends State<Map> {
   String _mapStyle;
   Completer<GoogleMapController> _controller = Completer();
+  List<Marker> allMarkers = [];
 
   @override
   void initState() {
@@ -252,13 +325,32 @@ class MapState extends State<Map> {
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
     });
+    
+    allMarkers.add(Marker(
+      markerId: MarkerId("my marker"),
+      draggable: false,
+      position: LatLng(29.722151, -95.389622),
+    ));
+    
+    allMarkers.add(Marker(
+      markerId: MarkerId('randalls'),
+      draggable: false,
+      position: LatLng(29.704940, -95.425814)
+    ));
   }
 
   static final CameraPosition _kHome = CameraPosition(
     target: LatLng(29.722151, -95.389622),
     //target: LatLng(-50.606805, 165.972134),
-    zoom: 14.4746,
+    zoom: 14.746,
   );
+
+  Future<void> moveToRandalls() async{
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+      CameraPosition(target: LatLng(29.704940, -95.425814), zoom: 14.760)
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -268,6 +360,9 @@ class MapState extends State<Map> {
         Stack(
           children: <Widget>[
             GoogleMap(
+              zoomControlsEnabled: false,
+              myLocationEnabled: true,
+            //  markers: Set.from(allMarkers),
               initialCameraPosition: _kHome,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
@@ -277,7 +372,14 @@ class MapState extends State<Map> {
             Positioned(
               top: 100,
               left: MediaQuery.of(context).size.width * 0.05,
-              child: Container()
+              child: GestureDetector(
+                onTap: (){ moveToRandalls(); },
+                child: Container(
+                  color: locator<CometThemeManager>().theme.mainMono,
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                  child: Text('Go to Randalls!')
+                )
+              )
               // child: SearchMapPlaceWidget(
               //   darkMode: true,
               //   apiKey: Theme.of(context).platform == TargetPlatform.iOS ? "AIzaSyDgldMROs1VzrXoEiCfurKutmOps1sJR-8" : "AIzaSyAeD2KtPAnoJJXvINv6ZYUzLvmZTff406M",

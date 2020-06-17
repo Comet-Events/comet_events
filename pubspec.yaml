@@ -42,6 +42,7 @@ dependencies:
   carousel_slider: ^2.1.0
   flappy_search_bar: ^1.7.2
   flutter_tags: ^0.4.8+2
+  countdown_flutter: ^0.1.2
   material_design_icons_flutter: 4.0.5345
   # google maps
   geoflutterfire: ^2.1.0

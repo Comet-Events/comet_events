@@ -33,7 +33,7 @@ class HomeModel extends BaseModel {
     _navigation.navigateWithTransition(
       FilterScreen(),
       opaque: false,
-      transition: NavigationTransition.Cupertino
+      transition: NavigationTransition.Fade
     );
   }
 
