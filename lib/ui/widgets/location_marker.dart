@@ -5,12 +5,13 @@ import 'package:countdown_flutter/countdown_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+
 class MarkerPainter extends CustomPainter {
   ui.Image image;
   final double radius;
   final double fontSize;
   final double leftMargin;
-  final double markerScale;
+  final double scale;
   ValueNotifier<String> time;
   CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
@@ -18,7 +19,7 @@ class MarkerPainter extends CustomPainter {
     this.radius = 18.0,
     this.leftMargin = 2,
     this.fontSize = 10,
-    this.markerScale = 1,
+    this.scale = 1,
     @required this.time,
     @required this.image
   }) : super(repaint: time);
@@ -41,7 +42,7 @@ class MarkerPainter extends CustomPainter {
     canvas.drawRRect(rRect, paint);
 
     //set bounds for image rect   
-    final innerRect = Rect.fromLTWH(leftMargin*markerScale, topMargin, size.width-2*leftMargin*markerScale, size.height-leftMargin*markerScale-topMargin);
+    final innerRect = Rect.fromLTWH(leftMargin*scale, topMargin, size.width-2*leftMargin*scale, size.height-leftMargin*scale-topMargin);
     final double innerRadius = radius-1.5;
     final RRect innerRRect = RRect.fromRectAndCorners(
       innerRect,
@@ -57,7 +58,7 @@ class MarkerPainter extends CustomPainter {
       text: TextSpan(
         text: this.time.value,
         style: TextStyle(
-          fontSize: fontSize*markerScale,
+          fontSize: fontSize*scale,
           fontFamily: "Lexend Deca"
         )
       )

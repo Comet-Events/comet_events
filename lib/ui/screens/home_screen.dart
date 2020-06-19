@@ -28,48 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _state = false;
   CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
-  ValueNotifier<String> countdown = ValueNotifier("loading...");
-
-  ui.Image image;
-  bool isImageloaded = false;
-
-  @override
-  void initState(){
-    super.initState();
-    init();
-    //this is doing literally nothing very cool very freh
-    _startTimer(Duration(hours: 1));
-  }
-
-  _startTimer(Duration _duration){
-    return CountdownFormatted(
-      duration: _duration,
-      builder: (BuildContext context, String remaining){
-        countdown.value = remaining;
-        return Text(remaining);
-      }
-    );
-  }
-  
-
-  Future<Null> init() async {
-    http.Response response = await http.get(
-    'https://picsum.photos/200',
-    );   
-    image = await loadImage( response.bodyBytes );
-  }
-
-  Future<ui.Image> loadImage(List<int> img) async {
-    final Completer<ui.Image> completer = new Completer();
-    ui.decodeImageFromList(img, (ui.Image img) {
-      setState(() {
-        isImageloaded = true;
-      });
-      return completer.complete(img);
-    });
-    return completer.future;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,22 +49,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   )
                 ),
-                Container(
-                  //65x77
-                  width: 130,
-                  height: 154, 
-                  child: 
-                    isImageloaded ? 
-                    CustomPaint(
-                      painter: MarkerPainter(
-                        time: countdown,
-                        image: image,
-                        markerScale: 2
-                      )
-                    ) : 
-                    Text('loading')
-                ),
-                _startTimer( Duration(hours: 1)),
+                // Container(
+                //   //65x77
+                //   width: 130,
+                //   height: 154, 
+                //   child: 
+                //     isImageloaded ? 
+                //     CustomPaint(
+                //       painter: MarkerPainter(
+                //         time: countdown,
+                //         image: image,
+                //         markerScale: 2
+                //       )
+                //     ) : 
+                //     Text('loading')
+                // ),
+                // _startTimer( Duration(hours: 1)),
                 SizedBox(height: 135),
                 _eventCarousel(model),
                 SizedBox(height: 35),
@@ -319,25 +277,88 @@ class MapState extends State<Map> {
   Completer<GoogleMapController> _controller = Completer();
   List<Marker> allMarkers = [];
 
+  bool isImageloaded = false;
+
+  ValueNotifier<String> countdown = ValueNotifier("loading...");
+  
   @override
   void initState() {
     super.initState();
+    _initMarkers();
     rootBundle.loadString('assets/map_style.txt').then((string) {
       _mapStyle = string;
     });
     
+    //this is doing literally nothing very cool very freh
+    _startTimer(Duration(hours: 1));
+  
+  }
+
+  _initMarkers() async{
+    final bitmap = await getMarkerIcon( 'https://picsum.photos/200' );
     allMarkers.add(Marker(
-      markerId: MarkerId("my marker"),
-      draggable: false,
-      position: LatLng(29.722151, -95.389622),
+      markerId: MarkerId('myMarker'),
+      position: LatLng(29.722151, -95.389622) ,
+      icon: BitmapDescriptor.fromBytes(bitmap)
     ));
-    
+
     allMarkers.add(Marker(
       markerId: MarkerId('randalls'),
-      draggable: false,
-      position: LatLng(29.704940, -95.425814)
+      position: LatLng(29.704940, -95.425814),
+      icon: BitmapDescriptor.fromBytes(bitmap)
     ));
   }
+
+
+  Future<ui.Image> initImage(String imageURL) async {
+    http.Response response = await http.get(imageURL);   
+    return await loadImage( response.bodyBytes );
+  }
+
+  Future<ui.Image> loadImage(List<int> img) async {
+    final Completer<ui.Image> completer = new Completer();
+    ui.decodeImageFromList(img, (ui.Image img) {
+      setState(() {
+        isImageloaded = true;
+      });
+      return completer.complete(img);
+    });
+    return completer.future;
+  }
+
+  Future<Uint8List> getMarkerIcon(String imageURL) async{
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(recorder);
+    final Size widgetSize = Size(130, 154);
+    
+    //create custompainter
+    MarkerPainter myPainter = MarkerPainter(
+      time: countdown,
+      image: await initImage(imageURL),
+      scale: 2
+    );
+
+    //paint a pwetty pwicture
+    myPainter.paint(canvas, widgetSize);
+
+    //get image
+    final ui.Image markerAsImage = await recorder.endRecording().toImage(widgetSize.width.round(), widgetSize.height.round());
+
+    //convert image to bytes
+    final ByteData byteData = await markerAsImage.toByteData(format: ui.ImageByteFormat.png);
+    return byteData.buffer.asUint8List();
+  }
+  
+  CountdownFormatted _startTimer(Duration _duration){
+    return CountdownFormatted(
+      duration: _duration,
+      builder: (BuildContext context, String remaining){
+        countdown.value = remaining;
+        return Text(remaining);
+      }
+    );
+  }
+
 
   static final CameraPosition _kHome = CameraPosition(
     target: LatLng(29.722151, -95.389622),
@@ -352,6 +373,7 @@ class MapState extends State<Map> {
     ));
   }
 
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -362,7 +384,7 @@ class MapState extends State<Map> {
             GoogleMap(
               zoomControlsEnabled: false,
               myLocationEnabled: true,
-            //  markers: Set.from(allMarkers),
+              markers: Set.from(allMarkers),
               initialCameraPosition: _kHome,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
