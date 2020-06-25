@@ -19,6 +19,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return UserViewModelBuilder<HomeModel>.reactive(
         userViewModelBuilder: () => HomeModel(),
+        onModelReady: (model, user) async {
+          await model.requestLocationPerms();
+          await model.getLocation();
+        },
         builder: (context, model, user, child) => Scaffold(
           appBar: AppBar(
             // Here we take the value from the HomeScreen object that was created by
@@ -44,7 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 ),
                 Text(
-                  'You have pushed the button this many times:',
+                  // 'Latitude: ${model.currentLocation != null ? model.currentLocation.latitude : "nothing"}, Longitude: ${model.currentLocation != null ? model.currentLocation.longitude : "nothing"}',
+                  'Latitude: ${model.location != null ? model.location.latitude : "nothing"}, Longitude: ${model.location != null ? model.location.longitude : "nothing"}',
                 ),
                 Text(
                   '${model.count}',

@@ -32,13 +32,13 @@ class Category {
 
   Category.fromJson(Map<String, dynamic> json) {
     category = json['category'] ?? true;
-    iconCode = json['iconCode'] ?? 0xe000;
+    iconCode = int.parse(json['iconCode']) ?? 0xe000;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['category'] = this.category ?? true;
-    data['iconCode'] = this.iconCode ?? 0xe000;
+    data['iconCode'] = this.iconCode.toString() ?? "0xe000";
     return data;
   }
 }

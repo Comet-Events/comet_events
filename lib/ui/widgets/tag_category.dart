@@ -5,14 +5,16 @@ import 'package:comet_events/utils/locator.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class CategoryPicker extends StatefulWidget {
-  CategoryPicker({Key key, @required this.categories, this.iconFontFamily = 'MaterialIcons', @required this.onChanged, this.maxChoices = 1, this.title}) : super(key: key);
+  CategoryPicker({Key key, @required this.categories, this.iconFontFamily = 'MaterialIcons', @required this.onChanged, this.maxChoices = 1, this.title, this.iconFontPackage}) : super(key: key);
 
   final String title;
   final String iconFontFamily;
+  final String iconFontPackage;
   final List<Tag> categories;
-  final Function(Tag category, bool removed) onChanged;
+  final Function(List<Tag> categories) onChanged;
   final int maxChoices;
 
 
@@ -21,23 +23,23 @@ class CategoryPicker extends StatefulWidget {
 }
 class _CategoryPickerState extends State<CategoryPicker> {
 
-  List<String> selectedCategoryNames = [];
+  List<Tag> selectedCategories = [];
 
   @override
   void initState() { 
     super.initState();
     if(widget.categories.length >= 1) {
-      selectedCategoryNames.add(widget.categories[0].name);
+      selectedCategories.add(widget.categories[0]);
     }
   }
 
   @override
   Widget build(BuildContext context) {
 
-    int _count = selectedCategoryNames.length;
+    int _count = selectedCategories.length;
 
     return SubBlockContainer(
-      title: (widget.title ?? "Categories (max: ${widget.maxChoices})") + (selectedCategoryNames.isNotEmpty ? "  •  ${selectedCategoryNames.join(", ")}" : ""),
+      title: (widget.title ?? "Categories (max: ${widget.maxChoices})") + (selectedCategories.isNotEmpty ? "  •  ${selectedCategories.map((e) => e.name).toList().join(", ")}" : ""),
       child: FadingEdgeScrollView.fromSingleChildScrollView(
         child: SingleChildScrollView(
           controller: ScrollController(),
@@ -47,17 +49,14 @@ class _CategoryPickerState extends State<CategoryPicker> {
               for(int i = 0; i < widget.categories.length; i++) 
                 CategoryTile(
                   onTap: (category, selected) {        
-                    if(selected) {
-                      setState(() { selectedCategoryNames.remove(category.name); });
-                      widget.onChanged(category, true);
-                      return;
-                    }
-                    else if(_count >= widget.maxChoices) selectedCategoryNames.removeLast();
-                    setState(() { selectedCategoryNames.add(category.name); });
-                    widget.onChanged(category, false);
+                    if(selected) { setState(() { selectedCategories.removeWhere((cat) => cat.name == category.name); }); return; }
+                    else if(_count >= widget.maxChoices) setState(() { selectedCategories.removeLast(); }); 
+                    setState(() { selectedCategories.add(category); });
+                    widget.onChanged(selectedCategories);
                   },
                   iconFontFamily: widget.iconFontFamily,
-                  selected: selectedCategoryNames.contains(widget.categories[i].name),
+                  iconFontPackage: widget.iconFontPackage,
+                  selected: selectedCategories.map((e) => e.name).toList().contains(widget.categories[i].name),
                   category: widget.categories[i],
                 )
             ],
@@ -68,9 +67,10 @@ class _CategoryPickerState extends State<CategoryPicker> {
   }
 }
 class CategoryTile extends StatelessWidget {
-  const CategoryTile({Key key, this.selected, this.category, this.iconFontFamily, this.onTap}) : super(key: key);
+  const CategoryTile({Key key, this.selected, this.category, this.iconFontFamily, this.onTap, this.iconFontPackage}) : super(key: key);
 
   final String iconFontFamily;
+  final String iconFontPackage;
   final Function(Tag, bool) onTap;
   final bool selected;
   final Tag category;
@@ -93,7 +93,7 @@ class CategoryTile extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Icon(IconData(category.category.iconCode, fontFamily: iconFontFamily)),
+            Icon(IconData(category.category.iconCode, fontFamily: iconFontFamily, fontPackage: iconFontPackage)),
             Text(category.name)
           ],
         ),
@@ -105,12 +105,13 @@ class CategoryTile extends StatelessWidget {
 
 class TagPicker extends StatefulWidget {
   const TagPicker({Key key,
-    this.title, @required this.onChange, this.suggestions, this.maxTags = 7,
+    this.title, @required this.onChange, this.suggestions, this.maxTags = 7, this.disabledTags,
   }) : super(key: key);
 
   final String title;
   final Function(List<String>) onChange;
   final List<String> suggestions;
+  final List<String> disabledTags;
   final int maxTags;
 
   @override
@@ -118,7 +119,7 @@ class TagPicker extends StatefulWidget {
 }
 class _TagPickerState extends State<TagPicker> {
   double fontSize = 18;
-  List displayItems = [];
+  List<String> displayItems = [];
   //here, displayItems is the list of all tags that are being shown on the screen
   //allItems is intended to be the list of all existing tags or categories in the db
   //there should be no tags showing until the user adds them
@@ -140,20 +141,27 @@ class _TagPickerState extends State<TagPicker> {
         symmetry: false,
         columns: 0,
         textField: TagsTextField(
+          autofocus: false,
           duplicates: false,
           lowerCase: true,
           textStyle: TextStyle(fontSize: 15),
           constraintSuggestion: false,
           suggestionTextColor: _appTheme.mainColor,
+          textCapitalization: TextCapitalization.none,
           //this should eventually suggest the contents of allItems
           suggestions: widget.suggestions != null ? widget.suggestions : [],
           //when they search a tag, add it to the displaying tags,
           //if it doesn't already exist, also add it to the db
           onSubmitted: (String str){
-            if(displayItems.length >= widget.maxTags) {
-              displayItems.removeLast();
+            if(widget.disabledTags.contains(str)) return;
+            else {
+              if(displayItems.length >= widget.maxTags) {
+                setState(() {
+                  displayItems.removeLast();
+                });
+              }
+              setState(() { displayItems.add(str); }); widget.onChange(displayItems);
             }
-            setState(() { displayItems.add(str); }); widget.onChange(displayItems);
             str = "";
           }
         ),
