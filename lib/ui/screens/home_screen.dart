@@ -21,46 +21,43 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return UserViewModelBuilder<HomeModel>.reactive(
-        userViewModelBuilder: () => HomeModel(),
-        builder: (context, model, user, child) => Scaffold(
-          extendBody: true,
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-          floatingActionButton: FloatingActionButton(
-            onPressed: model.moveToAddEventScreen,
-            heroTag: 'add_event_button',
-            child: Icon(Icons.add, size: 30),
-            backgroundColor: (_appTheme.mainColor)
-          ),
-          bottomNavigationBar: _bottomAppBar(),
-          backgroundColor: _appTheme.secondaryMono,
-          body: Stack(
-          // body: UserViewModelBuilder<HomeModel>.reactive(
-          //   userViewModelBuilder: () => HomeModel(),
-          //   builder: (context, model, user, child) => Stack(
+      userViewModelBuilder: () => HomeModel(),
+      builder: (context, model, user, child) => Scaffold(
+        extendBody: true,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: FloatingActionButton(
+          onPressed: model.moveToAddEventScreen,
+          heroTag: 'add_event_button',
+          child: Icon(Icons.add, size: 30),
+          backgroundColor: (_appTheme.mainColor)
+        ),
+        bottomNavigationBar: _bottomAppBar(),
+        backgroundColor: _appTheme.secondaryMono,
+        body: Stack(
+          children: <Widget>[
+            Map(),
+            Column(
               children: <Widget>[
-                Map(),
-                Column(
-                  children: <Widget>[
-                    _topAppBar(),
-                    SizedBox(height: 7),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          _searchWidget(),
-                        ],
-                      )
-                    ),
-                    SizedBox(height: 135),
-                    _eventCarousel(model),
-                    SizedBox(height: 45),
-                    SafeArea(child: Container(), top: false)
-                  ],
+                _topAppBar(),
+                SizedBox(height: 7),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      _searchWidget(),
+                    ],
+                  )
                 ),
+                SizedBox(height: 135),
+                _eventCarousel(model),
+                SizedBox(height: 45),
+                SafeArea(child: Container(), top: false)
               ],
             ),
-          ),
-      );
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _topAppBar(){

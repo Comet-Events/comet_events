@@ -54,7 +54,6 @@ class _DateSelectorState extends State<DateSelector> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     
     selectedDate = DateTime.now();
@@ -177,7 +176,6 @@ class _TimeSelectorState extends State<TimeSelector> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     
     selectedTime = TimeOfDay.now();
