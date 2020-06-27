@@ -17,7 +17,7 @@ class SubBlockContainer extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(title, style: TextStyle(color: labelTextColor)),
+        Text(title, style: TextStyle(color: labelTextColor), overflow: TextOverflow.fade, maxLines: 4,),
         SizedBox(height: space),
         child
       ]
@@ -225,12 +225,16 @@ class DateTimeRow extends StatelessWidget {
     this.backgroundColor, 
     this.textColor, 
     this.inkwell = true, 
-    @required this.title
+    @required this.title, 
+    this.daysPriorFirst = 0, 
+    this.daysTillLast = 2
   }) : super(key: key);
 
   final String title;
   final Function(DateTime) dateOnChange;
   final Function(TimeOfDay) timeOnChange;
+  final int daysPriorFirst;
+  final int daysTillLast;
   final Color backgroundColor;
   final Color textColor;
   final bool inkwell;
@@ -250,6 +254,8 @@ class DateTimeRow extends StatelessWidget {
             backgroundColor: backgroundColor,
             textColor: textColor,
             inkwell: inkwell,
+            daysPriorFirst: daysPriorFirst,
+            daysTillLast: daysTillLast,
           ),
           TimeSelector(
             onChanged: timeOnChange,

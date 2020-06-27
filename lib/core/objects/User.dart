@@ -10,7 +10,7 @@ class User {
   List<String> following;
   UserEvents events;
 
-  static const defaultPfp = 'https://i.ibb.co/YfD2TCk/nopfp.png';
+  static const defaultPfp = 'cd';
 
   User({
     this.uid,

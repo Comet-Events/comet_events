@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(height: 135),
                 _eventCarousel(model),
                 SizedBox(height: 35),
-                _bottomAppBar(),
+                _bottomAppBar(model),
                 SafeArea(child: Container(), top: false)
               ],
             ),
@@ -89,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
-  Widget _bottomAppBar(){
+  Widget _bottomAppBar(HomeModel model){
     return Stack(
       overflow: Overflow.visible,
       alignment: Alignment.topCenter,
@@ -139,37 +139,39 @@ class _HomeScreenState extends State<HomeScreen> {
         ), 
         Positioned(
           top: -20,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                center: Alignment(-0.5,-0.5),
-                // center: Alignment.center,
-                radius: 1,
-                colors: [
-                  CometThemeManager.lighten(locator<CometThemeManager>().theme.mainColor, 0.1), 
-                  locator<CometThemeManager>().theme.mainColor, 
-                  CometThemeManager.darken(locator<CometThemeManager>().theme.mainColor, 0.35)
-                ]
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: Offset(0, 3)
-                )
-              ]
-            ),
+          child: Hero(
+            tag: 'add_event_button',
             child: GestureDetector(
-              //add event
-              onTap: (){},
-              child: Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 65
+              onTap: model.moveToAddEventScreen,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    center: Alignment(-0.5,-0.5),
+                    // center: Alignment.center,
+                    radius: 1,
+                    colors: [
+                      CometThemeManager.lighten(locator<CometThemeManager>().theme.mainColor, 0.1), 
+                      locator<CometThemeManager>().theme.mainColor, 
+                      CometThemeManager.darken(locator<CometThemeManager>().theme.mainColor, 0.35)
+                    ]
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: Offset(0, 3)
+                    )
+                  ]
+                ),
+                child: Icon(
+                  Icons.add,
+                  color: Colors.white,
+                  size: 65
+                ),
               ),
-            )
+            ),
           ),
         )
       ],
@@ -238,5 +240,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-
