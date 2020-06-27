@@ -33,7 +33,7 @@ class MapState extends State<Map> with SingleTickerProviderStateMixin{
   void initState() {
     super.initState();
 
-    rootBundle.loadString('assets/map_style.txt').then((string) {
+    rootBundle.loadString('assets/map_styles/pretty.txt').then((string) {
       _mapStyle = string;
     });
 

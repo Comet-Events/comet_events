@@ -1,6 +1,5 @@
 import 'package:comet_events/core/models/home_model.dart';
 import 'package:comet_events/ui/theme/theme.dart';
-import 'package:comet_events/ui/widgets/location_marker.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:comet_events/ui/screens/map.dart';
@@ -21,36 +20,47 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _appTheme.secondaryMono,
-      body: UserViewModelBuilder<HomeModel>.reactive(
+    return UserViewModelBuilder<HomeModel>.reactive(
         userViewModelBuilder: () => HomeModel(),
-        builder: (context, model, user, child) => Stack(
-          children: <Widget>[
-            Map(),
-            Column(
+        builder: (context, model, user, child) => Scaffold(
+          extendBody: true,
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          floatingActionButton: FloatingActionButton(
+            onPressed: (){model.moveToAddEventScreen();},
+            heroTag: 'add_event_button',
+            child: Icon(Icons.add, size: 30),
+            backgroundColor: (_appTheme.mainColor)
+          ),
+          bottomNavigationBar: _bottomAppBar(),
+          backgroundColor: _appTheme.secondaryMono,
+          body: Stack(
+          // body: UserViewModelBuilder<HomeModel>.reactive(
+          //   userViewModelBuilder: () => HomeModel(),
+          //   builder: (context, model, user, child) => Stack(
               children: <Widget>[
-                _topAppBar(),
-                SizedBox(height: 7),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      _searchWidget(),
-                    ],
-                  )
+                Map(),
+                Column(
+                  children: <Widget>[
+                    _topAppBar(),
+                    SizedBox(height: 7),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          _searchWidget(),
+                        ],
+                      )
+                    ),
+                    SizedBox(height: 135),
+                    _eventCarousel(model),
+                    SizedBox(height: 35),
+                    SafeArea(child: Container(), top: false)
+                  ],
                 ),
-                SizedBox(height: 135),
-                _eventCarousel(model),
-                SizedBox(height: 35),
-                _bottomAppBar(model),
-                SafeArea(child: Container(), top: false)
               ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+      );
   }
 
   Widget _topAppBar(){
@@ -60,8 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(30.0),
-          bottomRight: Radius.circular(30.0)
+          bottomLeft: Radius.circular(10.0),
+          bottomRight: Radius.circular(10.0)
         ),
         color: locator<CometThemeManager>().theme.mainMono
       ),
@@ -89,92 +99,32 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
-  Widget _bottomAppBar(HomeModel model){
-    return Stack(
-      overflow: Overflow.visible,
-      alignment: Alignment.topCenter,
-      children: <Widget>[
-        Container(
-          // height: MediaQuery.of(context).size.height*0.10,
-          decoration: BoxDecoration(
-            color: locator<CometThemeManager>().theme.mainMono,
-            borderRadius: BorderRadius.circular(25.0),
-          ),
-          margin: EdgeInsets.symmetric(horizontal: 6),
-          padding: EdgeInsets.only(bottom: 10, top: 5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Expanded(
-                child: Container(
-                  // alignment: Alignment.center,
-                  child: GestureDetector(
-                    onTap: (){},
-                    child: Column(
-                      children: <Widget>[
-                        Icon(Icons.people, size: 50,color: locator<CometThemeManager>().theme.mainColor ),
-                        Text('Fwends', style: TextStyle(color: locator<CometThemeManager>().theme.mainColor)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 50),
-              Expanded(
-                child: Container(
-                  child: GestureDetector(
-                    onTap: (){},
-                    child: Column(
-                      children: <Widget>[
-                        Icon(Icons.message, size: 44,color: locator<CometThemeManager>().theme.mainColor ),
-                        Text('Mwessages', style: TextStyle(color: locator<CometThemeManager>().theme.mainColor)),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            ],
-          )
-        ), 
-        Positioned(
-          top: -20,
-          child: Hero(
-            tag: 'add_event_button',
-            child: GestureDetector(
-              onTap: model.moveToAddEventScreen,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    center: Alignment(-0.5,-0.5),
-                    // center: Alignment.center,
-                    radius: 1,
-                    colors: [
-                      CometThemeManager.lighten(locator<CometThemeManager>().theme.mainColor, 0.1), 
-                      locator<CometThemeManager>().theme.mainColor, 
-                      CometThemeManager.darken(locator<CometThemeManager>().theme.mainColor, 0.35)
-                    ]
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: Offset(0, 3)
-                    )
-                  ]
-                ),
-                child: Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 65
-                ),
-              ),
+  Widget _bottomAppBar(){
+    return BottomAppBar(
+      color: _appTheme.mainMono,
+      shape: CircularNotchedRectangle(),
+      notchMargin: 10.0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              onPressed: () {},
+              color: CometThemeManager.darken(_appTheme.opposite),
+              disabledColor: CometThemeManager.lighten(_appTheme.secondaryMono),
+              icon: Icon( Icons.message, size: 30.0)
             ),
-          ),
-        )
-      ],
+            IconButton(
+              onPressed: () {},
+              color: CometThemeManager.darken(_appTheme.opposite),
+              disabledColor: CometThemeManager.lighten(_appTheme.secondaryMono),
+              icon: Icon( Icons.people, size: 30.0)
+            )
+          ],
+        ),
+      ),
     );
   }
 

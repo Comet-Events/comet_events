@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class CometThemeManager extends ChangeNotifier {
 
-  CometThemeData _currentTheme = darkTheme;
+  CometThemeData _currentTheme = prettyTheme;
   CometThemeData get theme => _currentTheme;
 
   // ------- COLORS -------
@@ -31,6 +31,15 @@ class CometThemeManager extends ChangeNotifier {
   // light uniques (list custom colors here)
   static const Color lineBorderLight = Colors.grey;
   static const Color miniTextLight = Colors.pink;
+
+
+  //NEHA'S EXPERIEMENTS START
+  static const Color mainMonoPretty = Color(0xFF21213E);
+  static const Color secondaryMonoPretty = Color(0XFF3A3B5D);
+  static const Color mainColorPretty = Color(0XFFF43181);
+  static const Color secondaryColorPretty = Color(0xFF4796D4);
+  static const Color lineBorderPretty = Color(0xFF7F80A2);
+  //NEHA'S EXPERIMENTS END
 
   // dark theme data
   static CometThemeData darkTheme = CometThemeData(
@@ -66,6 +75,24 @@ class CometThemeManager extends ChangeNotifier {
     miniText: miniTextLight
   );
 
+  //new theme data
+  static CometThemeData prettyTheme = CometThemeData(
+    themeData: ThemeData(
+      cursorColor: mainColorPretty,
+      primaryColor: mainMonoPretty,
+      accentColor: secondaryMonoPretty,
+      brightness: Brightness.dark,
+      fontFamily: "Lexend Deca"
+    ),
+    mainMono: mainMonoPretty,
+    secondaryMono: secondaryMonoPretty,
+    mainColor: mainColorPretty,
+    secondaryColor: secondaryColorPretty,
+    lineBorder: lineBorderPretty,
+    miniText: secondaryColorPretty
+  );
+  
+  
   // MINI THEME MANAGEMENT SYSTEM uwuwuwuwu :3
   // StreamController<CometThemeData> _controller = StreamController<CometThemeData>();
 
@@ -79,6 +106,10 @@ class CometThemeManager extends ChangeNotifier {
   }
   changeToLight() {
     _currentTheme = lightTheme;
+    notifyListeners();
+  }
+  changeToPretty() {
+    _currentTheme = prettyTheme;
     notifyListeners();
   }
 

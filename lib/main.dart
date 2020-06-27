@@ -1,5 +1,3 @@
-import 'package:comet_events/ui/screens/auth_screen.dart';
-import 'package:comet_events/ui/screens/filter_screen.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:comet_events/utils/router.dart';

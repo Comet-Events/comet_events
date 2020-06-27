@@ -39,7 +39,7 @@ class EventTile extends StatelessWidget {
       width: width,
       height: 90*scale,
       decoration: BoxDecoration(
-        color: _appTheme.secondaryMono,
+        color: _appTheme.mainMono,
         borderRadius: BorderRadius.all(Radius.circular(15.0*scale)),
         boxShadow: [
           BoxShadow(

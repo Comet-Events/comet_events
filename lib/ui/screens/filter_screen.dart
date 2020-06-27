@@ -49,9 +49,9 @@ class FilterScreen extends StatelessWidget{
                             width: 108,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: locator<CometThemeManager>().theme.secondaryMono,
+                              color:_appTheme.secondaryMono,
                               border: Border.all(
-                                color: locator<CometThemeManager>().theme.mainMono,
+                                color: _appTheme.mainMono,
                                 width: 2.0
                               )
                             ),
@@ -224,6 +224,7 @@ class FilterScreen extends StatelessWidget{
   class _DistanceRadiusFilterState extends State<DistanceRadiusFilter> {
     double radius = 0;
     bool showNewVal = false;
+    final CometThemeData _appTheme = locator<CometThemeManager>().theme;
     
     @override
     Widget build(BuildContext context) {
@@ -255,7 +256,7 @@ class FilterScreen extends StatelessWidget{
             showNewVal ? '${radius.toStringAsFixed(1)} mi' : '',
             style: TextStyle(
               fontSize: 20,
-              color: CometThemeManager.lighten(locator<CometThemeManager>().theme.mainColor)
+              color: CometThemeManager.lighten(_appTheme.mainColor)
             )
           ),
         ],
@@ -278,8 +279,8 @@ class FilterScreen extends StatelessWidget{
           max: widget.max,
           divisions: 100,
           label: "${radius.toStringAsFixed(1)} m",
-          activeColor: locator<CometThemeManager>().theme.mainColor,
-          inactiveColor: locator<CometThemeManager>().theme.mainMono,
+          activeColor: _appTheme.mainColor,
+          inactiveColor: _appTheme.mainMono
         ),
       );
     }
@@ -291,10 +292,10 @@ class FilterScreen extends StatelessWidget{
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text('${widget.min} miles',
-              style: TextStyle(color: CometThemeManager.darken(locator<CometThemeManager>().theme.opposite))
+              style: TextStyle(color: CometThemeManager.darken(_appTheme.opposite))
             ),
             Text('${widget.max} miles',
-              style: TextStyle(color: CometThemeManager.darken(locator<CometThemeManager>().theme.opposite))
+              style: TextStyle(color: CometThemeManager.darken(_appTheme.opposite))
             )
           ],
         ),
