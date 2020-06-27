@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 135),
                     _eventCarousel(model),
-                    SizedBox(height: 35),
+                    SizedBox(height: 45),
                     SafeArea(child: Container(), top: false)
                   ],
                 ),
