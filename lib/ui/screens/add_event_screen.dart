@@ -79,15 +79,14 @@ class _AddEventScreenState extends State<AddEventScreen> {
                             children: <Widget>[
                               Positioned(
                                 top: -50,
-                                child: Hero(
-                                  tag: 'add_event_button',
-                                  child: Container(
-                                    height: 108,
-                                    width: 108,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.purple,
-                                    ),
+                                child: Container(
+                                  height: 105,
+                                  width: 105,
+                                  child: FloatingActionButton(
+                                    onPressed: () {},
+                                    heroTag: 'add_event_button',
+                                    child: Icon(Icons.add, size: 60),
+                                    backgroundColor: (_appTheme.mainColor)
                                   ),
                                 )
                               ),

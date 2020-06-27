@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
           extendBody: true,
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           floatingActionButton: FloatingActionButton(
-            onPressed: (){model.moveToAddEventScreen();},
+            onPressed: model.moveToAddEventScreen,
             heroTag: 'add_event_button',
             child: Icon(Icons.add, size: 30),
             backgroundColor: (_appTheme.mainColor)
