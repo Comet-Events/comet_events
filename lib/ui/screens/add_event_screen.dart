@@ -5,6 +5,7 @@ import 'package:comet_events/ui/widgets/comet_text_field.dart';
 import 'package:comet_events/ui/widgets/date_time.dart';
 import 'package:comet_events/ui/widgets/tag_category.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
+import 'package:comet_events/ui/widgets/layout_widgets.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animations/loading_animations.dart';
@@ -23,15 +24,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-    Widget _divider() {
-      return Container(
-        width: MediaQuery.of(context).size.width,
-        height: 10,
-        color: _appTheme.secondaryMono,
-      );
-    }
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: BackdropFilter(
@@ -95,38 +87,21 @@ class _AddEventScreenState extends State<AddEventScreen> {
                                 child: Column(
                                   children: <Widget>[
                                     // * title & description
-                                    Column(
-                                      children: <Widget>[
-                                        Text(
-                                          "Add an Event",
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle( fontSize: 28 ),
-                                        ),
-                                        Container(
-                                          width: MediaQuery.of(context).size.width/1.3,
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            "Fill out the fields, and press 'create' to make a new event",
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              color: Color.fromARGB(255, 159, 159, 159),
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                    PageTitle(
+                                      title: "Add an Event",
+                                      description: "Fill out the fields, and press 'create' to make a new event",
                                     ),
                                     SizedBox(height: 16),
                                     // * fields
                                     // name
                                     _nameBlock(context, model),
-                                    _divider(),
+                                    BlockDivider(),
                                     _dateBlock(context, model),
-                                    _divider(),
+                                    BlockDivider(),
                                     _tagBlock(context, model),
-                                    _divider(),
+                                    BlockDivider(),
                                     _locationBlock(context, model),
-                                    _divider(),
+                                    BlockDivider(),
                                     _createBlock(context, model)
                                   ],
                                 ),
@@ -210,7 +185,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
           iconFontPackage: 'material_design_icons_flutter',
           categories: model.categories
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 15),
         TagPicker(
           onChange: (tags) => model.tagsOnChange(tags),
           disabledTags: model.categories.map((e) => e.name).toList(),
@@ -298,33 +273,6 @@ class CometLoadingOverlay extends StatelessWidget {
   }
 }
 
-class BlockContainer extends StatelessWidget {
-  const BlockContainer({Key key, @required this.children, @required this.title}) : super(key: key);
-
-  final List<Widget> children;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-
-    CometThemeData _appTheme = locator<CometThemeManager>().theme;
-
-    return Container(
-      color: _appTheme.mainMono,
-      width: MediaQuery.of(context).size.width/1.17,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(height: 15),
-          Text(title, style: TextStyle(fontSize: 25, color: Colors.grey[300])),
-          SizedBox(height: 10),
-          ...children,
-          SizedBox(height: 22),
-        ]
-      )
-    );
-  }
-}
 
 class HoriExpanded extends StatelessWidget {
   const HoriExpanded({Key key, this.child}) : super(key: key);

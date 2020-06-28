@@ -5,7 +5,6 @@ import 'package:comet_events/utils/locator.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class CategoryPicker extends StatefulWidget {
   CategoryPicker({Key key, @required this.categories, this.iconFontFamily = 'MaterialIcons', @required this.onChanged, this.maxChoices = 1, this.title, this.iconFontPackage}) : super(key: key);
@@ -148,7 +147,7 @@ class _TagPickerState extends State<TagPicker> {
           constraintSuggestion: false,
           suggestionTextColor: _appTheme.mainColor,
           textCapitalization: TextCapitalization.none,
-          //this should eventually suggest the contents of allItems
+          //this should eventually suggest the 5 most popular tags
           suggestions: widget.suggestions != null ? widget.suggestions : [],
           //when they search a tag, add it to the displaying tags,
           //if it doesn't already exist, also add it to the db
@@ -175,7 +174,7 @@ class _TagPickerState extends State<TagPicker> {
               index: index,
               title: item,
               pressEnabled: false,
-              //TO DO: change this so that the active color is white if
+              //change this so that the active color is white if
               //a pre-existing tag is selected and purple if the user creates a new tag
               activeColor: _appTheme.opposite.withOpacity(0.25),
               border: Border.all(
