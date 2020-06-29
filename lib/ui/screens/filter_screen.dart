@@ -77,7 +77,7 @@ class FilterScreen extends StatelessWidget{
                               description: "Adjust the following specifications to narrow your event results",
                             ),
                             SizedBox(height: 16),
-                            BlockDivider(), //torn about this
+                            // BlockDivider(), //torn about this
                             _distanceBlock(context, model),
                             BlockDivider(),
                             _dateBlock(context, model),
