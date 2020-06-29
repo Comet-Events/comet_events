@@ -77,11 +77,7 @@ class FilterScreen extends StatelessWidget{
                               description: "Adjust the following specifications to narrow your event results",
                             ),
                             SizedBox(height: 16),
-                            Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: 10,
-                              color: locator<CometThemeManager>().theme.secondaryMono,
-                            ),
+                            BlockDivider(), //torn about this
                             _distanceBlock(context, model),
                             BlockDivider(),
                             _dateBlock(context, model),
