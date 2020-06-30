@@ -1,97 +1,103 @@
 import 'dart:ui';
-import 'package:comet_events/core/models/home_model.dart';
+import 'package:comet_events/core/models/filter_model.dart';
 import 'package:comet_events/ui/widgets/date_time.dart';
 import 'package:comet_events/ui/widgets/comet_buttons.dart';
 import 'package:comet_events/ui/widgets/layout_widgets.dart';
 import 'package:comet_events/ui/widgets/tag_category.dart';
+import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tags/flutter_tags.dart';
 
 class FilterScreen extends StatelessWidget{
   final CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
   @override
   Widget build(BuildContext context) {
-    HomeModel model;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: SafeArea(
           bottom: false,
-          child: SingleChildScrollView(
-            physics: ClampingScrollPhysics(),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Container(
-                  alignment: Alignment.topRight,
-                  padding: const EdgeInsets.all(16.0),
-                  child: InkWell(
-                    onTap: (){ Navigator.of(context).pop(); },
-                    child: Icon(Icons.arrow_forward,size: 35)
+          child: UserViewModelBuilder<FilterModel>.reactive(
+            userViewModelBuilder: () => FilterModel(),
+            onModelReady: (model, user){
+              model.fetchCategories();
+            },
+            builder: (context, model, user, _) => SingleChildScrollView(
+              physics: ClampingScrollPhysics(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  //back button
+                  Container(
+                    alignment: Alignment.topRight,
+                    padding: const EdgeInsets.all(16.0),
+                    child: InkWell(
+                      onTap: (){ Navigator.of(context).pop(); },
+                      child: Icon(Icons.arrow_forward,size: 35)
+                    ),
                   ),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    color: _appTheme.mainMono,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30.0),
-                      topRight: Radius.circular(30.0),
-                    )
-                  ),
-                  child: Stack(
-                    alignment: Alignment.topCenter,
-                    overflow: Overflow.visible,
-                    children: <Widget>[
-                      Positioned(
-                        top: -50,
-                        child: Hero(
-                          tag: 'filterIcon',
-                          child: Container(
-                            height: 105,
-                            width: 105,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color:_appTheme.secondaryMono,
-                              border: Border.all(
-                                color: _appTheme.mainMono,
-                                width: 2.0
-                              )
-                            ),
-                            child: Icon(MdiIcons.filter, color: _appTheme.mainColor, size: 60 )
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      color: _appTheme.mainMono,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30.0),
+                        topRight: Radius.circular(30.0),
+                      )
+                    ),
+                    child: Stack(
+                      alignment: Alignment.topCenter,
+                      overflow: Overflow.visible,
+                      children: <Widget>[
+                        Positioned(
+                          top: -50,
+                          child: Hero(
+                            tag: 'filterIcon',
+                            child: Container(
+                              height: 105,
+                              width: 105,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color:_appTheme.secondaryMono,
+                                border: Border.all(
+                                  color: _appTheme.mainMono,
+                                  width: 2.0
+                                )
+                              ),
+                              child: Icon(MdiIcons.filter, color: _appTheme.mainColor, size: 60 )
+                            )
+                          )
+                        ),
+                        Container(
+                          margin: const EdgeInsets.only(top: 65),
+                          child: Column(
+                            children: <Widget>[
+                              //title & description
+                              PageTitle(
+                                title: "Filters",
+                                description: "Adjust the following specifications to narrow your event results",
+                              ),
+                              SizedBox(height: 16),
+                              // BlockDivider(), //torn about this
+                              _distanceBlock(context, model),
+                              BlockDivider(),
+                              _dateBlock(context, model),
+                              BlockDivider(),
+                              _tagsBlock(context, model),
+                              BlockDivider(),
+                              _filterBlock(context, model),
+                            ],
                           )
                         )
-                      ),
-                      Container(
-                        margin: const EdgeInsets.only(top: 65),
-                        child: Column(
-                          children: <Widget>[
-                            //title & description
-                            PageTitle(
-                              title: "Filters",
-                              description: "Adjust the following specifications to narrow your event results",
-                            ),
-                            SizedBox(height: 16),
-                            // BlockDivider(), //torn about this
-                            _distanceBlock(context, model),
-                            BlockDivider(),
-                            _dateBlock(context, model),
-                            BlockDivider(),
-                            _tagsBlock(context, model),
-                            BlockDivider(),
-                            _filterBlock(context, model),
-                          ],
-                        )
-                      )
-                    ],
-                  )
-                ),
-              ],
+                      ],
+                    )
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -99,56 +105,67 @@ class FilterScreen extends StatelessWidget{
     );
   }
 
-  Widget _distanceBlock(BuildContext context, HomeModel model){
+  Widget _distanceBlock(BuildContext context, FilterModel model){
     return Container(
       padding: EdgeInsets.symmetric(vertical:20),
       color: _appTheme.mainMono,
       width: MediaQuery.of(context).size.width/1.17,
-      child: DistanceRadiusFilter(defaultDistance: 20.0),
+      child: DistanceRadiusFilter(
+        defaultDistance: model.activeFilters != FilterModel.defaultFilters ?
+          model.activeFilters.distanceRadius :
+          FilterModel.defaultFilters.distanceRadius,
+        onChange: (radius) => model.distanceOnChange(radius),
+      ),
     );
   }
 
-  Widget _dateBlock(BuildContext context, HomeModel model) {
+  Widget _dateBlock(BuildContext context, FilterModel model) {
     return BlockContainer(
       title: 'Dates & Times',
       children: [
         DateTimeRow( 
           title: "Start",
-          dateOnChange: (DateTime newDate){},
-          timeOnChange: (TimeOfDay newTime){}
+          initDate: model.activeFilters != FilterModel.defaultFilters ? 
+            model.activeFilters.startTime :
+            FilterModel.defaultFilters.startTime,
+          dateOnChange: (date) => model.startDateOnChange(date),
+          timeOnChange: (time) => model.startTimeOnChange(time)
         ),
         SizedBox(height: 10),
         DateTimeRow(
           title: "End",
-          dateOnChange: (DateTime newDate){},
-          timeOnChange: (TimeOfDay newTime){}
+          initDate: model.activeFilters != FilterModel.defaultFilters ? 
+            model.activeFilters.startTime : 
+            FilterModel.defaultFilters.endTime,
+          dateOnChange: (date) => model.endDateOnChange(date),
+          timeOnChange: (time) => model.endTimeOnChange(time)
         ),
       ],
     );
   }
 
-  Widget _tagsBlock(BuildContext context, HomeModel model){
+  Widget _tagsBlock(BuildContext context, FilterModel model){
     return BlockContainer(
       title: 'Categories & Tags',
       children: [
         CategoryPicker(
-          onChanged: null,
+          onChanged: (categories) => model.categoryOnChange(categories),
           maxChoices: 2,
           iconFontFamily: 'Material Design Icons',
           iconFontPackage: 'material_design_icons_flutter',
-          categories: []
+          categories: model.categories
         ),
         SizedBox(height: 15),
         TagPicker(
-          onChange: null,
-          disabledTags: [],
+          onChange: (tags) => model.tagsOnChange(tags),
+          disabledTags: model.categories.map((e) => e.name).toList(),
         ),
         // SizedBox(height: 10),
       ],
     );
   }
 
-  Widget _filterBlock(BuildContext context, HomeModel model){
+  Widget _filterBlock(BuildContext context, FilterModel model){
     return Column(
       children: <Widget>[
         Padding(
@@ -158,7 +175,7 @@ class FilterScreen extends StatelessWidget{
             children: <Widget>[
               //reset button
               InkWell(
-                onTap: (){}, //reset changes and go back to homescreen
+                onTap: model.resetFilters, //reset changes and go back to homescreen
                 borderRadius: BorderRadius.all(Radius.circular(22.5)),
                 highlightColor: Colors.white,
                 splashColor: Colors.white,
@@ -166,7 +183,7 @@ class FilterScreen extends StatelessWidget{
                   width: 100,
                   height: 45,
                   decoration: BoxDecoration(
-                    color: CometThemeManager.lighten(CometThemeManager.lighten(_appTheme.mainColor)),
+                    color: CometThemeManager.lighten(_appTheme.mainColor, 0.25),
                     boxShadow: [
                       BoxShadow(
                         color: Color.fromARGB(90, 0, 0, 0),
@@ -190,7 +207,7 @@ class FilterScreen extends StatelessWidget{
               ),
               //apply filters button
               CometSubmitButton(
-                onTap: (){}, //apply changes and go back to homescreen
+                onTap: model.applyFilters, //apply changes and go back to homescreen
                 text: 'Apply Filters'
               )
             ],
@@ -204,12 +221,14 @@ class FilterScreen extends StatelessWidget{
 
   class DistanceRadiusFilter extends StatefulWidget {
     final double min, max, defaultDistance;
+    final Function(double) onChange;
 
     const DistanceRadiusFilter ({
       Key key,
       this.min = 0,
-      this.max = 200,
-      this.defaultDistance = 0
+      this.max = 50,
+      this.defaultDistance = 0,
+      @required this.onChange
     }): super(key: key);
 
     @override
@@ -271,11 +290,12 @@ class FilterScreen extends StatelessWidget{
           },
           onChangeEnd: (newRadius){
             setState(() => radius = newRadius );
+            widget.onChange(newRadius); 
             radius == widget.min ? showNewVal = false : showNewVal = true;
           },
           min: widget.min,
           max: widget.max,
-          divisions: ((widget.max-widget.min)/2).floor(),
+          divisions: (widget.max-widget.min).floor(),
           label: "${radius.toStringAsFixed(1)} m",
           activeColor: _appTheme.mainColor,
           inactiveColor: _appTheme.secondaryMono

@@ -33,6 +33,7 @@ class DateSelector extends StatefulWidget {
     this.inkwell = true, 
     this.daysPriorFirst = 0, 
     this.daysTillLast = 2, 
+    this.initDate,
     @required this.onChanged
   }) : super(key: key);
   
@@ -41,6 +42,7 @@ class DateSelector extends StatefulWidget {
   final bool inkwell;
   final int daysPriorFirst;
   final int daysTillLast;
+  final DateTime initDate;
   final Function(DateTime) onChanged;
 
   @override
@@ -69,7 +71,7 @@ class _DateSelectorState extends State<DateSelector> {
     Future _selectDate() async {
       DateTime pickedDate = await showDatePicker(
         context: context,
-        initialDate: selectedDate,
+        initialDate: widget.initDate ?? selectedDate,
         firstDate: now.subtract(Duration(days: widget.daysPriorFirst)),
         lastDate: now.add(Duration(days: widget.daysTillLast))
       );
@@ -220,6 +222,7 @@ class DateTimeRow extends StatelessWidget {
     Key key, 
     @required this.dateOnChange, 
     @required this.timeOnChange, 
+    this.initDate,
     this.backgroundColor, 
     this.textColor, 
     this.inkwell = true, 
@@ -231,6 +234,7 @@ class DateTimeRow extends StatelessWidget {
   final String title;
   final Function(DateTime) dateOnChange;
   final Function(TimeOfDay) timeOnChange;
+  final DateTime initDate;
   final int daysPriorFirst;
   final int daysTillLast;
   final Color backgroundColor;
@@ -250,6 +254,7 @@ class DateTimeRow extends StatelessWidget {
           DateSelector(
             onChanged: dateOnChange,
             backgroundColor: backgroundColor,
+            initDate: initDate,
             textColor: textColor,
             inkwell: inkwell,
             daysPriorFirst: daysPriorFirst,
