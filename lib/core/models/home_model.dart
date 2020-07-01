@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comet_events/core/models/base_model.dart';
 import 'package:comet_events/core/services/services.dart';
 import 'package:comet_events/ui/screens/filter_screen.dart';
@@ -5,13 +6,18 @@ import 'package:comet_events/ui/widgets/event_tile.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:comet_events/ui/screens/screens.dart';
 import 'package:location/location.dart';
+import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class HomeModel extends BaseModel {
+class HomeModel extends StreamViewModel<List<DocumentSnapshot>> {
+
+  @override
+  Stream<List<DocumentSnapshot>> get stream => _geo.eventStream;
 
   // * ----- Services -----
+  GeoService _geo = locator<GeoService>();
   AuthService _auth = locator<AuthService>();
-
+  SnackbarService _snack = locator<SnackbarService>();
   LocationService _location = locator<LocationService>();
   NavigationService _navigation = locator<NavigationService>();
 
@@ -25,14 +31,35 @@ class HomeModel extends BaseModel {
   List<EventTile> get events => _events;
   LocationData get location => _location.currentLocation;
 
+  bool locationDisabled;
+  EventsFilter currentFilter = EventsFilter();
+  // this currentLocation, unlike the getter above, only stores the location when the model loads
+  // rather than refreshing it live
   LocationData currentLocation;
-  int _count = 0;
-  int get count => _count;
+
+  init() async {
+    LocationSetupResponse setupResponse = await requestLocationPerms();
+    if(!setupResponse.serviceEnabled) {
+      _snack.showSnackbar(
+        title: "Location Service Required",
+        message: "Your location is required to use this application. Please enable location services for this application in your device's settings.",
+        duration: Duration(seconds: 20),
+        isDissmissible: false
+      );
+      locationDisabled = true;
+      return;
+    }
+    await getLocation();
+
+    // fetch events nearby
+    await _geo.fetch(filter: currentFilter);
+  }
 
   // * ----- location -----
   requestLocationPerms() async {
-    await _location.setup();
+    LocationSetupResponse setupResponse = await _location.setup();
     notifyListeners();
+    return setupResponse;
   }
 
   getLocation() async {

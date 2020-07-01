@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return UserViewModelBuilder<HomeModel>.reactive(
+      onModelReady: (model, _) => model.init(),
       userViewModelBuilder: () => HomeModel(),
       builder: (context, model, user, child) => Scaffold(
         extendBody: true,
