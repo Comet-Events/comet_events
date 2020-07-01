@@ -24,6 +24,7 @@ class FilterScreen extends StatelessWidget{
           child: UserViewModelBuilder<FilterModel>.reactive(
             userViewModelBuilder: () => FilterModel(),
             onModelReady: (model, user){
+              model.activeFilters = model.currentFilters ?? FilterModel.defaultFilters;
               model.fetchCategories();
             },
             builder: (context, model, user, _) => SingleChildScrollView(
@@ -111,9 +112,8 @@ class FilterScreen extends StatelessWidget{
       color: _appTheme.mainMono,
       width: MediaQuery.of(context).size.width/1.17,
       child: DistanceRadiusFilter(
-        defaultDistance: model.activeFilters != FilterModel.defaultFilters ?
-          model.activeFilters.distanceRadius :
-          FilterModel.defaultFilters.distanceRadius,
+        defaultDistance: model.activeFilters.distanceRadius,
+        max: 20.0,
         onChange: (radius) => model.distanceOnChange(radius),
       ),
     );
@@ -125,18 +125,14 @@ class FilterScreen extends StatelessWidget{
       children: [
         DateTimeRow( 
           title: "Start",
-          initDate: model.activeFilters != FilterModel.defaultFilters ? 
-            model.activeFilters.startTime :
-            FilterModel.defaultFilters.startTime,
+          initDate: model.activeFilters.startTime,
           dateOnChange: (date) => model.startDateOnChange(date),
           timeOnChange: (time) => model.startTimeOnChange(time)
         ),
         SizedBox(height: 10),
         DateTimeRow(
           title: "End",
-          initDate: model.activeFilters != FilterModel.defaultFilters ? 
-            model.activeFilters.startTime : 
-            FilterModel.defaultFilters.endTime,
+          initDate: model.activeFilters.endTime,
           dateOnChange: (date) => model.endDateOnChange(date),
           timeOnChange: (time) => model.endTimeOnChange(time)
         ),
@@ -175,7 +171,7 @@ class FilterScreen extends StatelessWidget{
             children: <Widget>[
               //reset button
               InkWell(
-                onTap: model.resetFilters, //reset changes and go back to homescreen
+                onTap:(){ model.resetFilters();}, //reset filters to default
                 borderRadius: BorderRadius.all(Radius.circular(22.5)),
                 highlightColor: Colors.white,
                 splashColor: Colors.white,
@@ -295,7 +291,7 @@ class FilterScreen extends StatelessWidget{
           },
           min: widget.min,
           max: widget.max,
-          divisions: (widget.max-widget.min).floor(),
+          divisions: (widget.max-widget.min).floor()*4,
           label: "${radius.toStringAsFixed(1)} m",
           activeColor: _appTheme.mainColor,
           inactiveColor: _appTheme.secondaryMono

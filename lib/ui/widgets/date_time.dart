@@ -58,7 +58,7 @@ class _DateSelectorState extends State<DateSelector> {
   void initState() {
     super.initState();
     
-    selectedDate = DateTime.now();
+    selectedDate = widget.initDate ?? DateTime.now();
     now = DateTime.now();
     widget.onChanged(selectedDate);
   }
@@ -71,7 +71,7 @@ class _DateSelectorState extends State<DateSelector> {
     Future _selectDate() async {
       DateTime pickedDate = await showDatePicker(
         context: context,
-        initialDate: widget.initDate ?? selectedDate,
+        initialDate: selectedDate,
         firstDate: now.subtract(Duration(days: widget.daysPriorFirst)),
         lastDate: now.add(Duration(days: widget.daysTillLast))
       );
