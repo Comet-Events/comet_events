@@ -4,42 +4,73 @@ import 'package:flutter/material.dart';
 
 class CometThemeManager extends ChangeNotifier {
 
-  CometThemeData _currentTheme = darkTheme;
+  CometThemeData _currentTheme = prettyTheme;
   CometThemeData get theme => _currentTheme;
 
   // ------- COLORS -------
-  // mono darks
+  // main monos
   static const Color mainMonoDark = Color(0xff343434);
-  static const Color secondaryMonoDark = Color(0xff3E3E3E);
-
-  // mono lights
   static const Color mainMonoLight = Color(0xffF0F0F0);
+  static const Color mainMonoPretty = Color(0xFF21213E);
+
+  // secondary monos
+  static const Color secondaryMonoDark = Color(0xff3E3E3E);
   static const Color secondaryMonoLight = Color(0xffDDDDDD);
+  static const Color secondaryMonoPretty = Color(0XFF3A3B5D);
 
-  // dark colors
+  //main colors
   static const Color mainColorDark = Color(0xff8B51CF);
-  static const Color secondaryColorDark = Color(0xff8B51CF);
-
-  // light colors
   static const Color mainColorLight = Color(0xffF66037);
+  static const Color mainColorPretty = Color(0XFFF43181);
+
+  //secondary colors
+  static const Color secondaryColorDark = Color(0xff8B51CF);
   static const Color secondaryColorLight = Color(0xff8B51CF);
+  static const Color secondaryColorPretty = Color(0xFF4796D4);
 
   // dark uniques (list custom colors here)
   static const Color lineBorderDark = Color.fromARGB(255, 80, 80, 80);
   static const Color miniTextDark = Color.fromARGB(255, 141, 129, 147);
+  static const Map<int, Color> mainColorDarkMap = {
+    50: Color.fromRGBO(139, 81, 207, 0.5),
+    100: Color.fromRGBO(130, 81, 207, 1)
+  };
+  static const MaterialColor mainColorDarkSwatch = MaterialColor(0xFF8B51CF, mainColorDarkMap);
 
   // light uniques (list custom colors here)
   static const Color lineBorderLight = Colors.grey;
   static const Color miniTextLight = Colors.pink;
+  static const Map<int, Color> mainColorLightMap = {
+    50: Color.fromRGBO(246, 96, 55, 0.5),
+    100: Color.fromRGBO(246, 96, 55, 1)
+  };
+  static const MaterialColor mainColorLightSwatch = MaterialColor(0xffF66037, mainColorLightMap);
+
+  // pretty uniques
+  static const Color lineBorderPretty = Color(0xFF7F80A2);
+  static const Map<int, Color> mainColorPrettyMap = {
+    50: Color.fromRGBO(244, 49, 129, 0.5),
+    100: Color.fromRGBO(244, 49, 129, 1)
+  };
+  static const MaterialColor mainColorPrettySwatch = MaterialColor(0xffF43181, mainColorPrettyMap);
 
   // dark theme data
   static CometThemeData darkTheme = CometThemeData(
     themeData: ThemeData(
       cursorColor: mainColorDark,
       primaryColor: mainMonoDark,
-      accentColor: secondaryMonoDark,
       brightness: Brightness.dark,
-      fontFamily: "Lexend Deca"
+      fontFamily: "Lexend Deca",
+      //this is the color of the top of the date picker
+      cardColor: mainMonoDark,
+      //this is the color for the background of the body of the pickers      
+      dialogBackgroundColor: secondaryMonoDark,
+      //the color of the time picker dial
+      accentColor: mainColorDark,
+      //color for head and body background of time picker
+      backgroundColor: mainMonoDark,
+      //color of date chosen in datepicker
+      primarySwatch: mainColorDarkSwatch,
     ),
     mainMono: mainMonoDark,
     secondaryMono: secondaryMonoDark,
@@ -54,9 +85,18 @@ class CometThemeManager extends ChangeNotifier {
     themeData: ThemeData(
       cursorColor: mainColorLight,
       primaryColor: mainMonoLight,
-      accentColor: secondaryMonoLight,
       brightness: Brightness.light,
-      fontFamily: "Lexend Deca"
+      fontFamily: "Lexend Deca",
+      //this is the color of the top of the date picker
+      cardColor: mainMonoLight,
+      //this is the color for the background of the body of the pickers      
+      dialogBackgroundColor: secondaryMonoLight,
+      //the color of the time picker dial
+      accentColor: mainColorLight,
+      //color for head and body background of time picker
+      backgroundColor: mainMonoLight,
+      //color of date chosen in datepicker
+      primarySwatch: mainColorLightSwatch,
     ),
     mainMono: mainMonoLight,
     secondaryMono: secondaryMonoLight,
@@ -66,6 +106,33 @@ class CometThemeManager extends ChangeNotifier {
     miniText: miniTextLight
   );
 
+  // pretty theme data
+  static CometThemeData prettyTheme = CometThemeData(
+    themeData: ThemeData(
+      cursorColor: mainColorPretty,
+      primaryColor: mainMonoPretty,
+      brightness: Brightness.dark,
+      fontFamily: "Lexend Deca",
+      //this is the color of the top of the date picker
+      cardColor: mainMonoPretty,
+      //this is the color for the background of the body of the pickers      
+      dialogBackgroundColor: secondaryMonoPretty,
+      //the color of the time picker dial
+      accentColor: mainColorPretty,
+      //color for head and body background of time picker
+      backgroundColor: mainMonoPretty,
+      //color of date chosen in datepicker
+      primarySwatch: mainColorPrettySwatch,
+    ),
+    mainMono: mainMonoPretty,
+    secondaryMono: secondaryMonoPretty,
+    mainColor: mainColorPretty,
+    secondaryColor: secondaryColorPretty,
+    lineBorder: lineBorderPretty,
+    miniText: secondaryColorPretty
+  );
+  
+  
   // MINI THEME MANAGEMENT SYSTEM uwuwuwuwu :3
   // StreamController<CometThemeData> _controller = StreamController<CometThemeData>();
 
@@ -79,6 +146,10 @@ class CometThemeManager extends ChangeNotifier {
   }
   changeToLight() {
     _currentTheme = lightTheme;
+    notifyListeners();
+  }
+  changeToPretty() {
+    _currentTheme = prettyTheme;
     notifyListeners();
   }
 

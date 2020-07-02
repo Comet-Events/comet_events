@@ -2,16 +2,22 @@ import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
 
+
+
 class ImageTile extends StatelessWidget {
 
-  final String iconFontFamily;
-  final String iconFontPackage;
   final Function(String, bool) onTap;
   final bool selected;
-  final bool isFirst;
+  final bool isCoverImage;
   final String category;
 
-  const ImageTile({Key key, this.iconFontFamily, this.iconFontPackage, this.onTap, this.selected, this.category, this.isFirst = false}) : super(key: key);
+  const ImageTile({
+    Key key,
+    this.onTap,
+    this.selected,
+    this.category,
+    this.isCoverImage = false
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +29,8 @@ class ImageTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 15),
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
-          color: selected ? _appTheme.mainColor : _appTheme.secondaryMono,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: isFirst ? _appTheme.mainColor : Colors.transparent)
+          border: Border.all(color: isCoverImage ? _appTheme.mainColor : Colors.transparent)
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

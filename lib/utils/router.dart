@@ -30,6 +30,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     default: 
       return MaterialPageRoute(
         builder: (context) => Scaffold(
+          appBar: AppBar(backgroundColor: Colors.transparent,),
           body: Center(
             child: Text("The ${settings.name} path doesn't exist")
           )
