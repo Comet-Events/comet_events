@@ -126,6 +126,7 @@ class FilterScreen extends StatelessWidget{
         DateTimeRow( 
           title: "Start",
           initDate: model.activeFilters.startTime,
+          //initTime:
           dateOnChange: (date) => model.startDateOnChange(date),
           timeOnChange: (time) => model.startTimeOnChange(time)
         ),
@@ -133,6 +134,7 @@ class FilterScreen extends StatelessWidget{
         DateTimeRow(
           title: "End",
           initDate: model.activeFilters.endTime,
+          //initTime: 
           dateOnChange: (date) => model.endDateOnChange(date),
           timeOnChange: (time) => model.endTimeOnChange(time)
         ),
@@ -150,13 +152,15 @@ class FilterScreen extends StatelessWidget{
           maxChoices: 2,
           iconFontFamily: 'Material Design Icons',
           iconFontPackage: 'material_design_icons_flutter',
-          categories: model.categories
+          categories: model.categories,
+          //initCategories:
         ),
         SizedBox(height: 15),
         //init selected
         TagPicker(
           onChange: (tags) => model.tagsOnChange(tags),
           disabledTags: model.categories.map((e) => e.name).toList(),
+          initTags: model.activeFilters.tags,
         ),
         // SizedBox(height: 10),
       ],

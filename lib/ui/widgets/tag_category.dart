@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 
 class CategoryPicker extends StatefulWidget {
-  CategoryPicker({Key key, @required this.categories, this.iconFontFamily = 'MaterialIcons', @required this.onChanged, this.maxChoices = 1, this.title, this.iconFontPackage}) : super(key: key);
+  CategoryPicker({Key key, @required this.categories, this.iconFontFamily = 'MaterialIcons', @required this.onChanged, this.maxChoices = 1, this.title, this.iconFontPackage, this.initCategories}) : super(key: key);
 
   final String title;
   final String iconFontFamily;
@@ -15,6 +15,7 @@ class CategoryPicker extends StatefulWidget {
   final List<Tag> categories;
   final Function(List<Tag> categories) onChanged;
   final int maxChoices;
+  final List<Tag> initCategories;
 
 
   @override
@@ -27,6 +28,7 @@ class _CategoryPickerState extends State<CategoryPicker> {
   @override
   void initState() { 
     super.initState();
+    selectedCategories = widget.initCategories;
     if(widget.categories.length >= 1) {
       selectedCategories.add(widget.categories[0]);
     }
@@ -104,7 +106,7 @@ class CategoryTile extends StatelessWidget {
 
 class TagPicker extends StatefulWidget {
   const TagPicker({Key key,
-    this.title, @required this.onChange, this.suggestions, this.maxTags = 7, this.disabledTags,
+    this.title, @required this.onChange, this.suggestions, this.maxTags = 7, this.disabledTags, this.initTags
   }) : super(key: key);
 
   final String title;
@@ -112,6 +114,7 @@ class TagPicker extends StatefulWidget {
   final List<String> suggestions;
   final List<String> disabledTags;
   final int maxTags;
+  final List<String> initTags;
 
   @override
   _TagPickerState createState() => _TagPickerState();
@@ -128,6 +131,7 @@ class _TagPickerState extends State<TagPicker> {
   @override
   void initState(){
     super.initState();
+    displayItems = widget.initTags;
   }
 
   @override

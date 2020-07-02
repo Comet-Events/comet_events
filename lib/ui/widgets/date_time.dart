@@ -152,13 +152,14 @@ class _DateSelectorState extends State<DateSelector> {
 
 }
 
-//add init time to make jafar happy bc he's so goddamn picky
+
 class TimeSelector extends StatefulWidget {
   const TimeSelector({
     Key key, 
     this.backgroundColor, 
     this.textColor, 
     this.inkwell = true, 
+    this.initTime,
     @required this.onChanged
   }) : super(key: key);
   
@@ -166,6 +167,7 @@ class TimeSelector extends StatefulWidget {
   final Color textColor;
   final bool inkwell;
   final Function(TimeOfDay) onChanged;
+  final TimeOfDay initTime;
 
   @override
   _TimeSelectorState createState() => _TimeSelectorState();
@@ -180,7 +182,7 @@ class _TimeSelectorState extends State<TimeSelector> {
   void initState() {
     super.initState();
     
-    selectedTime = TimeOfDay.now();
+    selectedTime = widget.initTime ?? TimeOfDay.now();
     now = TimeOfDay.now();
     widget.onChanged(selectedTime);
   }
@@ -223,6 +225,7 @@ class DateTimeRow extends StatelessWidget {
     @required this.dateOnChange, 
     @required this.timeOnChange, 
     this.initDate,
+    this.initTime,
     this.backgroundColor, 
     this.textColor, 
     this.inkwell = true, 
@@ -235,6 +238,7 @@ class DateTimeRow extends StatelessWidget {
   final Function(DateTime) dateOnChange;
   final Function(TimeOfDay) timeOnChange;
   final DateTime initDate;
+  final TimeOfDay initTime;
   final int daysPriorFirst;
   final int daysTillLast;
   final Color backgroundColor;
