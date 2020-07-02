@@ -152,7 +152,7 @@ class _DateSelectorState extends State<DateSelector> {
 
 }
 
-
+//add init time to make jafar happy bc he's so goddamn picky
 class TimeSelector extends StatefulWidget {
   const TimeSelector({
     Key key, 

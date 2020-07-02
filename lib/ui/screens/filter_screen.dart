@@ -38,7 +38,7 @@ class FilterScreen extends StatelessWidget{
                     padding: const EdgeInsets.all(16.0),
                     child: InkWell(
                       onTap: (){ Navigator.of(context).pop(); },
-                      child: Icon(Icons.arrow_forward,size: 35)
+                      child: Icon(Icons.close,size: 35)
                     ),
                   ),
                   Container(
@@ -144,6 +144,7 @@ class FilterScreen extends StatelessWidget{
     return BlockContainer(
       title: 'Categories & Tags',
       children: [
+        //init selected
         CategoryPicker(
           onChanged: (categories) => model.categoryOnChange(categories),
           maxChoices: 2,
@@ -152,6 +153,7 @@ class FilterScreen extends StatelessWidget{
           categories: model.categories
         ),
         SizedBox(height: 15),
+        //init selected
         TagPicker(
           onChange: (tags) => model.tagsOnChange(tags),
           disabledTags: model.categories.map((e) => e.name).toList(),
@@ -171,7 +173,16 @@ class FilterScreen extends StatelessWidget{
             children: <Widget>[
               //reset button
               InkWell(
-                onTap:(){ model.resetFilters();}, //reset filters to default
+                onTap:(){
+                  model.resetFilters();
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   PageRouteBuilder(
+                  //     pageBuilder: (_, __, ___) => FilterScreen(),
+                  //     transitionDuration: Duration.zero,
+                  //   ),
+                  // );
+                }, //reset filters to default
                 borderRadius: BorderRadius.all(Radius.circular(22.5)),
                 highlightColor: Colors.white,
                 splashColor: Colors.white,
@@ -215,104 +226,105 @@ class FilterScreen extends StatelessWidget{
 
 }
 
-  class DistanceRadiusFilter extends StatefulWidget {
-    final double min, max, defaultDistance;
-    final Function(double) onChange;
+class DistanceRadiusFilter extends StatefulWidget {
+  double min, max, defaultDistance;
+  final Function(double) onChange;
 
-    const DistanceRadiusFilter ({
-      Key key,
-      this.min = 0,
-      this.max = 50,
-      this.defaultDistance = 0,
-      @required this.onChange
-    }): super(key: key);
+  DistanceRadiusFilter ({
+    Key key,
+    this.min = 0,
+    this.max = 50,
+    @required this.defaultDistance,
+    @required this.onChange
+  }): super(key: key);
 
-    @override
-    _DistanceRadiusFilterState createState() => _DistanceRadiusFilterState();
+  @override
+  _DistanceRadiusFilterState createState() => _DistanceRadiusFilterState();
+}
+class _DistanceRadiusFilterState extends State<DistanceRadiusFilter> {
+  // double radius;
+  bool showNewVal = true;
+  final CometThemeData _appTheme = locator<CometThemeManager>().theme;
+
+  // @override
+  // void initState(){
+  //   super.initState();
+  //   radius = widget.defaultDistance;
+  //   print('hi jafar youre my fav');
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        sectionHeader(),
+        distanceSlider(),
+        sliderLabels()
+      ],
+    );
   }
-  class _DistanceRadiusFilterState extends State<DistanceRadiusFilter> {
-    double radius;
-    bool showNewVal = true;
-    final CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
-    @override
-    void initState(){
-      super.initState();
-      radius = widget.defaultDistance;
-    }
+  Row sectionHeader(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          'Distance Radius',
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontSize: 25,
+            color: CometThemeManager.darken(_appTheme.opposite, 0.15)
+          )
+        ),
+        Text(
+          showNewVal ? '${widget.defaultDistance.toStringAsFixed(1)} mi' : '',
+          style: TextStyle(
+            fontSize: 22,
+            color: CometThemeManager.lighten(_appTheme.mainColor)
+          )
+        ),
+      ],
+    );
+  }
+  
+  Widget distanceSlider(){
+    return Padding(
+      padding: const EdgeInsets.only( top: 60 ),
+      child: Slider.adaptive(
+        value: widget.defaultDistance,
+        onChanged: (newRadius){
+          setState(() => widget.defaultDistance = newRadius );
+        },
+        onChangeEnd: (newRadius){
+          setState(() => widget.defaultDistance = newRadius );
+          widget.onChange(newRadius); 
+          widget.defaultDistance == widget.min ? showNewVal = false : showNewVal = true;
+        },
+        min: widget.min,
+        max: widget.max,
+        divisions: (widget.max-widget.min).floor()*4,
+        label: "${widget.defaultDistance.toStringAsFixed(1)} m",
+        activeColor: _appTheme.mainColor,
+        inactiveColor: _appTheme.secondaryMono
+      ),
+    );
+  }
 
-    @override
-    Widget build(BuildContext context) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          sectionHeader(),
-          distanceSlider(),
-          sliderLabels()
-        ],
-      );
-    }
-
-    Row sectionHeader(){
-      return Row(
+  Widget sliderLabels(){
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal:10),
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(
-            'Distance Radius',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              fontSize: 25,
-              color: CometThemeManager.darken(_appTheme.opposite, 0.15)
-            )
+          Text('${widget.min} miles',
+            style: TextStyle(color: CometThemeManager.darken(_appTheme.opposite))
           ),
-          Text(
-            showNewVal ? '${radius.toStringAsFixed(1)} mi' : '',
-            style: TextStyle(
-              fontSize: 22,
-              color: CometThemeManager.lighten(_appTheme.mainColor)
-            )
-          ),
+          Text('${widget.max} miles',
+            style: TextStyle(color: CometThemeManager.darken(_appTheme.opposite))
+          )
         ],
-      );
-    }
-    
-    Widget distanceSlider(){
-      return Padding(
-        padding: const EdgeInsets.only( top: 60 ),
-        child: Slider.adaptive(
-          value: radius,
-          onChanged: (newRadius){
-            setState(() => radius = newRadius );
-          },
-          onChangeEnd: (newRadius){
-            setState(() => radius = newRadius );
-            widget.onChange(newRadius); 
-            radius == widget.min ? showNewVal = false : showNewVal = true;
-          },
-          min: widget.min,
-          max: widget.max,
-          divisions: (widget.max-widget.min).floor()*4,
-          label: "${radius.toStringAsFixed(1)} m",
-          activeColor: _appTheme.mainColor,
-          inactiveColor: _appTheme.secondaryMono
-        ),
-      );
-    }
-
-    Widget sliderLabels(){
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal:10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text('${widget.min} miles',
-              style: TextStyle(color: CometThemeManager.darken(_appTheme.opposite))
-            ),
-            Text('${widget.max} miles',
-              style: TextStyle(color: CometThemeManager.darken(_appTheme.opposite))
-            )
-          ],
-        ),
-      );
-    }
+      ),
+    );
   }
+}

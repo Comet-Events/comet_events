@@ -106,6 +106,7 @@ class FilterModel extends ChangeNotifier{
   //reset button
   void resetFilters(){
     activeFilters = newFilters = defaultFilters;
+    notifyListeners();
     print('hasta luego');
   }
   
