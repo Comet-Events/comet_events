@@ -27,7 +27,8 @@ class AddEventModel extends ChangeNotifier {
   TagsService _tags = locator<TagsService>();
   RemoteConfigService _rc = locator<RemoteConfigService>();
   NavigationService _navigate = locator<NavigationService>();
-  SnackbarService _snack = locator<SnackbarService>(); // yum
+  SnackbarService _snack = locator<SnackbarService>(); 
+  // StorageService _storage = locator<StorageService>();// yum
 
   TextEditingController _name = TextEditingController();
   TextEditingController _description = TextEditingController();
@@ -44,6 +45,7 @@ class AddEventModel extends ChangeNotifier {
 
   bool loading = false;
   List<Tag> categories = [];
+  // List<FirebaseStorageResult> images = [];
   // Timestamp premiere;
   // Timestamp start;
   // Timestamp end;

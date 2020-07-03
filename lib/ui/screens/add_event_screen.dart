@@ -3,7 +3,7 @@ import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/comet_buttons.dart';
 import 'package:comet_events/ui/widgets/comet_text_field.dart';
 import 'package:comet_events/ui/widgets/date_time.dart';
-import 'package:comet_events/ui/widgets/image_picker.dart';
+import 'package:comet_events/ui/widgets/upload_image.dart';
 import 'package:comet_events/ui/widgets/tag_category.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/ui/widgets/layout_widgets.dart';
@@ -234,7 +234,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
     return BlockContainer(
       title: 'Images',
       children: [
-        ImageTile()
+        ImageUploader()
         // SizedBox(height: 10),
       ],
     );

@@ -55,6 +55,29 @@ class BlockDivider extends StatelessWidget {
   }
 }
 
+class SubBlockContainer extends StatelessWidget {
+  const SubBlockContainer({Key key, this.title, this.child, this.space = 5}) : super(key: key);
+
+  final String title;
+  final Widget child;
+  final double space;
+
+  @override
+  Widget build(BuildContext context) {
+    
+    Color labelTextColor = CometThemeManager.lighten(locator<CometThemeManager>().theme.secondaryMono, 0.3);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(title, style: TextStyle(color: labelTextColor), overflow: TextOverflow.fade, maxLines: 4,),
+        SizedBox(height: space),
+        child
+      ]
+    );
+  }
+}
+
 class BlockContainer extends StatelessWidget {
   const BlockContainer({Key key, @required this.children, @required this.title}) : super(key: key);
 

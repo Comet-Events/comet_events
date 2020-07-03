@@ -6,3 +6,4 @@ export './geo.dart';
 export './location.dart';
 export './rc.dart';
 export './tags.dart';
+export './storage.dart';
