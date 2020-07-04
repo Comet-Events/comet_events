@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 
 class Event {
   String name;
@@ -11,6 +12,7 @@ class Event {
   List<String> categories;
   Stats stats;
   Location location;
+  List<Asset> images;
   Settings settings;
 
   Event(

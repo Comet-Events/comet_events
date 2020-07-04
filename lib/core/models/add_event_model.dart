@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/core/services/services.dart';
+import 'package:comet_events/ui/widgets/upload_image.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:place_picker/place_picker.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -198,6 +200,17 @@ class AddEventModel extends ChangeNotifier {
   // String formattedDate(DateTime date) {
   //   return "${date.month}-${date.day}-${date.year}, ${date.hour}:${date.minute}:${date.second}";
   // }
+
+  // image functions
+  viewFullScreen(Asset img){
+    _navigate.navigateWithTransition(
+      FullImageScreen(image: img),
+      opaque: false,
+      transition: NavigationTransition.Fade
+    );
+  }
+
+
   // * ----- onChange handlers -----
   // dates and times
   premiereOnChange(int hour) { premiereHours = hour; }

@@ -7,20 +7,28 @@ import 'package:comet_events/ui/widgets/layout_widgets.dart';
 
 class ImageUploader extends StatefulWidget {
   final String title;
+  final Function(Asset) onTap;
 
   const ImageUploader({
     Key key,
     this.title,
+    @required this.onTap,
   }) : super(key: key);
   
   @override
   _ImageUploaderState createState() => _ImageUploaderState();
 }
-
 class _ImageUploaderState extends State<ImageUploader> {
   List<Asset> images = List<Asset>();
   String _error;
   Offset _tapPosition;
+  int chosenCover;
+
+  @override
+  void initState(){
+    super.initState();
+    chosenCover = 0;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +40,17 @@ class _ImageUploaderState extends State<ImageUploader> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: <Widget>[
-              for(int i = 0; i < images.length; i++) 
-                ImageTile(
-                  image: images[i],
-                  onTap: (){},
-                  onTapDown: _storePosition,
-                  onLongPress: (){_showPopUp(i);}, 
+              for( int i = 0; i < images.length; i++ )                    
+                Hero(
+                  tag: "uploadedImage",
+                  child: ImageTile(
+                    isCoverImage: i == chosenCover,
+                    image: images[i],
+                    // onTap: widget.onTap(images[i]),
+                    onTap: (){},
+                    onTapDown: _storePosition,
+                    onLongPress: (){ _showPopUp(i); }, 
+                  ),
                 ),
               AddTile(onTap: _loadAssets)
             ],
@@ -90,6 +103,11 @@ class _ImageUploaderState extends State<ImageUploader> {
           images.remove(images[i]);
         });
       }
+      else{
+        setState(() {
+          chosenCover = i;
+        });
+      }
       
     });
   }
@@ -114,15 +132,10 @@ class _PopUpEntryState extends State<PopUpEntry> {
   
   @override
   Widget build(BuildContext context) {
-    final CometThemeData _appTheme = locator<CometThemeManager>().theme;
     return Row(
       children: <Widget>[
-        Expanded(
-          child: IconButton(icon: Icon(Icons.delete), onPressed: _delete)
-        ),
-        Expanded(
-          child: IconButton(icon: Icon(Icons.star), onPressed: _star)
-        )
+        Expanded(child: IconButton(icon: Icon(Icons.delete), onPressed: _delete)),
+        Expanded(child: IconButton(icon: Icon(Icons.star), onPressed: _star))
       ],
     );
   }
@@ -130,6 +143,7 @@ class _PopUpEntryState extends State<PopUpEntry> {
 
 class ImageTile extends StatelessWidget {
   final double borderRadius;
+  final double borderWidth;
   final double height;
   final bool isCoverImage;
   final Asset image;
@@ -141,6 +155,7 @@ class ImageTile extends StatelessWidget {
     Key key,
     this.isCoverImage = false,
     this.borderRadius = 10,
+    this.borderWidth = 2,
     this.height = 70,
     @required this.onTap,
     @required this.onLongPress,
@@ -156,19 +171,17 @@ class ImageTile extends StatelessWidget {
       onTapDown: onTapDown, //save tap position
       onLongPress: onLongPress,//popup menu for delete and make cover
       child: Container(
-        height: 70,
-        padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+        height: height,
         margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
-          color: _appTheme.secondaryMono,
           borderRadius: BorderRadius.circular(borderRadius),
           border: Border.all(
-            width: 1.5,
-            color: isCoverImage ? _appTheme.mainColor : Colors.transparent
+            width: borderWidth,
+            color: isCoverImage ? _appTheme.mainColor : _appTheme.secondaryMono
           )
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(borderRadius),
+          borderRadius: BorderRadius.circular(borderRadius-borderWidth),
           child: AssetThumb(
             asset: image,
             height: height.floor(),
@@ -200,6 +213,33 @@ class AddTile extends StatelessWidget {
         ),
         child: Icon(Icons.add, color: _appTheme.mainColor),
       ),
+    );
+  }
+}
+
+class FullImageScreen extends StatelessWidget {
+  final Asset image;
+
+  const FullImageScreen({Key key, @required this.image}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: Scaffold (
+        body: Center(
+          child: Hero(
+            tag: "uploadedImage",
+            child: AssetThumb(
+              asset: image,
+              width: MediaQuery.of(context).size.width.floor(),
+              height: ((MediaQuery.of(context).size.width.floor()*image.originalHeight)/image.originalWidth).floor()
+            )
+          ),
+        ),
+      ),
+      onTap: () {
+        Navigator.pop(context);
+      },
     );
   }
 }
