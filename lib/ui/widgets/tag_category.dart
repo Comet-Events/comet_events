@@ -15,7 +15,7 @@ class CategoryPicker extends StatefulWidget {
   final List<Tag> categories;
   final Function(List<Tag> categories) onChanged;
   final int maxChoices;
-  final List<Tag> initCategories;
+  final List<String> initCategories;
 
 
   @override
@@ -28,8 +28,8 @@ class _CategoryPickerState extends State<CategoryPicker> {
   @override
   void initState() { 
     super.initState();
-    selectedCategories = widget.initCategories;
     if(widget.categories.length >= 1) {
+      selectedCategories = widget.categories.map((category) => widget.initCategories.contains(category.name) ? category : [] ).toList();
       selectedCategories.add(widget.categories[0]);
     }
   }
@@ -131,7 +131,7 @@ class _TagPickerState extends State<TagPicker> {
   @override
   void initState(){
     super.initState();
-    displayItems = widget.initTags;
+    displayItems = widget.initTags ?? [];
   }
 
   @override

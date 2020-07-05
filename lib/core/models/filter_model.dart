@@ -1,6 +1,7 @@
 import 'package:comet_events/core/objects/EventFilters.dart';
 import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/core/services/services.dart';
+import 'package:comet_events/ui/screens/filter_screen.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,12 @@ class FilterModel extends ChangeNotifier{
 
   EventFilters activeFilters = defaultFilters;
   EventFilters newFilters = new EventFilters();
+
+  TimeOfDay startRangeStart;
+  TimeOfDay startRangeEnd;
+  TimeOfDay endRangeStart;
+  TimeOfDay endRangeEnd;
+
   DateTime newStartDate;
   TimeOfDay newStartTime;
   DateTime newEndDate;
@@ -139,6 +146,9 @@ class FilterModel extends ChangeNotifier{
 
   //on change handlers --thank you for like 99.9% of this code jafar
   distanceOnChange(double radius){ newFilters.distanceRadius = radius;}
+
+  startRangeOnChange(TimeRangeResult result) {startRangeStart = result.start; startRangeEnd = result.end;}
+  endRangeOnChange(TimeRangeResult result) {endRangeStart = result.start; endRangeEnd = result.end;}
 
   startDateOnChange(DateTime date) { newStartDate = date.resetToDayStart(); }
   startTimeOnChange(TimeOfDay time) { newStartTime = time; }

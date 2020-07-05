@@ -10,6 +10,20 @@ import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
 
+extension on TimeOfDay {
+  double toDouble() => this.hour + this.minute/60.0;
+}
+
+extension on double {
+  TimeOfDay toTimeOfDay() {
+    double val = this;
+    while(val >= 24) {
+      val -= 24;
+    }
+    return TimeOfDay(hour: val.toInt(), minute: ((val - val.toInt())*60).toInt());
+  }
+}
+
 class FilterScreen extends StatelessWidget{
   final CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
@@ -120,23 +134,68 @@ class FilterScreen extends StatelessWidget{
   }
 
   Widget _dateBlock(BuildContext context, FilterModel model) {
+    // return BlockContainer(
+    //   title: 'Dates & Times',
+    //   children: [
+    //     DateTimeRow( 
+    //       title: "Start",
+    //       initDate: model.activeFilters.startTime,
+    //       //initTime:
+    //       dateOnChange: (date) => model.startDateOnChange(date),
+    //       timeOnChange: (time) => model.startTimeOnChange(time)
+    //     ),
+    //     SizedBox(height: 10),
+    //     DateTimeRow(
+    //       title: "End",
+    //       initDate: model.activeFilters.endTime,
+    //       //initTime: 
+    //       dateOnChange: (date) => model.endDateOnChange(date),
+    //       timeOnChange: (time) => model.endTimeOnChange(time)
+    //     ),
+    //   ],
+    // );
     return BlockContainer(
-      title: 'Dates & Times',
+      title: 'Timing',
       children: [
-        DateTimeRow( 
-          title: "Start",
-          initDate: model.activeFilters.startTime,
-          //initTime:
-          dateOnChange: (date) => model.startDateOnChange(date),
-          timeOnChange: (time) => model.startTimeOnChange(time)
+        Column(
+          children: <Widget>[
+            SizedBox(height: 10),
+            SubBlockContainer(
+              title: 'Start Range',
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 15),
+                  TimeRange(
+                    start: TimeOfDay(hour: 0, minute: 0),
+                    end: TimeOfDay(hour: 15, minute: 0),
+                    interval: Duration(minutes: 30),
+                    onChanged: (results) => model.startRangeOnChange(results),
+                    liveEnabled: true,
+                  ),
+                ],
+              ),
+            ),
+            sliderLabels("🔴 Live", (TimeOfDay.now().toDouble() + 12).toTimeOfDay().format(context)),
+          ],
         ),
-        SizedBox(height: 10),
-        DateTimeRow(
-          title: "End",
-          initDate: model.activeFilters.endTime,
-          //initTime: 
-          dateOnChange: (date) => model.endDateOnChange(date),
-          timeOnChange: (time) => model.endTimeOnChange(time)
+        Column(
+          children: <Widget>[
+            SubBlockContainer(
+              title: 'End Range',
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 15),
+                  TimeRange(
+                    start: TimeOfDay(hour: 0, minute: 0),
+                    end: TimeOfDay(hour: 15, minute: 0),
+                    interval: Duration(minutes: 10),
+                    onChanged: (results) => model.endRangeOnChange(results),
+                  ),
+                ],
+              ),
+            ),
+            sliderLabels(TimeOfDay(hour: 0, minute: 0).format(context), TimeOfDay(hour: 15, minute: 0).format(context)),
+          ],
         ),
       ],
     );
@@ -170,64 +229,83 @@ class FilterScreen extends StatelessWidget{
   Widget _filterBlock(BuildContext context, FilterModel model){
     return Column(
       children: <Widget>[
-        Padding(
-          padding: EdgeInsets.fromLTRB(30, 20, 30, 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              //reset button
-              InkWell(
-                onTap:(){
-                  model.resetFilters();
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   PageRouteBuilder(
-                  //     pageBuilder: (_, __, ___) => FilterScreen(),
-                  //     transitionDuration: Duration.zero,
-                  //   ),
-                  // );
-                }, //reset filters to default
-                borderRadius: BorderRadius.all(Radius.circular(22.5)),
-                highlightColor: Colors.white,
-                splashColor: Colors.white,
-                child: Container(
-                  width: 100,
-                  height: 45,
-                  decoration: BoxDecoration(
-                    color: CometThemeManager.lighten(_appTheme.mainColor, 0.25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color.fromARGB(90, 0, 0, 0),
-                        offset: Offset(0, 4),
-                        blurRadius: 10,
-                      )
-                    ],
-                    borderRadius: BorderRadius.all(Radius.circular(22.5)),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Reset',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: _appTheme.mainColor,
-                        fontSize: 16,
+        SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(30, 20, 30, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                //reset button
+                InkWell(
+                  onTap:(){
+                    model.resetFilters();
+                    // Navigator.pushReplacement(
+                    //   context,
+                    //   PageRouteBuilder(
+                    //     pageBuilder: (_, __, ___) => FilterScreen(),
+                    //     transitionDuration: Duration.zero,
+                    //   ),
+                    // );
+                  }, //reset filters to default
+                  borderRadius: BorderRadius.all(Radius.circular(22.5)),
+                  highlightColor: Colors.white,
+                  splashColor: Colors.white,
+                  child: Container(
+                    width: 100,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      color: CometThemeManager.lighten(_appTheme.mainColor, 0.25),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color.fromARGB(90, 0, 0, 0),
+                          offset: Offset(0, 4),
+                          blurRadius: 10,
+                        )
+                      ],
+                      borderRadius: BorderRadius.all(Radius.circular(22.5)),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Reset',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: _appTheme.mainColor,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              //apply filters button
-              CometSubmitButton(
-                onTap: model.applyFilters, //apply changes and go back to homescreen
-                text: 'Apply Filters'
-              )
-            ],
+                //apply filters button
+                CometSubmitButton(
+                  onTap: model.applyFilters, //apply changes and go back to homescreen
+                  text: 'Apply Filters'
+                )
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
+  Widget sliderLabels(String left, String right){
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10,0,10,20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(left,
+            style: TextStyle(color: CometThemeManager.darken(_appTheme.opposite))
+          ),
+          Text(right,
+            style: TextStyle(color: CometThemeManager.darken(_appTheme.opposite))
+          )
+        ],
+      ),
+    );
+  }
 }
 
 class DistanceRadiusFilter extends StatefulWidget {
@@ -295,7 +373,7 @@ class _DistanceRadiusFilterState extends State<DistanceRadiusFilter> {
   Widget distanceSlider(){
     return Padding(
       padding: const EdgeInsets.only( top: 60 ),
-      child: Slider.adaptive(
+      child: Slider(
         value: widget.defaultDistance,
         onChanged: (newRadius){
           setState(() => widget.defaultDistance = newRadius );
@@ -331,4 +409,67 @@ class _DistanceRadiusFilterState extends State<DistanceRadiusFilter> {
       ),
     );
   }
+}
+
+
+
+class TimeRange extends StatefulWidget {
+  const TimeRange({Key key, this.start, this.end, this.interval, this.onChanged, this.liveText = "Live", this.liveEnabled = false }) : super(key: key);
+
+  @required final TimeOfDay start;
+  @required final TimeOfDay end;
+  @required final Function(TimeRangeResult) onChanged;
+  final Duration interval;
+  final bool liveEnabled;
+  final String liveText;
+
+  @override
+  _TimeRangeState createState() => _TimeRangeState();
+}
+
+class _TimeRangeState extends State<TimeRange> {
+
+  var values = RangeValues(1, 10);
+  double live = 0;
+  int divisions = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    divisions = getDivisions();
+    values = RangeValues(widget.start.toDouble(), widget.end.toDouble());
+    live = widget.start.toDouble();
+  }
+
+  getDivisions() {
+    if(widget.interval != null) {
+      TimeOfDay state = widget.end;
+      double interval = widget.interval.inMinutes/60;
+      while (state.toDouble() > widget.start.toDouble()) {
+        state = (state.toDouble() - interval).toTimeOfDay();
+        divisions++;
+      }
+      return divisions;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+  print('${values.start.toTimeOfDay().format(context)}' + '${values.end.toTimeOfDay().format(context)}');
+    return RangeSlider(
+      onChanged: (v) { setState(() { values = v; }); widget.onChanged(TimeRangeResult(v.start.toTimeOfDay(), v.end.toTimeOfDay(), v.start == live)); },
+      values: values,
+      labels: RangeLabels('${values.start == live && widget.liveEnabled ? widget.liveText : values.start.toTimeOfDay().format(context)}', '${values.end.toTimeOfDay().format(context)}'),
+      min: widget.start.toDouble(),
+      max: widget.end.toDouble(),
+      divisions: divisions,
+    );
+  }
+}
+
+class TimeRangeResult {
+  final TimeOfDay start;
+  final TimeOfDay end;
+  final bool startLive;
+  TimeRangeResult(this.start, this.end, this.startLive);
 }
