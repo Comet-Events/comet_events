@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +11,16 @@ class ImageUploader extends StatefulWidget {
   final String title;
   final Function(Asset) onTap;
   final Function(List<Asset>) onChange;
+  final bool premium;
+  final int premiumMax;
+  final int freeMax;
 
   const ImageUploader({
     Key key,
     this.title,
+    this.premium = false,
+    this.premiumMax = 3,
+    this.freeMax = 2,
     @required this.onChange,
     @required this.onTap,
   }) : super(key: key);
@@ -43,17 +51,12 @@ class _ImageUploaderState extends State<ImageUploader> {
           child: Row(
             children: <Widget>[
               for( int i = 0; i < images.length; i++ )                    
-                Hero(
-                  tag: "uploadedImage",
-                  child: ImageTile(
-                    isCoverImage: i == chosenCover,
-                    image: images[i],
-                    // onTap: widget.onTap(images[i]),
-                    onTap: (){_onTap(images[i]);},
-                    // onTap: (){},
-                    onTapDown: _storePosition,
-                    onLongPress: (){ _showPopUp(i); }, 
-                  ),
+                ImageTile(
+                  isCoverImage: i == chosenCover,
+                  image: images[i],
+                  onTap: (){_onTap(images[i], i);},
+                  onTapDown: _storePosition,
+                  onLongPress: (){ _showPopUp(i, false); }, 
                 ),
               AddTile(onTap: _loadAssets)
             ],
@@ -63,10 +66,14 @@ class _ImageUploaderState extends State<ImageUploader> {
     );
   }
 
-  void _onTap(Asset img){
+  void _onTap(Asset img, int i){
     print('tapped');
     Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return FullImageScreen(image: img);
+      return FullImageScreen(
+        image: img,
+        onTapDown: _storePosition,
+        onTap: (){ _showPopUp(i, true); } 
+      );
     }));
   }
 
@@ -74,10 +81,15 @@ class _ImageUploaderState extends State<ImageUploader> {
     List<Asset> resultList;
     String error;
     final CometThemeData _appTheme = locator<CometThemeManager>().theme;
+    int maxPics;
+
+    if( widget.premium )
+      maxPics = widget.premiumMax;
+    else maxPics = widget.freeMax;
 
     try {
       resultList = await MultiImagePicker.pickImages(
-        maxImages: 300,
+        maxImages: maxPics,
         materialOptions: MaterialOptions(
           actionBarColor: getHexString(_appTheme.secondaryMono),
           statusBarColor: getHexString(_appTheme.mainMono),
@@ -96,37 +108,49 @@ class _ImageUploaderState extends State<ImageUploader> {
     if (!mounted) return;
 
     setState(() {
+      if( resultList.length + images.length > maxPics ){
+        _error = "You're allowed a max of $maxPics images!";
+        //will later want to show a snackbar with this message (it's not actually displayed anywhere rn)
+        return;
+      }
+
       images.addAll(resultList);
-      print("hi!");
-      print( _appTheme.mainMono.toString() );
-      print( getHexString(_appTheme.mainMono));
       widget.onChange(images);
-      if (error == null) _error = 'No Error Dectected';
+
+      if (error == null)
+        _error = 'No Error Dectected';
     });
   }
 
-  void _showPopUp(int i){
+  void _showPopUp(int i, bool inFullScreen){
     final RenderBox overlay = Overlay.of(context).context.findRenderObject();
 
     showMenu(
       context: context, 
       position: RelativeRect.fromRect(
-          _tapPosition & Size(40, 40), // smaller rect, the touch area
-          Offset.zero & overlay.size   // Bigger rect, the entire screen
+          _tapPosition & Size(40, 40), 
+          Offset.zero & overlay.size   
       ),
       items: <PopupMenuEntry<int>>[PopUpEntry()],
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       color: locator<CometThemeManager>().theme.secondaryMono
     ).then<void>((int delta){
-      if( delta == null )
+      if( delta == null ) //if they tap outside of the pop up
         return;
-      else if( delta == 0){
+      else if( delta == 0){ //tap on delete
         setState(() {
+          //if viewing in full screen, first exit and then delete
+          if( inFullScreen )
+            Navigator.pop(context);
+
           images.remove(images[i]);
+
+          if( i < chosenCover )
+            chosenCover--;
           widget.onChange(images);
         });
       }
-      else{
+      else{ //tap on star *-*
         setState(() {
           chosenCover = i;
         });
@@ -195,7 +219,7 @@ class ImageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CometThemeData _appTheme = locator<CometThemeManager>().theme;
-    return InkWell(
+    return GestureDetector(
       onTap: onTap, //full screen
       onTapDown: onTapDown, //save tap position
       onLongPress: onLongPress,//popup menu for delete and make cover
@@ -230,7 +254,7 @@ class AddTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CometThemeData _appTheme = locator<CometThemeManager>().theme;
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 70,
@@ -248,27 +272,48 @@ class AddTile extends StatelessWidget {
 
 class FullImageScreen extends StatelessWidget {
   final Asset image;
+  final Function() onTap;
+  final Function(TapDownDetails) onTapDown;
 
-  const FullImageScreen({Key key, @required this.image}) : super(key: key);
+  const FullImageScreen({
+    Key key,
+    @required this.image,
+    @required this.onTap,
+    @required this.onTapDown
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: Scaffold (
-        body: Center(
-          child: Hero(
-            tag: "uploadedImage",
-            child: AssetThumb(
-              asset: image,
-              width: MediaQuery.of(context).size.width.floor(),
-              height: ((MediaQuery.of(context).size.width.floor()*image.originalHeight)/image.originalWidth).floor()
-            )
+    final CometThemeData _appTheme = locator<CometThemeManager>().theme;
+    return Scaffold (
+      backgroundColor: _appTheme.mainMono.withOpacity(0.2),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                GestureDetector(
+                  onTapDown: onTapDown,
+                  onTap: onTap,
+                  child: Icon(Icons.more_horiz)
+                ),
+                IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: (){ Navigator.pop(context); },
+                )
+              ],
+            ),
           ),
-        ),
+          AssetThumb(
+            asset: image,
+            width: MediaQuery.of(context).size.width.floor(),
+            height: ((MediaQuery.of(context).size.width.floor()*image.originalHeight)/image.originalWidth).floor()
+          ),
+        ],
       ),
-      onTap: () {
-        Navigator.pop(context);
-      },
     );
   }
 }

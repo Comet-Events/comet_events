@@ -30,7 +30,7 @@ class AddEventModel extends ChangeNotifier {
   RemoteConfigService _rc = locator<RemoteConfigService>();
   NavigationService _navigate = locator<NavigationService>();
   SnackbarService _snack = locator<SnackbarService>(); // yum
-  StorageService _storage = locator<StorageService>();
+  // StorageService _storage = locator<StorageService>();
 
   TextEditingController _name = TextEditingController();
   TextEditingController _description = TextEditingController();
@@ -72,7 +72,6 @@ class AddEventModel extends ChangeNotifier {
       borderRadius: 15,
       shouldIconPulse: true,
       margin: const EdgeInsets.symmetric(horizontal: 10),
-       
     );
   }
   // ! Validator function !
