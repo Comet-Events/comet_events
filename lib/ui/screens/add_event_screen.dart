@@ -235,7 +235,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
       title: 'Images',
       children: [
         ImageUploader(
-          onTap: (asset){ model.viewFullScreen(asset); },
+          onTap: (asset) => model.viewFullScreen(asset),
+          onChange: (images) => model.imageOnChange(images)
         )
         // SizedBox(height: 10),
       ],

@@ -29,8 +29,8 @@ class AddEventModel extends ChangeNotifier {
   TagsService _tags = locator<TagsService>();
   RemoteConfigService _rc = locator<RemoteConfigService>();
   NavigationService _navigate = locator<NavigationService>();
-  SnackbarService _snack = locator<SnackbarService>(); 
-  // StorageService _storage = locator<StorageService>();// yum
+  SnackbarService _snack = locator<SnackbarService>(); // yum
+  StorageService _storage = locator<StorageService>();
 
   TextEditingController _name = TextEditingController();
   TextEditingController _description = TextEditingController();
@@ -176,6 +176,10 @@ class AddEventModel extends ChangeNotifier {
     // can be syncronous
     _tags.incrementTags(newEvent.tags);
     _tags.incrementCategories(newEvent.categories);
+    // idk it just felt right to put a comment here
+    // for(int i = 0; i < newEvent.images.length; i++)
+    //    _storage.uploadImage(imageToUpload: newEvent.images[i], title: newEvent.images[i].name);
+      
     /// * ----firebase----
     loading = false;
     notifyListeners();
@@ -202,7 +206,7 @@ class AddEventModel extends ChangeNotifier {
   // }
 
   // image functions
-  viewFullScreen(Asset img){
+  void viewFullScreen(Asset img){
     _navigate.navigateWithTransition(
       FullImageScreen(image: img),
       opaque: false,
@@ -222,6 +226,9 @@ class AddEventModel extends ChangeNotifier {
   // categories and tags
   categoryOnChange(List<Tag> categories) { newEvent.categories = categories.map((e) => e.name).toList(); }
   tagsOnChange(List<String> tags) { newEvent.tags = tags; }
+
+  //images
+  imageOnChange(List<Asset> images) { newEvent.images = images; }
 
   // location
   void showPlacePicker(BuildContext context) async {

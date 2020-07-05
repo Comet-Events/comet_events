@@ -8,10 +8,12 @@ import 'package:comet_events/ui/widgets/layout_widgets.dart';
 class ImageUploader extends StatefulWidget {
   final String title;
   final Function(Asset) onTap;
+  final Function(List<Asset>) onChange;
 
   const ImageUploader({
     Key key,
     this.title,
+    @required this.onChange,
     @required this.onTap,
   }) : super(key: key);
   
@@ -47,7 +49,8 @@ class _ImageUploaderState extends State<ImageUploader> {
                     isCoverImage: i == chosenCover,
                     image: images[i],
                     // onTap: widget.onTap(images[i]),
-                    onTap: (){},
+                    onTap: (){_onTap(images[i]);},
+                    // onTap: (){},
                     onTapDown: _storePosition,
                     onLongPress: (){ _showPopUp(i); }, 
                   ),
@@ -60,13 +63,28 @@ class _ImageUploaderState extends State<ImageUploader> {
     );
   }
 
+  void _onTap(Asset img){
+    print('tapped');
+    Navigator.push(context, MaterialPageRoute(builder: (_) {
+      return FullImageScreen(image: img);
+    }));
+  }
+
   Future<void> _loadAssets() async {
     List<Asset> resultList;
     String error;
+    final CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
     try {
       resultList = await MultiImagePicker.pickImages(
         maxImages: 300,
+        materialOptions: MaterialOptions(
+          actionBarColor: getHexString(_appTheme.secondaryMono),
+          statusBarColor: getHexString(_appTheme.mainMono),
+          allViewTitle: 'All Images',
+          lightStatusBar: _appTheme.antiOpposite == Colors.white,
+          startInAllView: true,
+        )
       );
     } on Exception catch (e) {
       error = e.toString();
@@ -79,6 +97,10 @@ class _ImageUploaderState extends State<ImageUploader> {
 
     setState(() {
       images.addAll(resultList);
+      print("hi!");
+      print( _appTheme.mainMono.toString() );
+      print( getHexString(_appTheme.mainMono));
+      widget.onChange(images);
       if (error == null) _error = 'No Error Dectected';
     });
   }
@@ -101,6 +123,7 @@ class _ImageUploaderState extends State<ImageUploader> {
       else if( delta == 0){
         setState(() {
           images.remove(images[i]);
+          widget.onChange(images);
         });
       }
       else{
@@ -113,6 +136,12 @@ class _ImageUploaderState extends State<ImageUploader> {
   }
 
   void _storePosition(TapDownDetails details){ _tapPosition = details.globalPosition;}
+
+  String getHexString(Color color){
+    String colorString = color.toString();
+    String valueString = colorString.substring(colorString.indexOf("x")+3, colorString.length-1);
+    return '#' + valueString;
+  }
 }
 
 class PopUpEntry extends PopupMenuEntry<int> {
@@ -167,7 +196,7 @@ class ImageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final CometThemeData _appTheme = locator<CometThemeManager>().theme;
     return InkWell(
-      onTap: onTap, //full screen that hoe
+      onTap: onTap, //full screen
       onTapDown: onTapDown, //save tap position
       onLongPress: onLongPress,//popup menu for delete and make cover
       child: Container(
