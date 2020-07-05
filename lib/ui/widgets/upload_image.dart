@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
@@ -11,16 +10,14 @@ class ImageUploader extends StatefulWidget {
   final String title;
   final Function(Asset) onTap;
   final Function(List<Asset>) onChange;
-  final bool premium;
-  final int premiumMax;
-  final int freeMax;
+  final Function(String) showErrorSnack;
+  final int maxPics;
 
   const ImageUploader({
     Key key,
     this.title,
-    this.premium = false,
-    this.premiumMax = 3,
-    this.freeMax = 2,
+    this.maxPics = 2,
+    this.showErrorSnack,
     @required this.onChange,
     @required this.onTap,
   }) : super(key: key);
@@ -43,7 +40,7 @@ class _ImageUploaderState extends State<ImageUploader> {
   @override
   Widget build(BuildContext context) {
     return SubBlockContainer(
-      title: (widget.title ?? "Tap to upload images"),
+      title: widget.title ?? "Tap to upload images (max: ${widget.maxPics})",
       child: FadingEdgeScrollView.fromSingleChildScrollView(
         child: SingleChildScrollView(
           controller: ScrollController(),
@@ -81,15 +78,10 @@ class _ImageUploaderState extends State<ImageUploader> {
     List<Asset> resultList;
     String error;
     final CometThemeData _appTheme = locator<CometThemeManager>().theme;
-    int maxPics;
-
-    if( widget.premium )
-      maxPics = widget.premiumMax;
-    else maxPics = widget.freeMax;
 
     try {
       resultList = await MultiImagePicker.pickImages(
-        maxImages: maxPics,
+        maxImages: widget.maxPics,
         materialOptions: MaterialOptions(
           actionBarColor: getHexString(_appTheme.secondaryMono),
           statusBarColor: getHexString(_appTheme.mainMono),
@@ -108,9 +100,9 @@ class _ImageUploaderState extends State<ImageUploader> {
     if (!mounted) return;
 
     setState(() {
-      if( resultList.length + images.length > maxPics ){
-        _error = "You're allowed a max of $maxPics images!";
-        //will later want to show a snackbar with this message (it's not actually displayed anywhere rn)
+      if( resultList.length + images.length > widget.maxPics ){
+        _error = "You're allowed a max of ${widget.maxPics} images!";
+        widget.showErrorSnack(_error);
         return;
       }
 

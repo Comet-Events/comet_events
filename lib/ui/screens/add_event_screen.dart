@@ -236,7 +236,13 @@ class _AddEventScreenState extends State<AddEventScreen> {
       children: [
         ImageUploader(
           onTap: (asset) => model.viewFullScreen(asset),
-          onChange: (images) => model.imageOnChange(images)
+          onChange: (images) => model.imageOnChange(images),
+          showErrorSnack: (error) => model.cometSnackBar(
+            title: 'Too Many Images',
+            message: error,
+            iconData: Icons.error,
+            duration: Duration(seconds: 10)
+          ),
         )
         // SizedBox(height: 10),
       ],
