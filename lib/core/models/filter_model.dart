@@ -101,9 +101,6 @@ class FilterModel extends ChangeNotifier{
     rangeStart = TimeOfDay.now();
     rangeEnd = (rangeStart.toDouble() + 12).toTimeOfDay(reduce: false);
 
-    print(rangeEnd.format(context));
-    print(rangeEnd.toDouble());
-
     if(currentFilters == null) {
       activeFilters = FilterModel.defaultFilters
         ..startRangeEnd = rangeEnd.toDateTime(rangeDay);
