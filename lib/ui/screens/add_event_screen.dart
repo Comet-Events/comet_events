@@ -183,12 +183,14 @@ class _AddEventScreenState extends State<AddEventScreen> {
           maxChoices: 2,
           iconFontFamily: 'Material Design Icons',
           iconFontPackage: 'material_design_icons_flutter',
-          categories: model.categories
+          controller: model.categoryController
         ),
         SizedBox(height: 15),
         TagPicker(
           onChange: (tags) => model.tagsOnChange(tags),
-          disabledTags: model.categories.map((e) => e.name).toList(),
+          disabledTags: model.categoryController.categories.map((e) => e.name).toList(),
+          maxTags: 5,
+          controller: model.tagController
         ),
         // SizedBox(height: 10),
       ],

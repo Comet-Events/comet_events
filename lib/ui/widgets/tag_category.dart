@@ -6,15 +6,30 @@ import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 
-class CategoryPicker extends StatefulWidget {
-  CategoryPicker({Key key, @required this.categories, this.iconFontFamily = 'MaterialIcons', @required this.onChanged, this.maxChoices = 1, this.title, this.iconFontPackage}) : super(key: key);
+class CategoryPickerController {
+  List<Tag> selected = [];
+  List<Tag> categories = [];
+}
 
+class CategoryPicker extends StatefulWidget {
+  CategoryPicker({
+    Key key, 
+    @required this.controller,
+    @required this.onChanged, 
+    this.iconFontFamily = 'MaterialIcons', 
+    this.maxChoices, 
+    this.title, 
+    this.iconFontPackage, 
+    this.initCategories
+  }) : super(key: key);
+
+  CategoryPickerController controller;
   final String title;
   final String iconFontFamily;
   final String iconFontPackage;
-  final List<Tag> categories;
   final Function(List<Tag> categories) onChanged;
   final int maxChoices;
+  final List<String> initCategories;
 
 
   @override
@@ -22,41 +37,41 @@ class CategoryPicker extends StatefulWidget {
 }
 class _CategoryPickerState extends State<CategoryPicker> {
 
-  List<Tag> selectedCategories = [];
-
   @override
   void initState() { 
     super.initState();
-    if(widget.categories.length >= 1) {
-      selectedCategories.add(widget.categories[0]);
+    if(widget.controller == null) widget.controller = CategoryPickerController();
+    if(widget.controller.categories.length >= 1) {
+      widget.controller.selected = widget.controller.categories.map((category) => widget.initCategories.contains(category.name) ? category : [] ).toList();
+      widget.controller.selected.add(widget.controller.categories[0]);
     }
   }
 
   @override
   Widget build(BuildContext context) {
 
-    int _count = selectedCategories.length;
+    int _count = widget.controller.selected.length;
 
     return SubBlockContainer(
-      title: (widget.title ?? "Categories (max: ${widget.maxChoices})") + (selectedCategories.isNotEmpty ? "  •  ${selectedCategories.map((e) => e.name).toList().join(", ")}" : ""),
+      title: (widget.title ?? "Categories" + (widget.maxChoices != null ? " (max: ${widget.maxChoices})" : "")) + (widget.controller.selected.isNotEmpty ? "  •  ${widget.controller.selected.map((e) => e.name).toList().join(", ")}" : ""),
       child: FadingEdgeScrollView.fromSingleChildScrollView(
         child: SingleChildScrollView(
           controller: ScrollController(),
           scrollDirection: Axis.horizontal,
           child: Row(
             children: <Widget>[
-              for(int i = 0; i < widget.categories.length; i++) 
+              for(int i = 0; i < widget.controller.categories.length; i++) 
                 CategoryTile(
                   onTap: (category, selected) {        
-                    if(selected) { setState(() { selectedCategories.removeWhere((cat) => cat.name == category.name); }); return; }
-                    else if(_count >= widget.maxChoices) setState(() { selectedCategories.removeLast(); }); 
-                    setState(() { selectedCategories.add(category); });
-                    widget.onChanged(selectedCategories);
+                    if(selected) { setState(() { widget.controller.selected.removeWhere((cat) => cat.name == category.name); }); return; }
+                    else if(widget.maxChoices != null && _count >= widget.maxChoices) setState(() { widget.controller.selected.removeLast(); }); 
+                    setState(() { widget.controller.selected.add(category); });
+                    widget.onChanged(widget.controller.selected);
                   },
                   iconFontFamily: widget.iconFontFamily,
                   iconFontPackage: widget.iconFontPackage,
-                  selected: selectedCategories.map((e) => e.name).toList().contains(widget.categories[i].name),
-                  category: widget.categories[i],
+                  selected: widget.controller.selected.map((e) => e.name).toList().contains(widget.controller.categories[i].name),
+                  category: widget.controller.categories[i],
                 )
             ],
           ),
@@ -102,38 +117,45 @@ class CategoryTile extends StatelessWidget {
 }
 
 
+class TagPickerController { List<String> tags = []; }
 class TagPicker extends StatefulWidget {
-  const TagPicker({Key key,
-    this.title, @required this.onChange, this.suggestions, this.maxTags = 7, this.disabledTags,
+  TagPicker({Key key,
+    this.controller,
+    this.title, 
+    @required this.onChange, 
+    this.suggestions, 
+    this.maxTags, 
+    this.disabledTags, 
+    this.initTags
   }) : super(key: key);
 
+  TagPickerController controller;
   final String title;
   final Function(List<String>) onChange;
   final List<String> suggestions;
   final List<String> disabledTags;
   final int maxTags;
+  final List<String> initTags;
 
   @override
   _TagPickerState createState() => _TagPickerState();
 }
 class _TagPickerState extends State<TagPicker> {
   double fontSize = 18;
-  List<String> displayItems = [];
-  //here, displayItems is the list of all tags that are being shown on the screen
-  //allItems is intended to be the list of all existing tags or categories in the db
-  //there should be no tags showing until the user adds them
 
   final CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
   @override
   void initState(){
     super.initState();
+    if(widget.controller == null) widget.controller = TagPickerController();
+    widget.controller.tags = widget.initTags ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
     return SubBlockContainer(
-      title: widget.title ?? "Tags (max: ${widget.maxTags})",
+      title: widget.title ?? "Tags" + (widget.maxTags != null ? " (max: ${widget.maxTags})" : ""),
       space: 7,
       child: Tags(
         key: Key("1"),
@@ -154,20 +176,20 @@ class _TagPickerState extends State<TagPicker> {
           onSubmitted: (String str){
             if(widget.disabledTags.contains(str)) return;
             else {
-              if(displayItems.length >= widget.maxTags) {
+              if(widget.maxTags != null && widget.controller.tags.length >= widget.maxTags) {
                 setState(() {
-                  displayItems.removeLast();
+                  widget.controller.tags.removeLast();
                 });
               }
-              setState(() { displayItems.add(str); }); widget.onChange(displayItems);
+              setState(() { widget.controller.tags.add(str); }); widget.onChange(widget.controller.tags);
             }
             str = "";
           }
         ),
         runSpacing: 7,
-        itemCount: displayItems.length,
+        itemCount: widget.controller.tags.length,
         itemBuilder: (index) {
-          final item = displayItems[index];
+          final item = widget.controller.tags[index];
           return GestureDetector(
             child: ItemTags(
               key: Key(index.toString()),
@@ -188,9 +210,9 @@ class _TagPickerState extends State<TagPicker> {
                   backgroundColor: _appTheme.opposite.withOpacity(0.8),
                   onRemoved: () {
                     setState((){
-                      displayItems.removeAt(index);
+                      widget.controller.tags.removeAt(index);
                     });
-                    widget.onChange(displayItems);
+                    widget.onChange(widget.controller.tags);
                     return true;
                   }
                 ),

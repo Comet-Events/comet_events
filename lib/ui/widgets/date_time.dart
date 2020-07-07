@@ -33,6 +33,7 @@ class DateSelector extends StatefulWidget {
     this.inkwell = true, 
     this.daysPriorFirst = 0, 
     this.daysTillLast = 2, 
+    this.initDate,
     @required this.onChanged
   }) : super(key: key);
   
@@ -41,6 +42,7 @@ class DateSelector extends StatefulWidget {
   final bool inkwell;
   final int daysPriorFirst;
   final int daysTillLast;
+  final DateTime initDate;
   final Function(DateTime) onChanged;
 
   @override
@@ -56,7 +58,7 @@ class _DateSelectorState extends State<DateSelector> {
   void initState() {
     super.initState();
     
-    selectedDate = DateTime.now();
+    selectedDate = widget.initDate ?? DateTime.now();
     now = DateTime.now();
     widget.onChanged(selectedDate);
   }
@@ -157,6 +159,7 @@ class TimeSelector extends StatefulWidget {
     this.backgroundColor, 
     this.textColor, 
     this.inkwell = true, 
+    this.initTime,
     @required this.onChanged
   }) : super(key: key);
   
@@ -164,6 +167,7 @@ class TimeSelector extends StatefulWidget {
   final Color textColor;
   final bool inkwell;
   final Function(TimeOfDay) onChanged;
+  final TimeOfDay initTime;
 
   @override
   _TimeSelectorState createState() => _TimeSelectorState();
@@ -178,7 +182,7 @@ class _TimeSelectorState extends State<TimeSelector> {
   void initState() {
     super.initState();
     
-    selectedTime = TimeOfDay.now();
+    selectedTime = widget.initTime ?? TimeOfDay.now();
     now = TimeOfDay.now();
     widget.onChanged(selectedTime);
   }
@@ -220,6 +224,8 @@ class DateTimeRow extends StatelessWidget {
     Key key, 
     @required this.dateOnChange, 
     @required this.timeOnChange, 
+    this.initDate,
+    this.initTime,
     this.backgroundColor, 
     this.textColor, 
     this.inkwell = true, 
@@ -231,6 +237,8 @@ class DateTimeRow extends StatelessWidget {
   final String title;
   final Function(DateTime) dateOnChange;
   final Function(TimeOfDay) timeOnChange;
+  final DateTime initDate;
+  final TimeOfDay initTime;
   final int daysPriorFirst;
   final int daysTillLast;
   final Color backgroundColor;
@@ -250,6 +258,7 @@ class DateTimeRow extends StatelessWidget {
           DateSelector(
             onChanged: dateOnChange,
             backgroundColor: backgroundColor,
+            initDate: initDate,
             textColor: textColor,
             inkwell: inkwell,
             daysPriorFirst: daysPriorFirst,
