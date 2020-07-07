@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/core/services/services.dart';
+import 'package:comet_events/ui/widgets/tag_category.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:flutter/foundation.dart';
@@ -43,7 +44,8 @@ class AddEventModel extends ChangeNotifier {
   Settings newSettings = Settings();
 
   bool loading = false;
-  List<Tag> categories = [];
+  CategoryPickerController categoryController = CategoryPickerController();
+  TagPickerController tagController = TagPickerController();
   // Timestamp premiere;
   // Timestamp start;
   // Timestamp end;
@@ -55,7 +57,7 @@ class AddEventModel extends ChangeNotifier {
   TextEditingController get description => _description;
 
   void fetchCategories() async {
-    categories = await _tags.fetchCategories();
+    categoryController.categories = await _tags.fetchCategories();
     notifyListeners();
   }
 

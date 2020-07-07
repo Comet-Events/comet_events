@@ -37,10 +37,7 @@ class FilterScreen extends StatelessWidget{
           bottom: false,
           child: UserViewModelBuilder<FilterModel>.reactive(
             userViewModelBuilder: () => FilterModel(),
-            onModelReady: (model, user){
-              model.activeFilters = model.currentFilters ?? FilterModel.defaultFilters;
-              model.fetchCategories();
-            },
+            onModelReady: (model, _) => model.init(context),
             builder: (context, model, user, _) => SingleChildScrollView(
               physics: ClampingScrollPhysics(),
               child: Column(
@@ -159,23 +156,24 @@ class FilterScreen extends StatelessWidget{
       children: [
         Column(
           children: <Widget>[
-            SizedBox(height: 10),
             SubBlockContainer(
               title: 'Start Range',
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 15),
                   TimeRange(
-                    start: TimeOfDay(hour: 0, minute: 0),
-                    end: TimeOfDay(hour: 15, minute: 0),
-                    interval: Duration(minutes: 30),
+                    originalDay: model.rangeDay,
+                    controller: model.startController,
+                    start: model.rangeStart,
+                    end: model.rangeEnd,
+                    interval: Duration(minutes: 1),
                     onChanged: (results) => model.startRangeOnChange(results),
                     liveEnabled: true,
                   ),
                 ],
               ),
             ),
-            sliderLabels("🔴 Live", (TimeOfDay.now().toDouble() + 12).toTimeOfDay().format(context)),
+            sliderLabels(model.startController.live == model.startController.values.start ? "Live" : model.startController.values.start.toTimeOfDay().format(context), model.startController.values.end.toTimeOfDay().format(context)),
           ],
         ),
         Column(
@@ -186,15 +184,20 @@ class FilterScreen extends StatelessWidget{
                 children: <Widget>[
                   SizedBox(height: 15),
                   TimeRange(
-                    start: TimeOfDay(hour: 0, minute: 0),
-                    end: TimeOfDay(hour: 15, minute: 0),
-                    interval: Duration(minutes: 10),
+                    controller: model.endController,
+                    originalDay: model.rangeDay,
+                    start: model.rangeStart,
+                    end: model.rangeEnd,
+                    interval: Duration(minutes: 1),
+                    liveEnabled: true,
+                    liveEnd: true,
+                    liveText: "Later",
                     onChanged: (results) => model.endRangeOnChange(results),
                   ),
                 ],
               ),
             ),
-            sliderLabels(TimeOfDay(hour: 0, minute: 0).format(context), TimeOfDay(hour: 15, minute: 0).format(context)),
+            sliderLabels(model.endController.values.start.toTimeOfDay().format(context), model.endController.live == model.endController.values.end ? "Later" : model.endController.values.end.toTimeOfDay().format(context)),
           ],
         ),
       ],
@@ -207,18 +210,18 @@ class FilterScreen extends StatelessWidget{
       children: [
         //init selected
         CategoryPicker(
+          controller: model.categoryController,
           onChanged: (categories) => model.categoryOnChange(categories),
-          maxChoices: 2,
           iconFontFamily: 'Material Design Icons',
           iconFontPackage: 'material_design_icons_flutter',
-          categories: model.categories,
           //initCategories:
         ),
         SizedBox(height: 15),
         //init selected
         TagPicker(
+          controller: model.tagController,
           onChange: (tags) => model.tagsOnChange(tags),
-          disabledTags: model.categories.map((e) => e.name).toList(),
+          disabledTags: model.categoryController.categories.map((e) => e.name).toList(),
           initTags: model.activeFilters.tags,
         ),
         // SizedBox(height: 10),
@@ -412,16 +415,37 @@ class _DistanceRadiusFilterState extends State<DistanceRadiusFilter> {
 }
 
 
+class TimeRangeController { 
+  double start;
+  double end;
 
+  RangeValues values = RangeValues(1, 10);
+  double live = 0;
+  int divisions = 0;
+}
 class TimeRange extends StatefulWidget {
-  const TimeRange({Key key, this.start, this.end, this.interval, this.onChanged, this.liveText = "Live", this.liveEnabled = false }) : super(key: key);
+  TimeRange({
+    Key key,
+    this.controller,
+    @required this.originalDay,
+    @required this.start, 
+    @required this.end, 
+    this.interval, 
+    @required this.onChanged, 
+    this.liveText = "Live", 
+    this.liveEnabled = false,
+    this.liveEnd = false, 
+  }) : super(key: key);
 
-  @required final TimeOfDay start;
-  @required final TimeOfDay end;
-  @required final Function(TimeRangeResult) onChanged;
+  TimeRangeController controller;
+  final DateTime originalDay;
+  final TimeOfDay start;
+  final TimeOfDay end;
+  final Function(TimeRangeResult) onChanged;
   final Duration interval;
   final bool liveEnabled;
   final String liveText;
+  final bool liveEnd;
 
   @override
   _TimeRangeState createState() => _TimeRangeState();
@@ -429,47 +453,52 @@ class TimeRange extends StatefulWidget {
 
 class _TimeRangeState extends State<TimeRange> {
 
-  var values = RangeValues(1, 10);
-  double live = 0;
-  int divisions = 0;
+  // var values = RangeValues(1, 10);
+  // double live = 0;
+  // int divisions = 0;
 
   @override
   void initState() {
     super.initState();
-    divisions = getDivisions();
-    values = RangeValues(widget.start.toDouble(), widget.end.toDouble());
-    live = widget.start.toDouble();
+    if(widget.controller == null) widget.controller = TimeRangeController();
+    widget.controller.start = widget.start.toDouble();
+    widget.controller.end = widget.end.toDouble();
+    widget.controller.divisions = getDivisions();
+    widget.controller.values = RangeValues(widget.start.toDouble(), widget.end.toDouble());
+    widget.controller.live = widget.liveEnd ? widget.end.toDouble() : widget.start.toDouble();
   }
 
   getDivisions() {
     if(widget.interval != null) {
-      TimeOfDay state = widget.end;
+      double state = widget.end.toDouble();
       double interval = widget.interval.inMinutes/60;
-      while (state.toDouble() > widget.start.toDouble()) {
-        state = (state.toDouble() - interval).toTimeOfDay();
-        divisions++;
+      while (state > widget.start.toDouble()) {
+        state = state - interval;
+        widget.controller.divisions++;
       }
-      return divisions;
+      return widget.controller.divisions;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-  print('${values.start.toTimeOfDay().format(context)}' + '${values.end.toTimeOfDay().format(context)}');
+  // print('${values.start.toTimeOfDay().format(context)}' + '${values.end.toTimeOfDay().format(context)}');
     return RangeSlider(
-      onChanged: (v) { setState(() { values = v; }); widget.onChanged(TimeRangeResult(v.start.toTimeOfDay(), v.end.toTimeOfDay(), v.start == live)); },
-      values: values,
-      labels: RangeLabels('${values.start == live && widget.liveEnabled ? widget.liveText : values.start.toTimeOfDay().format(context)}', '${values.end.toTimeOfDay().format(context)}'),
+      onChanged: (v) { setState(() { widget.controller.values = v; }); widget.onChanged(TimeRangeResult(v.start.toTimeOfDay(), v.end.toTimeOfDay(), v.start == widget.controller.live, v.end == widget.controller.live, widget.originalDay)); },
+      values: widget.controller.values,
+      labels: RangeLabels('${widget.controller.values.start == widget.controller.live && widget.liveEnabled && !widget.liveEnd ? widget.liveText : widget.controller.values.start.toTimeOfDay().format(context)}', '${widget.controller.values.end.toDouble() == widget.controller.live && widget.liveEnd && widget.liveEnabled ? widget.liveText : widget.controller.values.end.toTimeOfDay().format(context)}'),
       min: widget.start.toDouble(),
       max: widget.end.toDouble(),
-      divisions: divisions,
+      divisions: widget.controller.divisions,
     );
   }
 }
 
 class TimeRangeResult {
+  final DateTime originalDay;
   final TimeOfDay start;
   final TimeOfDay end;
   final bool startLive;
-  TimeRangeResult(this.start, this.end, this.startLive);
+  final bool endLive;
+  TimeRangeResult(this.start, this.end, this.startLive, this.endLive, this.originalDay);
 }
