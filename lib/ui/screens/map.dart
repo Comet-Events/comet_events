@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -6,9 +8,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:countdown_flutter/countdown_flutter.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'dart:async';
 import 'package:comet_events/ui/widgets/location_marker.dart';
 import 'dart:ui' as ui;
+import 'package:file_cache/file_cache.dart';
 import 'package:http/http.dart' as http;
 
 class Map extends StatefulWidget {
@@ -20,12 +24,13 @@ class MapState extends State<Map> with SingleTickerProviderStateMixin{
   String _mapStyle;
   Completer<GoogleMapController> _controller = Completer();
   List<Marker> allMarkers = [];
+  int numMarkers = 0;
 
   bool isImageloaded = false;
 
   ValueNotifier<String> countdown = ValueNotifier("loading...");
 
-  Size animationFraction = Size(130, 154);
+  Size _animationFraction = Size(130, 154);
   Animation<Size> widgetAnimation;
   AnimationController widgetAnimationController;
   
@@ -51,13 +56,13 @@ class MapState extends State<Map> with SingleTickerProviderStateMixin{
     ).animate(widgetAnimationController)
       ..addListener(() {
         setState((){
-          animationFraction = widgetAnimation.value;
+          _animationFraction = widgetAnimation.value;
         });
       })
       ..addStatusListener((status) {
         print( status );
       });
-    _startTimer(Duration(hours: 1));
+    // _startTimer(Duration(hours: 1));
   }
 
   @override
@@ -84,28 +89,30 @@ class MapState extends State<Map> with SingleTickerProviderStateMixin{
                 controller.setMapStyle(_mapStyle);
               },
             ),
-            Positioned(
-              top: 100,
-              left: MediaQuery.of(context).size.width * 0.05,
-              child: GestureDetector(
-                onTap: (){ moveToRandalls(); },
-                child: Container(
-                  color: locator<CometThemeManager>().theme.mainMono,
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                  child: Text('Go to Randalls!')
-                )
-              ),
-              // child: SearchMapPlaceWidget(
-              //   darkMode: true,
-              //   apiKey: Theme.of(context).platform == TargetPlatform.iOS ? "AIzaSyDgldMROs1VzrXoEiCfurKutmOps1sJR-8" : "AIzaSyAeD2KtPAnoJJXvINv6ZYUzLvmZTff406M",
-              //   onSelected: (place) async {
-              //     final geolocation = await place.geolocation;
-              //     final GoogleMapController controller = await _controller.future;
-              //     controller.animateCamera(CameraUpdate.newLatLng(geolocation.coordinates));
-              //     controller.animateCamera(CameraUpdate.newLatLngBounds(geolocation.bounds, 0));
-              //   },
-              // ),
-            ),
+            // Positioned(
+            //   top: 100,
+            //   left: MediaQuery.of(context).size.width * 0.05,
+            //   child: GestureDetector(
+            //     onTap: (){ moveToRandalls(); },
+            //     child: Container(
+            //       color: locator<CometThemeManager>().theme.mainMono,
+            //       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+            //       child: Text('Go to Randalls!')
+            //     )
+            //   ),
+            // ),
+            // Positioned(
+            //   top: 200,
+            //   left: MediaQuery.of(context).size.width * 0.05,
+            //   child: GestureDetector(
+            //     onTap: deanimateMarker,
+            //     child: Container(
+            //       color: locator<CometThemeManager>().theme.mainMono,
+            //       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+            //       child: Text('Kill me now!')
+            //     )
+            //   ),
+            // ),
           ],
         )
     );
@@ -124,39 +131,50 @@ class MapState extends State<Map> with SingleTickerProviderStateMixin{
     ));
   }
   
-  CountdownFormatted _startTimer(Duration _duration){
-    return CountdownFormatted(
-      duration: _duration,
-      builder: (BuildContext context, String remaining){
-        setState(() {
-          countdown.value = remaining;
-        });
-        print('hiii ' + remaining);
-        return Text(remaining);
-      }
-    );
-  }
+  // CountdownFormatted _startTimer(Duration _duration){
+  //   return CountdownFormatted(
+  //     duration: _duration,
+  //     builder: (BuildContext context, String remaining){
+  //       setState(() {
+  //         countdown.value = remaining;
+  //       });
+  //       print('hiii ' + remaining);
+  //       return Text(remaining);
+  //     }
+  //   );
+  // }
 
   void addMarker(String imageURL, LatLng position, String markerId) async{
-    final Uint8List bitmap = await getMarkerIcon(imageURL);
+    final Uint8List bitmap = await getMarkerIcon(imageURL, Size(130, 154));
     
     allMarkers.add(Marker(
       markerId: MarkerId(markerId),
       position: position ,
       icon: BitmapDescriptor.fromBytes(bitmap),
-      onTap: () {
-        print('blast off');
-        widgetAnimationController.forward();
-      },
+      // onTap: () {
+        // print('blast off');
+        // widgetAnimationController.forward();
+        // animateMarker(imageURL, _animationFraction, Duration(milliseconds: 10), position);
+      // },
     ));
   }
 
-  Future<ui.Image> initImage(String imageURL) async {
-    http.Response response = await http.get(imageURL);   
-    return await loadImage( response.bodyBytes );
+  Future<ui.Image> _initImage(String imageURL) async {
+    // http.Response response = await http.get(imageURL);   
+    // return await loadImage( response.bodyBytes );
+
+    // File file = await DefaultCacheManager().getSingleFile(imageURL);
+    // FileImage im = FileImage(file);
+    // Uint8List bytes = (await rootBundle.load(${thisismeltingmyfuckingbrain})).buffer.asUint8List();
+    // return await loadImage(bytes);
+    
+    FileCache fileCache = await FileCache.fromDefault();
+    Uint8List bytes = await fileCache.getBytes(imageURL);
+    return _loadImage(bytes);
   }
 
-  Future<ui.Image> loadImage(List<int> img) async {
+  //converts img to ui.Image
+  Future<ui.Image> _loadImage(List<int> img) async {
     final Completer<ui.Image> completer = new Completer();
     ui.decodeImageFromList(img, (ui.Image img) {
       setState(() {
@@ -168,16 +186,17 @@ class MapState extends State<Map> with SingleTickerProviderStateMixin{
   }
 
   //this will also eventually need to take in a duration, since every marker has a diff timer
-  Future<Uint8List> getMarkerIcon(String imageURL) async{
+  Future<Uint8List> getMarkerIcon(String imageURL, Size widgetSize) async{
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder);
-    final Size widgetSize = Size(130, 154);
+    //  final Size widgetSize = Size(130, 154);
     
     //create custompainter
     MarkerPainter myPainter = MarkerPainter(
-      time: countdown,
-      image: await initImage(imageURL),
-      markerSize: animationFraction
+      // time: countdown,
+      image: await _initImage(imageURL),
+      // image: CachedNetworkImage(),
+      markerSize: widgetSize
     );
 
     //paint a pwetty pwicture
@@ -191,4 +210,27 @@ class MapState extends State<Map> with SingleTickerProviderStateMixin{
     return byteData.buffer.asUint8List();
   }
   
+  
+  Future<void> animateMarker(String imageURL, Size markerSize, Duration duration, LatLng position) async {
+    Timer timer = new Timer.periodic(duration, (timer) async {
+      // print('hola');
+      final Uint8List bitmap = await getMarkerIcon(imageURL, markerSize);
+      getMarkerIcon(imageURL, markerSize);
+  
+      allMarkers.add(Marker(
+        markerId: MarkerId(imageURL),
+        position: position ,
+        icon: BitmapDescriptor.fromBytes(bitmap),
+      ));
+      // numMarkers++;s
+
+      // if( markerSize >= Size(156, 185) )
+      //   timer.cancel();
+    });
+  }
+
+  // Future<void> deanimateMarker(){
+  //   while( numMarkers != 0)
+  //     allMarkers.removeLast();
+  // }
 }
