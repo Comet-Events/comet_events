@@ -1,3 +1,4 @@
+import 'package:comet_events/ui/screens/filter_screen.dart';
 import 'package:comet_events/ui/screens/screens.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,7 @@ class Routes {
 
   static const String event = '/event';
   static const String eventAdd = '/event/add';
+  static const String eventFilter = '/event/filter';
 
   static const String settings = '/settings';
 }
@@ -23,6 +25,8 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => HomeScreen());
     case Routes.eventAdd:
       return MaterialPageRoute(builder: (context) => AddEventScreen());
+    case Routes.eventAdd:
+      return MaterialPageRoute(builder: (context) => FilterScreen());
     case Routes.settings:
       return MaterialPageRoute(builder: (context) => SettingsScreen());
 

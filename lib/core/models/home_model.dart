@@ -1,5 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:comet_events/core/models/base_model.dart';
+import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/core/services/services.dart';
 import 'package:comet_events/ui/screens/filter_screen.dart';
 import 'package:comet_events/ui/widgets/event_tile.dart';
@@ -9,14 +8,18 @@ import 'package:location/location.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class HomeModel extends StreamViewModel<List<DocumentSnapshot>> {
+class HomeModel extends MultipleStreamViewModel {
 
+  // @override
+  // Stream<List<Event>> get stream => _event.events.stream;
   @override
-  Stream<List<DocumentSnapshot>> get stream => _geo.eventStream;
+  Map<String, StreamData> get streamsMap => {
+    "eventStream": StreamData<List<Event>>(_event.events.stream),
+    "filterStream": StreamData<EventFilters>(_event.filter.stream)
+  };
 
   // * ----- Services -----
-  GeoService _geo = locator<GeoService>();
-  AuthService _auth = locator<AuthService>();
+  EventService _event = locator<EventService>();
   SnackbarService _snack = locator<SnackbarService>();
   LocationService _location = locator<LocationService>();
   NavigationService _navigation = locator<NavigationService>();
@@ -30,9 +33,9 @@ class HomeModel extends StreamViewModel<List<DocumentSnapshot>> {
   
   List<EventTile> get events => _events;
   LocationData get location => _location.currentLocation;
+  String get rad => _event.filter.value.radius.toString();
 
   bool locationDisabled;
-  EventsFilter currentFilter = EventsFilter();
   // this currentLocation, unlike the getter above, only stores the location when the model loads
   // rather than refreshing it live
   LocationData currentLocation;
@@ -48,12 +51,13 @@ class HomeModel extends StreamViewModel<List<DocumentSnapshot>> {
       );
       locationDisabled = true;
       return;
+    } else {
+      await getLocation();
+      await _event.start();
     }
-    await getLocation();
-
-    // fetch events nearby
-    await _geo.fetch(filter: currentFilter);
   }
+
+  update() { notifyListeners(); }
 
   // * ----- location -----
   requestLocationPerms() async {
@@ -81,9 +85,5 @@ class HomeModel extends StreamViewModel<List<DocumentSnapshot>> {
       opaque: false,
       transition: NavigationTransition.Fade
     );
-  }
-
-  signOut() {
-    _auth.signOut();
   }
 }

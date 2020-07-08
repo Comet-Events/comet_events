@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:comet_events/core/models/filter_model.dart';
+import 'package:comet_events/ui/widgets/comet_loading.dart';
 import 'package:comet_events/ui/widgets/date_time.dart';
 import 'package:comet_events/ui/widgets/comet_buttons.dart';
 import 'package:comet_events/ui/widgets/layout_widgets.dart';
@@ -36,80 +37,85 @@ class FilterScreen extends StatelessWidget{
         child: SafeArea(
           bottom: false,
           child: UserViewModelBuilder<FilterModel>.reactive(
+            onModelReady: (model, _) async => await model.asyncInit(),
             userViewModelBuilder: () => FilterModel(),
-            onModelReady: (model, _) => model.init(context),
-            builder: (context, model, user, _) => SingleChildScrollView(
-              physics: ClampingScrollPhysics(),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  //back button
-                  Container(
-                    alignment: Alignment.topRight,
-                    padding: const EdgeInsets.all(16.0),
-                    child: InkWell(
-                      onTap: (){ Navigator.of(context).pop(); },
-                      child: Icon(Icons.close,size: 35)
-                    ),
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      color: _appTheme.mainMono,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30.0),
-                        topRight: Radius.circular(30.0),
-                      )
-                    ),
-                    child: Stack(
-                      alignment: Alignment.topCenter,
-                      overflow: Overflow.visible,
-                      children: <Widget>[
-                        Positioned(
-                          top: -50,
-                          child: Hero(
-                            tag: 'filterIcon',
-                            child: Container(
-                              height: 105,
-                              width: 105,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color:_appTheme.secondaryMono,
-                                border: Border.all(
-                                  color: _appTheme.mainMono,
-                                  width: 2.0
-                                )
-                              ),
-                              child: Icon(MdiIcons.filter, color: _appTheme.mainColor, size: 60 )
-                            )
+            builder: (context, model, user, _) => Stack(
+              children: <Widget>[
+                SingleChildScrollView(
+                  physics: ClampingScrollPhysics(),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      //back button
+                      Container(
+                        alignment: Alignment.topRight,
+                        padding: const EdgeInsets.all(16.0),
+                        child: InkWell(
+                          onTap: (){ Navigator.of(context).pop(); },
+                          child: Icon(Icons.close,size: 35)
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          color: _appTheme.mainMono,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30.0),
+                            topRight: Radius.circular(30.0),
                           )
                         ),
-                        Container(
-                          margin: const EdgeInsets.only(top: 65),
-                          child: Column(
-                            children: <Widget>[
-                              //title & description
-                              PageTitle(
-                                title: "Filters",
-                                description: "Adjust the following specifications to narrow your event results",
-                              ),
-                              SizedBox(height: 16),
-                              // BlockDivider(), //torn about this
-                              _distanceBlock(context, model),
-                              BlockDivider(),
-                              _dateBlock(context, model),
-                              BlockDivider(),
-                              _tagsBlock(context, model),
-                              BlockDivider(),
-                              _filterBlock(context, model),
-                            ],
-                          )
+                        child: Stack(
+                          alignment: Alignment.topCenter,
+                          overflow: Overflow.visible,
+                          children: <Widget>[
+                            Positioned(
+                              top: -50,
+                              child: Hero(
+                                tag: 'filterIcon',
+                                child: Container(
+                                  height: 105,
+                                  width: 105,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color:_appTheme.secondaryMono,
+                                    border: Border.all(
+                                      color: _appTheme.mainMono,
+                                      width: 2.0
+                                    )
+                                  ),
+                                  child: Icon(MdiIcons.filter, color: _appTheme.mainColor, size: 60 )
+                                )
+                              )
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(top: 65),
+                              child: Column(
+                                children: <Widget>[
+                                  //title & description
+                                  PageTitle(
+                                    title: "Filters",
+                                    description: "Adjust the following specifications to narrow your event results",
+                                  ),
+                                  SizedBox(height: 16),
+                                  // BlockDivider(), //torn about this
+                                  _distanceBlock(context, model),
+                                  BlockDivider(),
+                                  _dateBlock(context, model),
+                                  BlockDivider(),
+                                  _tagsBlock(context, model),
+                                  BlockDivider(),
+                                  _filterBlock(context, model),
+                                ],
+                              )
+                            )
+                          ],
                         )
-                      ],
-                    )
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                model.loading ? CometLoadingOverlay(opacity: 0.6) : Container()
+              ],
             ),
           ),
         ),
@@ -123,34 +129,14 @@ class FilterScreen extends StatelessWidget{
       color: _appTheme.mainMono,
       width: MediaQuery.of(context).size.width/1.17,
       child: DistanceRadiusFilter(
-        defaultDistance: model.activeFilters.distanceRadius,
-        max: 20.0,
+        defaultDistance: model.activeFilters.radius,
+        max: 100.0,
         onChange: (radius) => model.distanceOnChange(radius),
       ),
     );
   }
 
   Widget _dateBlock(BuildContext context, FilterModel model) {
-    // return BlockContainer(
-    //   title: 'Dates & Times',
-    //   children: [
-    //     DateTimeRow( 
-    //       title: "Start",
-    //       initDate: model.activeFilters.startTime,
-    //       //initTime:
-    //       dateOnChange: (date) => model.startDateOnChange(date),
-    //       timeOnChange: (time) => model.startTimeOnChange(time)
-    //     ),
-    //     SizedBox(height: 10),
-    //     DateTimeRow(
-    //       title: "End",
-    //       initDate: model.activeFilters.endTime,
-    //       //initTime: 
-    //       dateOnChange: (date) => model.endDateOnChange(date),
-    //       timeOnChange: (time) => model.endTimeOnChange(time)
-    //     ),
-    //   ],
-    // );
     return BlockContainer(
       title: 'Timing',
       children: [
@@ -214,7 +200,7 @@ class FilterScreen extends StatelessWidget{
           onChanged: (categories) => model.categoryOnChange(categories),
           iconFontFamily: 'Material Design Icons',
           iconFontPackage: 'material_design_icons_flutter',
-          //initCategories:
+          // initCategories: ['education']
         ),
         SizedBox(height: 15),
         //init selected
@@ -222,7 +208,7 @@ class FilterScreen extends StatelessWidget{
           controller: model.tagController,
           onChange: (tags) => model.tagsOnChange(tags),
           disabledTags: model.categoryController.categories.map((e) => e.name).toList(),
-          initTags: model.activeFilters.tags,
+          initTags: ['hello'],
         ),
         // SizedBox(height: 10),
       ],
@@ -282,7 +268,7 @@ class FilterScreen extends StatelessWidget{
                 ),
                 //apply filters button
                 CometSubmitButton(
-                  onTap: model.applyFilters, //apply changes and go back to homescreen
+                  onTap: () async => await model.applyFilters(), //apply changes and go back to homescreen
                   text: 'Apply Filters'
                 )
               ],
@@ -310,7 +296,99 @@ class FilterScreen extends StatelessWidget{
     );
   }
 }
+class TimeRangeController { 
+  double start;
+  double end;
+  RangeValues values = RangeValues(1, 10);
+  double live = 0;
+  int divisions = 0;
+}
+class TimeRange extends StatefulWidget {
+  TimeRange({
+    Key key,
+    this.controller,
+    @required this.originalDay,
+    @required this.start, 
+    @required this.end, 
+    this.interval, 
+    @required this.onChanged, 
+    this.liveText = "Live", 
+    this.liveEnabled = false,
+    this.liveEnd = false, 
+  }) : super(key: key);
 
+  TimeRangeController controller;
+  final DateTime originalDay;
+  final TimeOfDay start;
+  final TimeOfDay end;
+  final Function(TimeRangeResult) onChanged;
+  final Duration interval;
+  final bool liveEnabled;
+  final String liveText;
+  final bool liveEnd;
+
+  @override
+  _TimeRangeState createState() => _TimeRangeState();
+}
+
+class _TimeRangeState extends State<TimeRange> {
+
+  // var values = RangeValues(1, 10);
+  // double live = 0;
+  // int divisions = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if(widget.controller == null) widget.controller = TimeRangeController();
+    widget.controller.start = widget.start.toDouble();
+    widget.controller.end = widget.end.toDouble();
+    widget.controller.divisions = getDivisions();
+    widget.controller.values = RangeValues(widget.start.toDouble(), widget.end.toDouble());
+    widget.controller.live = widget.liveEnd ? widget.end.toDouble() : widget.start.toDouble();
+  }
+
+  getDivisions() {
+    if(widget.interval != null) {
+      double state = widget.end.toDouble();
+      double interval = widget.interval.inMinutes/60;
+      while (state > widget.start.toDouble()) {
+        state = state - interval;
+        widget.controller.divisions++;
+      }
+      return widget.controller.divisions;
+    }
+  }
+
+  checkValues() {
+    // if(widget.controller.values.start < widget.start.toDouble()) widget.controller.values = RangeValues(widget.start.toDouble(), widget.controller.values.end);
+    // if(widget.controller.values.end < widget.start.toDouble()) widget.controller.values = RangeValues(widget.controller.values.start, widget.end.toDouble());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    checkValues();
+    return RangeSlider(
+      onChanged: (v) { setState(() { widget.controller.values = v; }); widget.onChanged(TimeRangeResult(v.start.toTimeOfDay(), v.end.toTimeOfDay(), v.start == widget.controller.live, v.end == widget.controller.live, widget.originalDay)); },
+      values: widget.controller.values,
+      labels: RangeLabels('${widget.controller.values.start == widget.controller.live && widget.liveEnabled && !widget.liveEnd ? widget.liveText : widget.controller.values.start.toTimeOfDay().format(context)}', '${widget.controller.values.end.toDouble() == widget.controller.live && widget.liveEnd && widget.liveEnabled ? widget.liveText : widget.controller.values.end.toTimeOfDay().format(context)}'),
+      min: widget.start.toDouble(),
+      max: widget.end.toDouble(),
+      divisions: widget.controller.divisions,
+    );
+  }
+}
+
+class TimeRangeResult {
+  final DateTime originalDay;
+  final TimeOfDay start;
+  final TimeOfDay end;
+  final bool startLive;
+  final bool endLive;
+  TimeRangeResult(this.start, this.end, this.startLive, this.endLive, this.originalDay);
+}
+
+// * Distance Radius Slider
 class DistanceRadiusFilter extends StatefulWidget {
   double min, max, defaultDistance;
   final Function(double) onChange;
@@ -414,91 +492,3 @@ class _DistanceRadiusFilterState extends State<DistanceRadiusFilter> {
   }
 }
 
-
-class TimeRangeController { 
-  double start;
-  double end;
-
-  RangeValues values = RangeValues(1, 10);
-  double live = 0;
-  int divisions = 0;
-}
-class TimeRange extends StatefulWidget {
-  TimeRange({
-    Key key,
-    this.controller,
-    @required this.originalDay,
-    @required this.start, 
-    @required this.end, 
-    this.interval, 
-    @required this.onChanged, 
-    this.liveText = "Live", 
-    this.liveEnabled = false,
-    this.liveEnd = false, 
-  }) : super(key: key);
-
-  TimeRangeController controller;
-  final DateTime originalDay;
-  final TimeOfDay start;
-  final TimeOfDay end;
-  final Function(TimeRangeResult) onChanged;
-  final Duration interval;
-  final bool liveEnabled;
-  final String liveText;
-  final bool liveEnd;
-
-  @override
-  _TimeRangeState createState() => _TimeRangeState();
-}
-
-class _TimeRangeState extends State<TimeRange> {
-
-  // var values = RangeValues(1, 10);
-  // double live = 0;
-  // int divisions = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    if(widget.controller == null) widget.controller = TimeRangeController();
-    widget.controller.start = widget.start.toDouble();
-    widget.controller.end = widget.end.toDouble();
-    widget.controller.divisions = getDivisions();
-    widget.controller.values = RangeValues(widget.start.toDouble(), widget.end.toDouble());
-    widget.controller.live = widget.liveEnd ? widget.end.toDouble() : widget.start.toDouble();
-  }
-
-  getDivisions() {
-    if(widget.interval != null) {
-      double state = widget.end.toDouble();
-      double interval = widget.interval.inMinutes/60;
-      while (state > widget.start.toDouble()) {
-        state = state - interval;
-        widget.controller.divisions++;
-      }
-      return widget.controller.divisions;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-  // print('${values.start.toTimeOfDay().format(context)}' + '${values.end.toTimeOfDay().format(context)}');
-    return RangeSlider(
-      onChanged: (v) { setState(() { widget.controller.values = v; }); widget.onChanged(TimeRangeResult(v.start.toTimeOfDay(), v.end.toTimeOfDay(), v.start == widget.controller.live, v.end == widget.controller.live, widget.originalDay)); },
-      values: widget.controller.values,
-      labels: RangeLabels('${widget.controller.values.start == widget.controller.live && widget.liveEnabled && !widget.liveEnd ? widget.liveText : widget.controller.values.start.toTimeOfDay().format(context)}', '${widget.controller.values.end.toDouble() == widget.controller.live && widget.liveEnd && widget.liveEnabled ? widget.liveText : widget.controller.values.end.toTimeOfDay().format(context)}'),
-      min: widget.start.toDouble(),
-      max: widget.end.toDouble(),
-      divisions: widget.controller.divisions,
-    );
-  }
-}
-
-class TimeRangeResult {
-  final DateTime originalDay;
-  final TimeOfDay start;
-  final TimeOfDay end;
-  final bool startLive;
-  final bool endLive;
-  TimeRangeResult(this.start, this.end, this.startLive, this.endLive, this.originalDay);
-}

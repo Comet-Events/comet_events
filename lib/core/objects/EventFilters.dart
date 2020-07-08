@@ -1,5 +1,5 @@
 class EventFilters{
-  double distanceRadius;
+  double radius;
   DateTime startRangeStart;
   DateTime startRangeEnd;
   DateTime endRangeStart;
@@ -8,7 +8,7 @@ class EventFilters{
   List<String> categories;
 
   EventFilters({
-    this.distanceRadius = 0.0,
+    this.radius = 20,
     this.tags,
     this.categories
   }){
@@ -18,7 +18,7 @@ class EventFilters{
 
   Map<String, dynamic> get map{
     return{
-      "distanceRadius": distanceRadius,
+      "radius": radius,
       "startRangeStart": startRangeStart,
       "startRangeEnd": startRangeEnd,
       "endRangeStart": endRangeStart,

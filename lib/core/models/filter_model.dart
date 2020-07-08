@@ -22,6 +22,12 @@ extension on DateTime{
   TimeOfDay getTimeOfDay() {
     return TimeOfDay(hour: this.hour, minute: this.minute);
   }
+
+  TimeOfDay toTimeOfDay(DateTime now) {
+    DateTime nowDay = now.resetToDayStart();
+    DateTime dateDay = this.resetToDayStart();
+    return (this.getTimeOfDay().toDouble() + (24*dateDay.difference(nowDay).inHours)).toTimeOfDay(reduce: false);
+  }
 }
 
 extension on TimeOfDay {
@@ -55,64 +61,64 @@ extension on double {
 }
 
 class FilterModel extends ChangeNotifier{
-  EventFilters currentFilters;
-
-  FilterModel({
-    this.currentFilters
-  });
 
   // * ------ SERVICES ------
+  EventService _event = locator<EventService>(); // <- contains current filter
   TagsService _tags = locator<TagsService>();
   NavigationService _navigate = locator<NavigationService>();
   SnackbarService _snack = locator<SnackbarService>(); // yum
   CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
   // * ----- VARS -------  
-  static EventFilters defaultFilters = new EventFilters(
-    distanceRadius: 10.0,
-    categories: [],
-    tags: []
-  );
-
-  EventFilters activeFilters = defaultFilters;
-  EventFilters newFilters = new EventFilters();
-
-  TimeOfDay startRangeStart;
-  TimeOfDay startRangeEnd;
-  TimeOfDay endRangeStart;
-  TimeOfDay endRangeEnd;
+  bool loading = false;
+  bool categoriesLoading = true;
+  EventFilters get activeFilters => _event.filter.value;
+  EventFilters newFilters = EventFilters();
 
   TimeOfDay rangeStart;
   TimeOfDay rangeEnd;
   DateTime rangeDay;
 
-  // DateTime newStartDate;
-  // TimeOfDay newStartTime;
-  // DateTime newEndDate;
-  // TimeOfDay newEndTime;
   TimeRangeController startController = TimeRangeController();
   TimeRangeController endController = TimeRangeController();
   CategoryPickerController categoryController = CategoryPickerController();
   TagPickerController tagController = TagPickerController();
 
-  init(BuildContext context) {
-
+  FilterModel() {
+    // define range variables
     rangeDay = DateTime.now();
     rangeStart = TimeOfDay.now();
     rangeEnd = (rangeStart.toDouble() + 12).toTimeOfDay(reduce: false);
+    // setup range controllers 
+    if(activeFilters.startRangeStart != null && activeFilters.startRangeEnd != null) {
+      double activeEnd = activeFilters.startRangeStart.getTimeOfDay().toDouble() > activeFilters.startRangeEnd.getTimeOfDay().toDouble() 
+        ? activeFilters.startRangeEnd.getTimeOfDay().toDouble() + 24 
+        : activeFilters.startRangeEnd.getTimeOfDay().toDouble();
+        startController.values = RangeValues(_event.filter.value.startRangeStart.getTimeOfDay().toDouble(), activeEnd);
+    }
+    if(activeFilters.endRangeStart != null && activeFilters.endRangeEnd != null) {
+      double activeEnd = activeFilters.endRangeStart.getTimeOfDay().toDouble() > activeFilters.endRangeEnd.getTimeOfDay().toDouble() 
+        ? activeFilters.endRangeEnd.getTimeOfDay().toDouble() + 24 
+        : activeFilters.endRangeEnd.getTimeOfDay().toDouble();
+        endController.values = RangeValues(_event.filter.value.endRangeStart.getTimeOfDay().toDouble(), activeEnd);
+    }
+  }
 
-    if(currentFilters == null) {
-      activeFilters = FilterModel.defaultFilters
-        ..startRangeEnd = rangeEnd.toDateTime(rangeDay);
-      print(activeFilters.startRangeEnd.toIso8601String());
-    } else activeFilters = currentFilters;
-
-    fetchCategories();
+  // ? Init but for async stuff
+  Future<void> asyncInit() async {
+    await fetchCategories();
   }
 
   //at top of filter screen build
-  void fetchCategories() async {
+  Future<void> fetchCategories() async {
+
     categoryController.categories = await _tags.fetchCategories();
+    notifyListeners();
+    print(categoryController.categories.map((e) => e.name).toList());
+    categoryController.selected = categoryController.categories.where((e) => activeFilters.categories.contains(e.name)).toList();
+    print(categoryController.selected.map((e) => e.name).toList());
+
+    categoriesLoading = false;
     notifyListeners();
   }
   
@@ -136,7 +142,7 @@ class FilterModel extends ChangeNotifier{
     double minDistance = 0.25;    
     Duration snackDuration = Duration(seconds: 10);
 
-    if(activeFilters.distanceRadius < minDistance) {
+    if(activeFilters.radius < minDistance) {
       cometSnackBar(
         title: "Distance Invalid",
         message: "The distance radius you've chosen is invalid! It should be at least $minDistance miles.",
@@ -145,28 +151,20 @@ class FilterModel extends ChangeNotifier{
       );
       return false;
     }
-    // // * time check
-    // if(newStartDate.isSameDate(newEndDate)) {
-    //   cometSnackBar(
-    //     title: "Dates Invalid",
-    //     message: "Your start and end dates cannot be the same!",
-    //     iconData: Icons.error,
-    //     duration: snackDuration,
-    //   );
-    //   return false;
-    // } else if(newStartDate.compareTo(newEndDate) > 0) {
-    //   cometSnackBar(
-    //     title: "Start Date Invalid",
-    //     message: "Your start date can't be after your end date genius smh",
-    //     iconData: Icons.error,
-    //     duration: snackDuration,
-    //   );
-    //   return false;
-    // } 
-
     return true;
   }
-
+  
+  //apply filters button
+  void applyFilters() async {
+    // validate
+    bool valid = isValid();
+    // if not valid reset date values to prevent time from stacking, and return
+    if(!valid) return;
+    // set active filters for homescreen to be the new homescreen
+    _event.filter.add(newFilters);
+    print(_event.filter.value.radius);
+    _navigate.popRepeated(1);
+  }
   //reset button
   void resetFilters(){
     // reset time ranges
@@ -175,51 +173,23 @@ class FilterModel extends ChangeNotifier{
     // reset categories and tags
     categoryController.selected = [];
     tagController.tags = [];
-    activeFilters = newFilters = defaultFilters;
+    newFilters = EventFilters();
     notifyListeners();
   }
   
-  //apply filters button
-  void applyFilters(){
-    // // configure dates
-    // newStartDate = newStartDate.add(Duration(hours: newStartTime.hour, minutes: newStartTime.minute));
-    // newEndDate = newEndDate.add(Duration(hours: newEndTime.hour, minutes: newEndTime.minute));
-
-    // //update newFilters to have correct time
-    // newFilters.startTime = newStartDate;
-    // newFilters.endTime = newEndDate;
-
-    // validate
-    bool valid = isValid();
-    // // if not valid reset date values to prevent time from stacking, and return
-    if(!valid) return;
-
-    // set active filters for homescreen to be the new homescreen
-    activeFilters = newFilters;
-
-    // ET go homeeeeeee
-    
-    _navigate.popRepeated(1);
-  }
-
   //on change handlers --thank you for like 99.9% of this code jafar
-  distanceOnChange(double radius){ newFilters.distanceRadius = radius;}
+  distanceOnChange(double radius){ newFilters.radius = radius;}
 
   startRangeOnChange(TimeRangeResult result) {
-    activeFilters.startRangeStart = result.startLive ? null : result.start.toDateTime(result.originalDay); 
-    activeFilters.startRangeEnd = result.endLive ? null : result.end.toDateTime(result.originalDay); 
+    newFilters.startRangeStart = result.startLive ? null : result.start.toDateTime(result.originalDay); 
+    newFilters.startRangeEnd = result.endLive ? null : result.end.toDateTime(result.originalDay); 
     notifyListeners();
   }
   endRangeOnChange(TimeRangeResult result) {
-    activeFilters.endRangeStart = result.startLive ? null : result.start.toDateTime(result.originalDay); 
-    activeFilters.endRangeEnd = result.endLive ? null : result.end.toDateTime(result.originalDay); 
+    newFilters.endRangeStart = result.startLive ? null : result.start.toDateTime(result.originalDay); 
+    newFilters.endRangeEnd = result.endLive ? null : result.end.toDateTime(result.originalDay); 
     notifyListeners();
   }
-
-  // startDateOnChange(DateTime date) { newStartDate = date.resetToDayStart(); }
-  // startTimeOnChange(TimeOfDay time) { newStartTime = time; }
-  // endDateOnChange(DateTime date) { newEndDate = date.resetToDayStart(); }
-  // endTimeOnChange(TimeOfDay time) { newEndTime = time; }
 
   categoryOnChange(List<Tag> categories) { newFilters.categories = categories.map((e) => e.name).toList(); }
   tagsOnChange(List<String> tags) { newFilters.tags = tags; }

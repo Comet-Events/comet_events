@@ -11,7 +11,7 @@ class DatabaseService {
   CollectionReference get tagsCollection => db.collection('/tags');
 
   // * ----- ~~~~~~~ streams uwu wavey ~~~~~~~~ -----
-  Stream<QuerySnapshot> get users => usersCollection.snapshots();
-  Stream<QuerySnapshot> get events => eventsCollection.snapshots();
-  Stream<QuerySnapshot> get tags => tagsCollection.snapshots();
+  Stream<QuerySnapshot> get usersCollectionStream => usersCollection.snapshots();
+  Stream<QuerySnapshot> get eventsCollectionStream => eventsCollection.snapshots();
+  Stream<QuerySnapshot> get tagsCollectionStream => tagsCollection.snapshots();
 }

@@ -7,8 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 
 class CategoryPickerController {
-  List<Tag> selected = [];
-  List<Tag> categories = [];
+  List<Tag> selected;
+  List<Tag> categories;
+  CategoryPickerController() {
+    this.selected = [];
+    this.categories = [];
+  }
 }
 
 class CategoryPicker extends StatefulWidget {
@@ -117,7 +121,7 @@ class CategoryTile extends StatelessWidget {
 }
 
 
-class TagPickerController { List<String> tags = []; }
+class TagPickerController { List<String> tags; TagPickerController() {this.tags = [];} }
 class TagPicker extends StatefulWidget {
   TagPicker({Key key,
     this.controller,

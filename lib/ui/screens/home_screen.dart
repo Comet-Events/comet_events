@@ -2,20 +2,18 @@ import 'package:comet_events/core/models/home_model.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/utils/locator.dart';
-import 'package:comet_events/ui/screens/map.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key key,}) : super(key: key);
+  HomeScreen({Key key, }) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _state = false;
   CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
   @override
@@ -23,7 +21,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return UserViewModelBuilder<HomeModel>.reactive(
       onModelReady: (model, _) => model.init(),
       userViewModelBuilder: () => HomeModel(),
-      builder: (context, model, user, child) => Scaffold(
+      builder: (context, model, user, child) {
+        return Scaffold(
         extendBody: true,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton(
@@ -36,10 +35,10 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: _appTheme.secondaryMono,
         body: Stack(
           children: <Widget>[
-            Map(),
+            // Map(),
             Column(
               children: <Widget>[
-                _topAppBar(),
+                _topAppBar(model),
                 SizedBox(height: 7),
                 Expanded(
                   child: Column(
@@ -57,11 +56,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-      ),
+      );
+      }
     );
   }
 
-  Widget _topAppBar(){
+  Widget _topAppBar(HomeModel model){
     return Container(
       // height: MediaQuery.of(context).size.height*0.12,
       padding: EdgeInsets.symmetric(horizontal: 23, vertical: 15),
@@ -83,12 +83,15 @@ class _HomeScreenState extends State<HomeScreen> {
               size: 30, 
               color: locator<CometThemeManager>().theme.mainColor,
             ),
-            Text(
-              'WELCOME, YOLANDA',
-              style: TextStyle(
-                fontFamily: "Lexend Deca",
-                fontSize: 18,
-              )
+            GestureDetector(
+              onTap: model.update,
+              child: Text(
+                model.rad ?? "",
+                style: TextStyle(
+                  fontFamily: "Lexend Deca",
+                  fontSize: 18,
+                )
+              ),
             ),
             FlutterLogo( size: 30 )
           ],

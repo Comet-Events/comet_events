@@ -32,12 +32,12 @@ class Event {
   Event.fromJson(Map<String, dynamic> json) {
     name = json['name'] ?? "Untitled Event";
     description = json['description'] ?? "This event has no description...";
-    instructions = json['instructions'].cast<String>() ?? [];
+    instructions = (json['instructions'] ?? []).cast<String>();
     host = json['host'];
     active = json['active'] ?? true;
     dates = json['dates'] != null ? new Dates.fromJson(json['dates']) : null;
-    tags = json['tags'].cast<String>() ?? [];
-    categories = json['categories'].cast<String>() ?? [];
+    tags = (json['tags'] ?? []).cast<String>();
+    categories = (json['categories'] ?? []).cast<String>();
     stats = json['stats'] != null ? new Stats.fromJson(json['stats']) : null;
     location = json['location'] != null
         ? new Location.fromJson(json['location'])
@@ -100,8 +100,8 @@ class Stats {
   Stats({this.rsvps, this.likes});
 
   Stats.fromJson(Map<String, dynamic> json) {
-    rsvps = json['rsvps'].cast<String>() ?? [];
-    likes = json['likes'].cast<String>() ?? [];
+    rsvps = (json['rsvps'] ?? []).cast<String>();
+    likes = (json['likes'] ?? []).cast<String>();
   }
 
   Map<String, dynamic> toJson() {

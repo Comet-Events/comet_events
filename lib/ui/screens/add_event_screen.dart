@@ -1,6 +1,7 @@
 import 'package:comet_events/core/models/add_event_model.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/comet_buttons.dart';
+import 'package:comet_events/ui/widgets/comet_loading.dart';
 import 'package:comet_events/ui/widgets/comet_text_field.dart';
 import 'package:comet_events/ui/widgets/date_time.dart';
 import 'package:comet_events/ui/widgets/tag_category.dart';
@@ -241,34 +242,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
           ),
           SizedBox(height: 20),
           // GestureDetector(child: Text('check enddate'),onTap: () => model.checkDates(),)
-        ],
-      ),
-    );
-  }
-}
-
-/// A widget you can stack on top of stuff to indicate a loading state
-class CometLoadingOverlay extends StatelessWidget {
-  final double opacity;
-  const CometLoadingOverlay({Key key, this.opacity = 0.5}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final CometThemeData _appTheme = locator<CometThemeManager>().theme;
-    print('build ran');
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      width: MediaQuery.of(context).size.width,
-      color: _appTheme.mainMono.withOpacity(opacity),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          LoadingBouncingGrid.circle(
-            inverted: true,
-            backgroundColor: _appTheme.mainColor,
-            size: 65,
-          ),
         ],
       ),
     );
