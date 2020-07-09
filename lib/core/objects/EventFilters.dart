@@ -12,8 +12,8 @@ class EventFilters{
     this.tags,
     this.categories
   }){
-      this.tags = [];
-      this.categories = [];
+      this.tags = this.tags ?? [];
+      this.categories = this.categories ?? [];
     }
 
   Map<String, dynamic> get map{

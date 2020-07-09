@@ -208,7 +208,7 @@ class FilterScreen extends StatelessWidget{
           controller: model.tagController,
           onChange: (tags) => model.tagsOnChange(tags),
           disabledTags: model.categoryController.categories.map((e) => e.name).toList(),
-          initTags: ['hello'],
+          initTags: model.activeFilters.tags,
         ),
         // SizedBox(height: 10),
       ],
@@ -268,7 +268,7 @@ class FilterScreen extends StatelessWidget{
                 ),
                 //apply filters button
                 CometSubmitButton(
-                  onTap: () async => await model.applyFilters(), //apply changes and go back to homescreen
+                  onTap: () => model.applyFilters(), //apply changes and go back to homescreen
                   text: 'Apply Filters'
                 )
               ],
@@ -299,7 +299,7 @@ class FilterScreen extends StatelessWidget{
 class TimeRangeController { 
   double start;
   double end;
-  RangeValues values = RangeValues(1, 10);
+  RangeValues values = RangeValues(1, 100);
   double live = 0;
   int divisions = 0;
 }
@@ -310,8 +310,8 @@ class TimeRange extends StatefulWidget {
     @required this.originalDay,
     @required this.start, 
     @required this.end, 
-    this.interval, 
     @required this.onChanged, 
+    this.interval, 
     this.liveText = "Live", 
     this.liveEnabled = false,
     this.liveEnd = false, 
@@ -344,7 +344,7 @@ class _TimeRangeState extends State<TimeRange> {
     widget.controller.start = widget.start.toDouble();
     widget.controller.end = widget.end.toDouble();
     widget.controller.divisions = getDivisions();
-    widget.controller.values = RangeValues(widget.start.toDouble(), widget.end.toDouble());
+    if(widget.controller.values == RangeValues(1,100) || widget.controller.values == null) widget.controller.values = RangeValues(widget.start.toDouble(), widget.end.toDouble());
     widget.controller.live = widget.liveEnd ? widget.end.toDouble() : widget.start.toDouble();
   }
 
@@ -361,8 +361,18 @@ class _TimeRangeState extends State<TimeRange> {
   }
 
   checkValues() {
-    // if(widget.controller.values.start < widget.start.toDouble()) widget.controller.values = RangeValues(widget.start.toDouble(), widget.controller.values.end);
-    // if(widget.controller.values.end < widget.start.toDouble()) widget.controller.values = RangeValues(widget.controller.values.start, widget.end.toDouble());
+    if(widget.controller.values.start < widget.start.toDouble()) {
+      print('ran the values');
+      widget.controller.values = RangeValues(widget.start.toDouble(), widget.controller.values.end);
+    }
+    if(widget.controller.values.end < widget.start.toDouble()) {
+      print('ran the values 2');
+      widget.controller.values = RangeValues(widget.controller.values.start, widget.end.toDouble());
+    }
+    if(widget.controller.values.start >= widget.controller.values.end) {
+      print('actually added 24');
+      widget.controller.values = RangeValues(widget.controller.values.start, widget.controller.values.end+12);
+    }
   }
 
   @override

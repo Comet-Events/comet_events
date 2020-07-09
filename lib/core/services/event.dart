@@ -29,32 +29,32 @@ class EventService extends DatabaseService {
   }
   // * init
   start({Function(List<Event>) cb}) async {
-    center = GeoFirePoint(_location.currentLocation.latitude, _location.currentLocation.longitude);
-    if(filter.value.radius == null) filter.value.radius = defaultRadius;
-    if(eventStreamSub != null) eventStreamSub.cancel();
-    eventStreamSub = 
-    filter.stream.switchMap((newFilter) {
-      /// * TIME FILTERS
-      // start
-      var queryRef = eventsCollection.where('dates.start', isLessThan: filter.value.startRangeEnd); 
-      // if(filter.startRangeStart != null) { 
-      //   queryRef = queryRef.where('dates.start', isGreaterThan: filter.startRangeStart); 
-      // }
-      // // end
-      // queryRef = queryRef.where('dates.end', isGreaterThan: filter.endRangeStart);
-      // if(filter.endRangeEnd != null) {
-      //   queryRef = queryRef.where('dates.end', isLessThan: filter.endRangeEnd);
-      // }
-      /// * CATEGORY AND TAG FILTERS 
-      if(filter.value.categories != null && filter.value.categories.isNotEmpty) queryRef = queryRef.where('categories', arrayContainsAny: filter.value.categories);
-      if(filter.value.tags != null && filter.value.tags.isNotEmpty) queryRef = queryRef.where('tags', arrayContainsAny: filter.value.tags);
-      // * ~~~~~~~~ Event Stream ~~~~~~~~~
-      // if(eventStreamSub != null) eventStreamSub.cancel(); 
-      return _geo
-        .collection(collectionRef: queryRef)
-        .within(center: center, radius: filter.value.radius, field: field, strictMode: true)
-        .switchMap((docSnap) =>  Stream.value(docSnap.map((e) => Event.fromJson(e.data)).toList()));
-    }).listen(cb);
+    // center = GeoFirePoint(_location.currentLocation.latitude, _location.currentLocation.longitude);
+    // if(filter.value.radius == null) filter.value.radius = defaultRadius;
+    // if(eventStreamSub != null) eventStreamSub.cancel();
+    // eventStreamSub = 
+    // filter.stream.switchMap((newFilter) {
+    //   /// * TIME FILTERS
+    //   // start
+    //   var queryRef = eventsCollection.where('dates.start', isLessThanOrEqualTo: filter.value.startRangeEnd); 
+    //   // if(filter.startRangeStart != null) { 
+    //   //   queryRef = queryRef.where('dates.start', isGreaterThan: filter.startRangeStart); 
+    //   // }
+    //   // // end
+    //   // queryRef = queryRef.where('dates.end', isGreaterThan: filter.endRangeStart);
+    //   // if(filter.endRangeEnd != null) {
+    //   //   queryRef = queryRef.where('dates.end', isLessThan: filter.endRangeEnd);
+    //   // }
+    //   /// * CATEGORY AND TAG FILTERS 
+    //   if(filter.value.categories != null && filter.value.categories.isNotEmpty) queryRef = queryRef.where('categories', arrayContainsAny: filter.value.categories);
+    //   if(filter.value.tags != null && filter.value.tags.isNotEmpty) queryRef = queryRef.where('tags', arrayContainsAny: filter.value.tags);
+    //   // * ~~~~~~~~ Event Stream ~~~~~~~~~
+    //   // if(eventStreamSub != null) eventStreamSub.cancel(); 
+    //   return _geo
+    //     .collection(collectionRef: queryRef)
+    //     .within(center: center, radius: filter.value.radius, field: field, strictMode: true)
+    //     .switchMap((docSnap) =>  Stream.value(docSnap.map((e) => Event.fromJson(e.data)).toList()));
+    // }).listen(cb);
   }
 
 
