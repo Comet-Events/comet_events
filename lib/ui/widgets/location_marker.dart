@@ -9,7 +9,7 @@ class MarkerPainter extends CustomPainter {
   final double leftMargin;
   final double scale;
   final Size markerSize;
-  // ValueNotifier<String> time;
+  ValueNotifier<String> time;
   CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
   MarkerPainter({
@@ -17,10 +17,9 @@ class MarkerPainter extends CustomPainter {
     this.fontSize = 10,
     this.scale = 2,
     @required this.markerSize,
-    // @required this.time,
+    @required this.time,
     @required this.image,
-  }); 
-  // : super(repaint: time);
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -51,12 +50,13 @@ class MarkerPainter extends CustomPainter {
       bottomLeft: Radius.circular(innerRadius)
     );
 
+    paint.color = _appTheme.opposite;
     //write time label and one day it'll work
     TextPainter textPainter = TextPainter(
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,
       text: TextSpan(
-        // text: this.time.value,
+        text: this.time.value,
         style: TextStyle(
           fontSize: fontSize*scale,
           fontFamily: "Lexend Deca"
@@ -77,13 +77,10 @@ class MarkerPainter extends CustomPainter {
     final FittedSizes sizes = applyBoxFit(BoxFit.cover, imageSize, innerRect.size);
     final Rect inputSubrect = Alignment.center.inscribe(sizes.source, Offset.zero & imageSize);
     final Rect outputSubrect = Alignment.center.inscribe(sizes.destination, innerRect);
+
     canvas.drawImageRect(image, inputSubrect, outputSubrect, paint);
   }
 
   @override
-  bool shouldRepaint(MarkerPainter old){
-    if(markerSize!= old.markerSize)
-      print('different');
-    return markerSize != old.markerSize;
-  }
-}
+  bool shouldRepaint(MarkerPainter old) => false;
+}  

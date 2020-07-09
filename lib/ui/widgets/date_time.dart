@@ -262,7 +262,6 @@ class _HourPickerRowState extends State<HourPickerRow> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if(widget.hours >= 1) {
       setState(() {

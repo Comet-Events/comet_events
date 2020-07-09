@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: _appTheme.secondaryMono,
         body: Stack(
           children: <Widget>[
-            Map(),
+            HomeMap(),
             Column(
               children: <Widget>[
                 _topAppBar(),

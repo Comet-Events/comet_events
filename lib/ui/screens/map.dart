@@ -1,39 +1,28 @@
-
 import 'dart:io';
-
+import 'package:countdown/countdown.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:countdown_flutter/countdown_flutter.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'dart:async';
 import 'package:comet_events/ui/widgets/location_marker.dart';
 import 'dart:ui' as ui;
 import 'package:file_cache/file_cache.dart';
 import 'package:http/http.dart' as http;
 
-class Map extends StatefulWidget {
+class HomeMap extends StatefulWidget {
   @override
-  State<Map> createState() => MapState();
+  State<HomeMap> createState() => MapState();
 }
 
-class MapState extends State<Map> with SingleTickerProviderStateMixin{
+class MapState extends State<HomeMap> with SingleTickerProviderStateMixin {
   String _mapStyle;
   Completer<GoogleMapController> _controller = Completer();
-  List<Marker> allMarkers = [];
-  int numMarkers = 0;
+  Map<MarkerId, Marker> allMarkers = <MarkerId, Marker>{};
+  Map<MarkerId, CountDown> allTimers = <MarkerId, CountDown>{};
 
-  bool isImageloaded = false;
-
-  ValueNotifier<String> countdown = ValueNotifier("loading...");
-
-  Size _animationFraction = Size(130, 154);
-  Animation<Size> widgetAnimation;
-  AnimationController widgetAnimationController;
-  
   @override
   void initState() {
     super.initState();
@@ -42,81 +31,47 @@ class MapState extends State<Map> with SingleTickerProviderStateMixin{
       _mapStyle = string;
     });
 
-    addMarker('https://picsum.photos/200', LatLng(29.722151, -95.389622), 'myMarker');
-    addMarker('https://picsum.photos/200', LatLng(29.704940, -95.425814), 'randalls');
-
-    widgetAnimationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1500)
-    );
-
-    widgetAnimation = Tween(
-      begin: Size(130, 154),
-      end: Size(156, 185)
-    ).animate(widgetAnimationController)
-      ..addListener(() {
-        setState((){
-          _animationFraction = widgetAnimation.value;
-        });
-      })
-      ..addStatusListener((status) {
-        print( status );
-      });
-    // _startTimer(Duration(hours: 1));
+    _addMarker('https://picsum.photos/200', LatLng(29.722151, -95.389622),
+        'myMarker', Duration(hours: 1, minutes: 1));
+    _addMarker('https://picsum.photos/200', LatLng(29.704940, -95.425814),
+        'randalls', Duration(minutes: 30));
   }
 
-  @override
-  void dispose(){
-    widgetAnimationController.dispose();
-    super.dispose();
-  }
-
- 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      resizeToAvoidBottomPadding: false,
-      body:
-        Stack(
+        resizeToAvoidBottomPadding: false,
+        body: Stack(
           children: <Widget>[
             GoogleMap(
               zoomControlsEnabled: false,
               myLocationEnabled: true,
-              markers: Set.from(allMarkers),
+              markers: Set<Marker>.of(allMarkers.values),
               initialCameraPosition: _kHome,
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
                 controller.setMapStyle(_mapStyle);
               },
             ),
-            // Positioned(
-            //   top: 100,
-            //   left: MediaQuery.of(context).size.width * 0.05,
-            //   child: GestureDetector(
-            //     onTap: (){ moveToRandalls(); },
-            //     child: Container(
-            //       color: locator<CometThemeManager>().theme.mainMono,
-            //       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-            //       child: Text('Go to Randalls!')
-            //     )
-            //   ),
-            // ),
-            // Positioned(
-            //   top: 200,
-            //   left: MediaQuery.of(context).size.width * 0.05,
-            //   child: GestureDetector(
-            //     onTap: deanimateMarker,
-            //     child: Container(
-            //       color: locator<CometThemeManager>().theme.mainMono,
-            //       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-            //       child: Text('Kill me now!')
-            //     )
-            //   ),
-            // ),
+            Positioned(
+              top: 100,
+              left: MediaQuery.of(context).size.width * 0.05,
+              child: GestureDetector(
+                onTap: () {
+                  moveToRandalls();
+                },
+                child: Container(
+                  color: locator<CometThemeManager>().theme.mainMono,
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                  child: Text('Go to Randalls!')
+                )
+              ),
+            ),
           ],
         )
-    );
-  }  
+      );
+  }
 
   static final CameraPosition _kHome = CameraPosition(
     target: LatLng(29.722151, -95.389622),
@@ -124,78 +79,96 @@ class MapState extends State<Map> with SingleTickerProviderStateMixin{
     zoom: 14.746,
   );
 
-  Future<void> moveToRandalls() async{
+  Future<void> moveToRandalls() async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(
-      CameraPosition(target: LatLng(29.704940, -95.425814), zoom: 14.760)
-    ));
+        CameraPosition(target: LatLng(29.704940, -95.425814), zoom: 14.760)));
+  }
+
+  void _addMarker(String imageURL, LatLng position, String markerId, Duration duration) async {
+    final id = MarkerId(markerId); 
+    ValueNotifier<String> countdown = ValueNotifier("loading...");
+    
+    CountDown cd = CountDown(duration);
+    allTimers[id] = cd;
+    var sub = cd.stream.listen(null);
+    
+    sub.onData((Duration d) {
+      if( countdown.value != _getDurationString(d)){
+        countdown.value = _getDurationString(d);
+        _updateMarker(id, imageURL, position, countdown);
+      }
+    });
+
+    sub.onDone(() {
+      countdown.value = "Live!";
+      _updateMarker(id, imageURL, position, countdown);
+      sub.cancel();
+    });
+    
+    final Uint8List bitmap = await _getMarkerIcon(imageURL, countdown);
+
+    Marker newMarker = Marker(
+      markerId: id,
+      position: position,
+      icon: BitmapDescriptor.fromBytes(bitmap),
+    );
+
+    setState(() {
+      allMarkers[id] = newMarker;
+    });
+  }
+  //to repaint a marker when its timer changes
+  void _updateMarker(MarkerId markerId, String imageURL, LatLng position, ValueNotifier<String> updatedTime) async {
+    print('update');
+    final Uint8List bitmap = await _getMarkerIcon(imageURL, updatedTime);
+
+    setState(() {
+      allMarkers[markerId] = Marker(
+        markerId: markerId,
+        position: position,
+        icon: BitmapDescriptor.fromBytes(bitmap)
+      );
+    });
+  }
+
+  String _getDurationString(Duration duration){
+    if( duration.inHours > 1 )
+      return "in ${duration.inHours.toString()} hours";
+    else if( duration.inHours == 1 )
+      return "in ${duration.inHours.toString()} hour";
+    else
+      return "in ${duration.inMinutes.toString()} mins";
   }
   
-  // CountdownFormatted _startTimer(Duration _duration){
-  //   return CountdownFormatted(
-  //     duration: _duration,
-  //     builder: (BuildContext context, String remaining){
-  //       setState(() {
-  //         countdown.value = remaining;
-  //       });
-  //       print('hiii ' + remaining);
-  //       return Text(remaining);
-  //     }
-  //   );
-  // }
-
-  void addMarker(String imageURL, LatLng position, String markerId) async{
-    final Uint8List bitmap = await getMarkerIcon(imageURL, Size(130, 154));
-    
-    allMarkers.add(Marker(
-      markerId: MarkerId(markerId),
-      position: position ,
-      icon: BitmapDescriptor.fromBytes(bitmap),
-      // onTap: () {
-        // print('blast off');
-        // widgetAnimationController.forward();
-        // animateMarker(imageURL, _animationFraction, Duration(milliseconds: 10), position);
-      // },
-    ));
-  }
-
+  //converts img to ui.Image
   Future<ui.Image> _initImage(String imageURL) async {
-    // http.Response response = await http.get(imageURL);   
+    // http.Response response = await http.get(imageURL);
     // return await loadImage( response.bodyBytes );
-
-    // File file = await DefaultCacheManager().getSingleFile(imageURL);
-    // FileImage im = FileImage(file);
-    // Uint8List bytes = (await rootBundle.load(${thisismeltingmyfuckingbrain})).buffer.asUint8List();
-    // return await loadImage(bytes);
-    
     FileCache fileCache = await FileCache.fromDefault();
     Uint8List bytes = await fileCache.getBytes(imageURL);
     return _loadImage(bytes);
   }
 
-  //converts img to ui.Image
+  //helper function for _initImage
   Future<ui.Image> _loadImage(List<int> img) async {
     final Completer<ui.Image> completer = new Completer();
     ui.decodeImageFromList(img, (ui.Image img) {
-      setState(() {
-         isImageloaded = true;
-      });
       return completer.complete(img);
     });
     return completer.future;
   }
 
   //this will also eventually need to take in a duration, since every marker has a diff timer
-  Future<Uint8List> getMarkerIcon(String imageURL, Size widgetSize) async{
+  Future<Uint8List> _getMarkerIcon(String imageURL, ValueNotifier<String> countdown) async {
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder);
-    //  final Size widgetSize = Size(130, 154);
-    
+    final Size widgetSize = Size(130, 154);
+
     //create custompainter
     MarkerPainter myPainter = MarkerPainter(
-      // time: countdown,
+      time: countdown,
       image: await _initImage(imageURL),
-      // image: CachedNetworkImage(),
       markerSize: widgetSize
     );
 
@@ -203,34 +176,123 @@ class MapState extends State<Map> with SingleTickerProviderStateMixin{
     myPainter.paint(canvas, widgetSize);
 
     //get image
-    final ui.Image markerAsImage = await recorder.endRecording().toImage(widgetSize.width.round(), widgetSize.height.round());
+    final ui.Image markerAsImage = await recorder
+        .endRecording()
+        .toImage(widgetSize.width.round(), widgetSize.height.round());
 
     //convert image to bytes
     final ByteData byteData = await markerAsImage.toByteData(format: ui.ImageByteFormat.png);
     return byteData.buffer.asUint8List();
-  }
-  
-  
-  Future<void> animateMarker(String imageURL, Size markerSize, Duration duration, LatLng position) async {
-    Timer timer = new Timer.periodic(duration, (timer) async {
-      // print('hola');
-      final Uint8List bitmap = await getMarkerIcon(imageURL, markerSize);
-      getMarkerIcon(imageURL, markerSize);
-  
-      allMarkers.add(Marker(
-        markerId: MarkerId(imageURL),
-        position: position ,
-        icon: BitmapDescriptor.fromBytes(bitmap),
-      ));
-      // numMarkers++;s
+  } 
 
-      // if( markerSize >= Size(156, 185) )
-      //   timer.cancel();
-    });
-  }
-
-  // Future<void> deanimateMarker(){
-  //   while( numMarkers != 0)
-  //     allMarkers.removeLast();
-  // }
 }
+
+// class LocationMarker extends StatefulWidget {
+//   final String imageURL;
+//   final LatLng position;
+//   final Duration duration;
+//   final Size markerSize;
+//   final String markerId;
+
+//   const LocationMarker({
+//     Key key,
+//     @required this.imageURL,
+//     @required this.position,
+//     @required this.duration,
+//     this.markerSize = const Size(130, 154),
+//     @required this.markerId
+//   }) : super(key: key);
+
+//   @override
+//   _LocationMarkerState createState() => _LocationMarkerState();
+// }
+
+// class _LocationMarkerState extends State<LocationMarker> {
+//   String displayTime;
+//   Marker marker = null;
+
+//   @override
+//   void initState(){
+//     super.initState();
+//     _addMarker().then((val) => setState((){
+//       marker = val;
+//     }));
+
+//     CountDown cd = CountDown(widget.duration);
+//     var sub = cd.stream.listen(null);
+    
+//     sub.onData((Duration d) {
+//       setState(() {
+//         displayTime = d.toString();
+//       });
+//     });
+
+//     sub.onDone(() {
+//       setState(() {
+//         displayTime = "Live!";
+//       });
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return marker;
+//   }
+
+//   Future<Marker> _addMarker() async{
+//     final Uint8List bitmap = await _getMarkerIcon(widget.imageURL, widget.duration);
+//     final id = MarkerId(widget.markerId);
+
+//     return Marker(
+//       markerId: id,
+//       position: widget.position,
+//       icon: BitmapDescriptor.fromBytes(bitmap)
+//     );
+//   }
+
+  // //converts img to ui.Image
+  // Future<ui.Image> _initImage(String imageURL) async {
+  //   // http.Response response = await http.get(imageURL);
+  //   // return await loadImage( response.bodyBytes );
+  //   FileCache fileCache = await FileCache.fromDefault();
+  //   Uint8List bytes = await fileCache.getBytes(imageURL);
+  //   return _loadImage(bytes);
+  // }
+
+  // //helper function for _initImage
+  // Future<ui.Image> _loadImage(List<int> img) async {
+  //   final Completer<ui.Image> completer = new Completer();
+  //   ui.decodeImageFromList(img, (ui.Image img) {
+  //     return completer.complete(img);
+  //   });
+  //   return completer.future;
+  // }
+
+  // //this will also eventually need to take in a duration, since every marker has a diff timer
+  // Future<Uint8List> _getMarkerIcon(String imageURL, Duration duration) async {
+  //   final ui.PictureRecorder recorder = ui.PictureRecorder();
+  //   final Canvas canvas = Canvas(recorder);
+  //   final Size widgetSize = Size(130, 154);
+  //   ValueNotifier<String> countdown = ValueNotifier("loading...");
+
+  //   //create custompainter
+  //   MarkerPainter myPainter = MarkerPainter(
+  //     time: countdown.value,
+  //     image: await _initImage(imageURL),
+  //     markerSize: widgetSize
+  //   );
+
+  //   //paint a pwetty pwicture
+  //   myPainter.paint(canvas, widgetSize);
+
+  //   //get image
+  //   final ui.Image markerAsImage = await recorder
+  //       .endRecording()
+  //       .toImage(widgetSize.width.round(), widgetSize.height.round());
+
+  //   //convert image to bytes
+  //   final ByteData byteData = await markerAsImage.toByteData(format: ui.ImageByteFormat.png);
+  //   return byteData.buffer.asUint8List();
+  // }
+
+// }
