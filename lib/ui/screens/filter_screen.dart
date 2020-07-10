@@ -25,6 +25,21 @@ extension on double {
   }
 }
 
+extension on DateTime {
+    bool isSameDate(DateTime other) {
+    return this.year == other.year && this.month == other.month
+           && this.day == other.day && this.hour == other.hour && this.minute == other.minute;
+  }
+
+  bool isSameDay(DateTime other) {
+    return this.resetToDayStart().isSameDate(other.resetToDayStart());
+  }
+
+  DateTime resetToDayStart() {
+    return DateTime(this.year ?? DateTime.now().year, this.month, this.day);
+  }
+}
+
 class FilterScreen extends StatelessWidget{
   final CometThemeData _appTheme = locator<CometThemeManager>().theme;
 
@@ -129,7 +144,7 @@ class FilterScreen extends StatelessWidget{
       color: _appTheme.mainMono,
       width: MediaQuery.of(context).size.width/1.17,
       child: DistanceRadiusFilter(
-        defaultDistance: model.activeFilters.radius,
+        defaultDistance: model.newFilters.radius,
         max: 100.0,
         onChange: (radius) => model.distanceOnChange(radius),
       ),
@@ -148,18 +163,19 @@ class FilterScreen extends StatelessWidget{
                 children: <Widget>[
                   SizedBox(height: 15),
                   TimeRange(
-                    originalDay: model.rangeDay,
                     controller: model.startController,
                     start: model.rangeStart,
                     end: model.rangeEnd,
-                    interval: Duration(minutes: 1),
-                    onChanged: (results) => model.startRangeOnChange(results),
-                    liveEnabled: true,
-                  ),
+                    startLive: true,
+                    onChanged: model.startRangeOnChange
+                  )
                 ],
               ),
             ),
-            sliderLabels(model.startController.live == model.startController.values.start ? "Live" : model.startController.values.start.toTimeOfDay().format(context), model.startController.values.end.toTimeOfDay().format(context)),
+            // sliderLabels(model.startController.live == model.startController.values.start ? "Live" : model.startController.values.start.toTimeOfDay().format(context), model.startController.values.end.toTimeOfDay().format(context)),
+            sliderLabels(
+              "Live",
+              TimeOfDay.fromDateTime(DateTime.fromMillisecondsSinceEpoch(model.rangeEnd.millisecondsSinceEpoch)).format(context))
           ],
         ),
         Column(
@@ -171,19 +187,18 @@ class FilterScreen extends StatelessWidget{
                   SizedBox(height: 15),
                   TimeRange(
                     controller: model.endController,
-                    originalDay: model.rangeDay,
                     start: model.rangeStart,
                     end: model.rangeEnd,
-                    interval: Duration(minutes: 1),
-                    liveEnabled: true,
-                    liveEnd: true,
-                    liveText: "Later",
-                    onChanged: (results) => model.endRangeOnChange(results),
-                  ),
+                    endLive: true,
+                    onChanged: model.endRangeOnChange
+                  )
                 ],
               ),
             ),
-            sliderLabels(model.endController.values.start.toTimeOfDay().format(context), model.endController.live == model.endController.values.end ? "Later" : model.endController.values.end.toTimeOfDay().format(context)),
+            sliderLabels(
+              TimeOfDay.fromDateTime(DateTime.fromMillisecondsSinceEpoch(model.rangeStart.millisecondsSinceEpoch)).format(context),
+              "Later"  
+            )
           ],
         ),
       ],
@@ -296,106 +311,92 @@ class FilterScreen extends StatelessWidget{
     );
   }
 }
-class TimeRangeController { 
-  double start;
-  double end;
-  RangeValues values = RangeValues(1, 100);
-  double live = 0;
-  int divisions = 0;
+
+class TimeRangeController {
+  RangeValues values;
+  int divisions = 10;
+  TimeRangeController({this.values}) {
+    this.values = this.values ?? RangeValues(DateTime.now().millisecondsSinceEpoch.toDouble(), DateTime.now().add(Duration(hours: 13)).millisecondsSinceEpoch.toDouble());
+  }
 }
 class TimeRange extends StatefulWidget {
   TimeRange({
-    Key key,
+    Key key, 
     this.controller,
-    @required this.originalDay,
-    @required this.start, 
-    @required this.end, 
-    @required this.onChanged, 
-    this.interval, 
-    this.liveText = "Live", 
-    this.liveEnabled = false,
-    this.liveEnd = false, 
+    this.onChanged,
+    @required this.start,
+    @required this.end,
+    this.startLive = false,
+    this.endLive = false
   }) : super(key: key);
-
   TimeRangeController controller;
-  final DateTime originalDay;
-  final TimeOfDay start;
-  final TimeOfDay end;
-  final Function(TimeRangeResult) onChanged;
-  final Duration interval;
-  final bool liveEnabled;
-  final String liveText;
-  final bool liveEnd;
-
+  Function(TimeRangeResult) onChanged;
+  DateTime start;
+  DateTime end;
+  bool startLive;
+  bool endLive;
   @override
   _TimeRangeState createState() => _TimeRangeState();
 }
-
 class _TimeRangeState extends State<TimeRange> {
-
-  // var values = RangeValues(1, 10);
-  // double live = 0;
-  // int divisions = 0;
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
+    //print(widget.controller == null);
+    //print(widget.controller.values == null);
     if(widget.controller == null) widget.controller = TimeRangeController();
-    widget.controller.start = widget.start.toDouble();
-    widget.controller.end = widget.end.toDouble();
+    if(widget.controller.values == null) widget.controller.values = RangeValues(widget.start.millisecondsSinceEpoch.toDouble(), widget.end.millisecondsSinceEpoch.toDouble());
     widget.controller.divisions = getDivisions();
-    if(widget.controller.values == RangeValues(1,100) || widget.controller.values == null) widget.controller.values = RangeValues(widget.start.toDouble(), widget.end.toDouble());
-    widget.controller.live = widget.liveEnd ? widget.end.toDouble() : widget.start.toDouble();
   }
 
   getDivisions() {
-    if(widget.interval != null) {
-      double state = widget.end.toDouble();
-      double interval = widget.interval.inMinutes/60;
-      while (state > widget.start.toDouble()) {
-        state = state - interval;
-        widget.controller.divisions++;
-      }
-      return widget.controller.divisions;
-    }
+    int milliseconds = widget.end.millisecondsSinceEpoch-widget.start.millisecondsSinceEpoch;
+    double divisions = milliseconds/60000;
+    return divisions.toInt();
   }
 
-  checkValues() {
-    if(widget.controller.values.start < widget.start.toDouble()) {
-      print('ran the values');
-      widget.controller.values = RangeValues(widget.start.toDouble(), widget.controller.values.end);
-    }
-    if(widget.controller.values.end < widget.start.toDouble()) {
-      print('ran the values 2');
-      widget.controller.values = RangeValues(widget.controller.values.start, widget.end.toDouble());
-    }
-    if(widget.controller.values.start >= widget.controller.values.end) {
-      print('actually added 24');
-      widget.controller.values = RangeValues(widget.controller.values.start, widget.controller.values.end+12);
-    }
+  generateRangeLabels() {
+    DateTime startDate = DateTime.fromMillisecondsSinceEpoch(widget.controller.values.start.toInt());
+    DateTime endDate = DateTime.fromMillisecondsSinceEpoch(widget.controller.values.end.toInt());
+    
+    String startLabel = (startDate.isSameDay(DateTime.now()) ? "Today " : "Tomorrow ") + TimeOfDay.fromDateTime(startDate).format(context);
+    String endLabel = (endDate.isSameDay(DateTime.now()) ? "Today " : "Tomorrow ") + TimeOfDay.fromDateTime(endDate).format(context);
+  
+    if(widget.controller.values.start == widget.start.millisecondsSinceEpoch.toDouble() && widget.startLive) startLabel = "Live";
+    if(widget.controller.values.end == widget.end.millisecondsSinceEpoch.toDouble() && widget.endLive) endLabel = "Later";
+
+    return RangeLabels(startLabel, endLabel);
   }
 
   @override
   Widget build(BuildContext context) {
-    checkValues();
     return RangeSlider(
-      onChanged: (v) { setState(() { widget.controller.values = v; }); widget.onChanged(TimeRangeResult(v.start.toTimeOfDay(), v.end.toTimeOfDay(), v.start == widget.controller.live, v.end == widget.controller.live, widget.originalDay)); },
+      onChanged: (RangeValues value) { 
+        setState(() { widget.controller.values = value; });
+         if(widget.onChanged != null) widget.onChanged(TimeRangeResult(
+          start: DateTime.fromMillisecondsSinceEpoch(widget.controller.values.start.toInt()),
+          end: DateTime.fromMillisecondsSinceEpoch(widget.controller.values.end.toInt()),
+          startLive: widget.controller.values.start == widget.start.millisecondsSinceEpoch.toDouble() && widget.startLive,
+          endLive: widget.controller.values.end == widget.end.millisecondsSinceEpoch.toDouble() && widget.endLive
+        ));
+      }, 
       values: widget.controller.values,
-      labels: RangeLabels('${widget.controller.values.start == widget.controller.live && widget.liveEnabled && !widget.liveEnd ? widget.liveText : widget.controller.values.start.toTimeOfDay().format(context)}', '${widget.controller.values.end.toDouble() == widget.controller.live && widget.liveEnd && widget.liveEnabled ? widget.liveText : widget.controller.values.end.toTimeOfDay().format(context)}'),
-      min: widget.start.toDouble(),
-      max: widget.end.toDouble(),
+      min: widget.start.millisecondsSinceEpoch.toDouble(),
+      max: widget.end.millisecondsSinceEpoch.toDouble(),
+      labels: generateRangeLabels(),
       divisions: widget.controller.divisions,
     );
   }
 }
 
 class TimeRangeResult {
-  final DateTime originalDay;
-  final TimeOfDay start;
-  final TimeOfDay end;
+  final DateTime start;
+  final DateTime end;
   final bool startLive;
   final bool endLive;
-  TimeRangeResult(this.start, this.end, this.startLive, this.endLive, this.originalDay);
+  TimeRangeResult({this.start, this.end, this.startLive, this.endLive});
 }
 
 // * Distance Radius Slider

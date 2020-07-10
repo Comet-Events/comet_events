@@ -172,7 +172,6 @@ class TimeSelector extends StatefulWidget {
   @override
   _TimeSelectorState createState() => _TimeSelectorState();
 }
-
 class _TimeSelectorState extends State<TimeSelector> {
 
   TimeOfDay selectedTime;
@@ -331,7 +330,6 @@ class _HourPickerRowState extends State<HourPickerRow> {
     );
   }
 }
-
 class HourNode extends StatelessWidget {
 
   HourNode(this.selected, {Key key, this.value, this.onTap}) : super(key: key);

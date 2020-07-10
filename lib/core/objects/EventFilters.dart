@@ -1,9 +1,16 @@
+import 'package:flutter/material.dart';
+
 class EventFilters{
   double radius;
   DateTime startRangeStart;
   DateTime startRangeEnd;
   DateTime endRangeStart;
   DateTime endRangeEnd;
+
+  // last time updated
+  DateTime originalDay;
+  DateTime lastUpdated;
+
   List<String> tags;
   List<String> categories;
 
@@ -14,6 +21,7 @@ class EventFilters{
   }){
       this.tags = this.tags ?? [];
       this.categories = this.categories ?? [];
+      this.lastUpdated = this.originalDay = DateTime.now();
     }
 
   Map<String, dynamic> get map{

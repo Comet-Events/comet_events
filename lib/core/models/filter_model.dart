@@ -9,10 +9,22 @@ import 'package:flutter/material.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 extension on DateTime{
+  DateTime changeDay(DateTime newDay) {
+    return DateTime(this.year, this.month, newDay.day, this.minute, this.second, this.millisecond, this.microsecond);
+  }
   /// Checks if the dates are the same down to the minute
   bool isSameDate(DateTime other) {
     return this.year == other.year && this.month == other.month
            && this.day == other.day && this.hour == other.hour && this.minute == other.minute;
+  }
+
+  bool isSameDay(DateTime other) {
+    return this.resetToDayStart().isSameDate(other.resetToDayStart());
+  }
+
+  bool isTomorrow(DateTime other) {
+    return this.year == other.year && this.month == other.month
+           && this.day+1 == other.day;
   }
 
   DateTime resetToDayStart() {
@@ -54,6 +66,11 @@ extension on TimeOfDay {
     }
     return false;
   }
+  double findTrueEndDouble(TimeOfDay start) {
+    if(this.toDouble() <= start.toDouble()) {
+      return 24 + this.toDouble();
+    } else return this.toDouble();
+  }
 }
 
 extension on double {
@@ -63,6 +80,10 @@ extension on double {
       val -= 24;
     }
     return TimeOfDay(hour: val.toInt(), minute: ((val - val.toInt())*60).toInt());
+  }
+  String epochTime() {
+    TimeOfDay time = TimeOfDay.fromDateTime(DateTime.fromMillisecondsSinceEpoch(this.toInt()));
+    return "${time.hour}:${time.minute}";
   }
 }
 
@@ -80,58 +101,55 @@ class FilterModel extends ChangeNotifier{
   EventFilters get activeFilters => _event.filter.value;
   EventFilters newFilters = EventFilters();
 
-  TimeOfDay rangeStart;
-  TimeOfDay rangeEnd;
-  DateTime rangeDay;
+  DateTime rangeStart;
+  DateTime rangeEnd;
 
-  TimeRangeController startController = TimeRangeController();
-  TimeRangeController endController = TimeRangeController();
   CategoryPickerController categoryController = CategoryPickerController();
   TagPickerController tagController = TagPickerController();
+
+  TimeRangeController startController;
+  TimeRangeController endController;
 
   FilterModel() {
     if(activeFilters != null) newFilters = activeFilters;
     // define range variables
-    rangeDay = DateTime.now();
-    rangeStart = TimeOfDay.now();
-    rangeEnd = (rangeStart.toDouble() + 12).toTimeOfDay(reduce: false);
+    rangeStart = DateTime.now();
+    rangeEnd = rangeStart.add(Duration(hours: 12));
+    startController = TimeRangeController();
+    endController = TimeRangeController();
+    startController.values = setupValues(activeFilters.startRangeStart, activeFilters.startRangeEnd);
+    endController.values = setupValues(activeFilters.endRangeStart, activeFilters.endRangeEnd);
     // setup range controllers 
-    if(activeFilters.startRangeStart != null || activeFilters.startRangeEnd != null) {
-      print(activeFilters.startRangeStart);
-      print(activeFilters.startRangeEnd);
-      startController.values = RangeValues(
-        activeFilters.startRangeStart.toDouble(rangeDay) ?? rangeStart.toDouble(),
-        activeFilters.startRangeEnd.toDouble(rangeDay) ?? rangeEnd.toDouble(),
-      );
+  }
+
+  setupValues(DateTime oldStartDate, DateTime oldEndDate) {
+    DateTime oldDay = activeFilters.originalDay.resetToDayStart();
+    DateTime newDay = rangeStart.resetToDayStart();
+
+    double start = rangeStart.millisecondsSinceEpoch.toDouble();
+    double end = rangeEnd.millisecondsSinceEpoch.toDouble();
+
+    if(activeFilters == null) return RangeValues(start, end);
+    if(activeFilters.lastUpdated != null && activeFilters.lastUpdated.difference(rangeStart).inMinutes > 20) return RangeValues(start, end); // new range start is now
+
+    if(oldStartDate != null) {
+      DateTime oldStartDateTest = DateTime.fromMillisecondsSinceEpoch((oldStartDate.millisecondsSinceEpoch - oldDay.millisecondsSinceEpoch)+newDay.millisecondsSinceEpoch);
+      if(oldStartDateTest.millisecondsSinceEpoch >= rangeStart.millisecondsSinceEpoch && oldStartDateTest.millisecondsSinceEpoch <= rangeEnd.millisecondsSinceEpoch) {
+        start = oldStartDateTest.millisecondsSinceEpoch.toDouble();
+      }
     }
-    if(activeFilters.endRangeStart != null || activeFilters.endRangeEnd != null) {
-      print(activeFilters.endRangeStart);
-      print(activeFilters.endRangeEnd);
-      endController.values = RangeValues(
-        activeFilters.endRangeStart.toDouble(rangeDay) ?? rangeStart.toDouble(),
-        activeFilters.endRangeEnd.toDouble(rangeDay) ?? rangeEnd.toDouble(),
-      );
+    if(oldEndDate != null) {
+      DateTime oldEndDateTest = DateTime.fromMillisecondsSinceEpoch((oldEndDate.millisecondsSinceEpoch - oldDay.millisecondsSinceEpoch)+newDay.millisecondsSinceEpoch);
+      if(oldEndDateTest.millisecondsSinceEpoch >= rangeStart.millisecondsSinceEpoch && oldEndDateTest.millisecondsSinceEpoch <= rangeEnd.millisecondsSinceEpoch) {
+        end = oldEndDateTest.millisecondsSinceEpoch.toDouble();
+      }
     }
-    // if(activeFilters.startRangeStart != null && activeFilters.startRangeEnd != null) {
-    //   double activeEnd = activeFilters.startRangeStart.getTimeOfDay().toDouble() > activeFilters.startRangeEnd.getTimeOfDay().toDouble() 
-    //     ? activeFilters.startRangeEnd.getTimeOfDay().toDouble() + 24 
-    //     : activeFilters.startRangeEnd.getTimeOfDay().toDouble();
-    //     startController.values = RangeValues(_event.filter.value.startRangeStart.getTimeOfDay().toDouble(), activeEnd);
-    // }
-    // if(activeFilters.endRangeStart != null && activeFilters.endRangeEnd != null) {
-    //   double activeEnd = activeFilters.endRangeStart.getTimeOfDay().toDouble() > activeFilters.endRangeEnd.getTimeOfDay().toDouble() 
-    //     ? activeFilters.endRangeEnd.getTimeOfDay().toDouble() + 24 
-    //     : activeFilters.endRangeEnd.getTimeOfDay().toDouble();
-    //     endController.values = RangeValues(_event.filter.value.endRangeStart.getTimeOfDay().toDouble(), activeEnd);
-    // }
-    // timing
- }
+    return RangeValues(start, end);
+  }
 
   // ? Init but for async stuff
   Future<void> asyncInit() async {
     await fetchCategories();
-    if(activeFilters.startRangeStart != null ) print(activeFilters.startRangeStart.toTimeOfDay(DateTime.now()).toDouble());
-    if(activeFilters.startRangeEnd != null ) print(activeFilters.startRangeEnd.toTimeOfDay(DateTime.now()).toDouble());
   }
 
   //at top of filter screen build
@@ -157,7 +175,7 @@ class FilterModel extends ChangeNotifier{
   }
   
   //validator
-  bool isValid(){
+  bool isValid(){ 
     double minDistance = 0.25;    
     Duration snackDuration = Duration(seconds: 10);
 
@@ -180,14 +198,17 @@ class FilterModel extends ChangeNotifier{
     // if not valid reset date values to prevent time from stacking, and return
     if(!valid) return;
     // set active filters for homescreen to be the new homescreen
+    newFilters.lastUpdated = DateTime.now();
+    newFilters.originalDay = rangeStart;
+    // add to filter stream
     _event.filter.add(newFilters);
     _navigate.popRepeated(1);
   }
   //reset button
   void resetFilters(){
     // reset time ranges
-    startController.values = RangeValues(startController.start, startController.end);
-    endController.values = RangeValues(endController.start, endController.end);
+    startController.values = RangeValues(rangeStart.millisecondsSinceEpoch.toDouble(), rangeEnd.millisecondsSinceEpoch.toDouble());
+    endController.values = RangeValues(rangeStart.millisecondsSinceEpoch.toDouble(), rangeEnd.millisecondsSinceEpoch.toDouble());
     // reset categories and tags
     categoryController.selected = [];
     tagController.tags = [];
@@ -199,12 +220,12 @@ class FilterModel extends ChangeNotifier{
   distanceOnChange(double radius){ newFilters.radius = radius; }
 
   startRangeOnChange(TimeRangeResult result) {
-    newFilters.startRangeStart = result.startLive ? null : result.start.toDateTime(result.originalDay); 
-    newFilters.startRangeEnd = result.endLive ? null : result.end.toDateTime(result.originalDay); 
+    newFilters.startRangeStart = result.startLive ? null : result.start;
+    newFilters.startRangeEnd = result.endLive ? null : result.end;
   }
   endRangeOnChange(TimeRangeResult result) {
-    newFilters.endRangeStart = result.startLive ? null : result.start.toDateTime(result.originalDay); 
-    newFilters.endRangeEnd = result.endLive ? null : result.end.toDateTime(result.originalDay); 
+    newFilters.endRangeStart = result.startLive ? null : result.start;
+    newFilters.endRangeEnd = result.endLive ? null : result.end;
   }
 
   categoryOnChange(List<Tag> categories) { newFilters.categories = categories.map((e) => e.name).toList(); }
