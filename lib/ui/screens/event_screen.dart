@@ -12,38 +12,9 @@ import 'package:flutter/material.dart';
 
 class EventScreen extends StatelessWidget {
   
-  EventScreen({Key key}) : super(key: key);
+  EventScreen(this.event);
 
-
-  // Dummy Event
-
-  Event event = Event(
-    name: "Socket.io workshop wooo coding", 
-    description: "I’m an influencer, world wide chad. I’m really into anime I love anime I’m kinda weeb quirky hehe.",
-    instructions: List.filled(5, "second door on your left as soon as you walk in", growable: true),
-    host: "Jafar A.",
-    active: true,
-    dates: Dates (start: Timestamp.fromDate(DateTime.now())), 
-    tags: List.filled(5, "coding", growable: true),
-    category: 'education',
-    stats: Stats(rsvps: List.filled(1, "32"), likes: List.filled(1, "100")),
-    location: Location(geo: Geo(geohash: "UT Dallas", geopoint: GeoPoint(33, 97)) , address: Address(text: "800 W Campbell Rd, Richardson, TX 75080" )),
-    settings: Settings(followersOnly: false, hideOnStart: false, hideRSVPs: false)
-
-  );
-
-  final List<String> imageURLs = [
-    'https://i.picsum.photos/id/866/536/354.jpg',
-    'https://i.picsum.photos/id/866/536/354.jpg',
-    'https://picsum.photos/200',
-    'https://picsum.photos/200'
-  ];
-
-  final String category = 'education';
-
-  final List<String> tags = [
-    'coding', 'workshop', 'learning', 'another', 'and-another'
-  ];
+  final Event event;
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +36,14 @@ class EventScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16.0, left: 16),
-                          child: Icon(Icons.arrow_back, size: 35),
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 16.0, left: 16),
+                            child: Icon(Icons.arrow_back, size: 35),
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 16.0, right: 16),
@@ -78,7 +54,7 @@ class EventScreen extends StatelessWidget {
                     // image carousel
                     CarouselSlider(
                       items: [
-                        ...imageURLs.map((url) {
+                        ...event.images.map((url) {
                           return Container(
                             width: MediaQuery.of(context).size.width/1.3,
                             // height: 300,
@@ -130,7 +106,7 @@ class EventScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              event.dates.start.toString(),
+                              TimeOfDay.fromDateTime(DateTime.fromMillisecondsSinceEpoch(event.dates.start.millisecondsSinceEpoch)).format(context),
                               style: TextStyle(
                                 color: _appTheme.mainColor,
                                 fontSize: 15,
@@ -143,7 +119,7 @@ class EventScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Text(
-                              event.location.address.text,
+                              event.location.address.fullStreet,
                               style: TextStyle(
                                 color: _appTheme.mainColor,
                                 fontSize: 15,
@@ -151,7 +127,7 @@ class EventScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              ", " + event.location.geo.geohash.toString(),
+                              ", ${event.location.address.city}, ${event.location.address.state}",
                               style: TextStyle(
                                 color: Color.fromARGB(255, 159, 159, 159),
                                 fontSize: 15,
@@ -169,13 +145,15 @@ class EventScreen extends StatelessWidget {
                         direction: Axis.horizontal,
                         alignment: WrapAlignment.center,
                         children: <Widget>[
-                          CategoryChip(
-                            category,
-                            fontSize: 12,
-                            spacing: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            margin: EdgeInsets.only(top: 10, right: 6),
-                          ),
-                          ...tags.map((tag) {
+                          ...event.categories.map((category) {
+                            return CategoryChip(
+                              category,
+                              fontSize: 12,
+                              spacing: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              margin: EdgeInsets.only(top: 10, right: 6)
+                            );
+                          }),
+                          ...event.tags.map((tag) {
                             return TagChip(
                               tag,
                               fontSize: 12,
@@ -190,16 +168,20 @@ class EventScreen extends StatelessWidget {
                     // description
                     Container(
                       width: MediaQuery.of(context).size.width/1.2,
-                      child: Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              event.description,
-                              textAlign: TextAlign.center,
-                              style: TextStyle( fontSize: 14 ),
+                      child: Center(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                event.description,
+                                textAlign: TextAlign.center,
+                                style: TextStyle( fontSize: 14 ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     SizedBox(height: 13),
@@ -280,7 +262,7 @@ class EventScreen extends StatelessWidget {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.all(Radius.elliptical(54.0, 54.0)),
-                              child: Image.network('https://img.stackshare.io/service/1161/vI0ZZlhZ_400x400.png', fit: BoxFit.cover)
+                              child: Image.network('https://i.ibb.co/YfD2TCk/nopfp.png', fit: BoxFit.cover)
                             )
                           ),
                         ),             
@@ -331,7 +313,7 @@ class EventScreen extends StatelessWidget {
                             Column(
                                 children: [
                                   Text(
-                                    event.host,
+                                    "Me",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 23,
@@ -405,64 +387,66 @@ class EventScreen extends StatelessWidget {
               UserList(
                 title: 'RSVPs',
                 onViewAll: () => print('tried to view all of RSVPs'),
-                users: <UserIcon>[
-                  UserIcon(
-                    url: 'https://picsum.photos/200',
-                    first: 'Bobby'
-                  ),
-                  UserIcon(
-                    url: 'https://picsum.photos/200',
-                    first: 'Bobby'
-                  ),
-                  UserIcon(
-                    url: 'https://picsum.photos/200',
-                    first: 'Bobby'
-                  ),
-                ]
+                users: [],
+                // users: <UserIcon>[
+                //   UserIcon(
+                //     url: 'https://picsum.photos/200',
+                //     first: 'Bobby'
+                //   ),
+                //   UserIcon(
+                //     url: 'https://picsum.photos/200',
+                //     first: 'Bobby'
+                //   ),
+                //   UserIcon(
+                //     url: 'https://picsum.photos/200',
+                //     first: 'Bobby'
+                //   ),
+                // ]
               ),
               SizedBox(height: 10),
               // Likes List
               UserList(
                 title: 'Likes',
                 onViewAll: () => print('tried to view all of likes'),
-                users: <UserIcon>[
-                  UserIcon(
-                    url: 'https://picsum.photos/200',
-                    first: 'Bobby'
-                  ),
-                  UserIcon(
-                    url: 'https://picsum.photos/200',
-                    first: 'Bobby'
-                  ),
-                  UserIcon(
-                    url: 'https://picsum.photos/200',
-                    first: 'Bobby'
-                  ),
-                ]
+                // users: <UserIcon>[
+                //   UserIcon(
+                //     url: 'https://picsum.photos/200',
+                //     first: 'Bobby'
+                //   ),
+                //   UserIcon(
+                //     url: 'https://picsum.photos/200',
+                //     first: 'Bobby'
+                //   ),
+                //   UserIcon(
+                //     url: 'https://picsum.photos/200',
+                //     first: 'Bobby'
+                //   ),
+                // ]
+                users: []
               ),
               SizedBox(height: 10),
               // Similar Events
-              EventList(
-                title: 'Similar Events',
-                eventTiles: [
-                  EventTile(
-                    imageURL: 'https://img.stackshare.io/service/1161/vI0ZZlhZ_400x400.png',
-                    title: 'Socket.io Workshop Workshop Workshop',
-                    date: 'Aug 21',
-                    category: 'education',
-                    tags: ['coding', 'workshop', 'something', 'anothertag'],
-                    description: 'description description description description description description description description description',
-                  ),
-                  EventTile(
-                    imageURL: 'https://img.stackshare.io/service/1161/vI0ZZlhZ_400x400.png',
-                    title: 'Socket.io Workshop Workshop Workshop',
-                    date: 'Aug 21',
-                    category: 'education',
-                    tags: ['coding', 'workshop', 'something', 'anothertag'],
-                    description: 'description description description description description description description description description',
-                  ),
-                ]
-              ),
+              // EventList(
+              //   title: 'Similar Events',
+              //   eventTiles: [
+              //     EventTile(
+              //       imageURL: 'https://img.stackshare.io/service/1161/vI0ZZlhZ_400x400.png',
+              //       title: 'Socket.io Workshop Workshop Workshop',
+              //       date: 'Aug 21',
+              //       category: 'education',
+              //       tags: ['coding', 'workshop', 'something', 'anothertag'],
+              //       description: 'description description description description description description description description description',
+              //     ),
+              //     EventTile(
+              //       imageURL: 'https://img.stackshare.io/service/1161/vI0ZZlhZ_400x400.png',
+              //       title: 'Socket.io Workshop Workshop Workshop',
+              //       date: 'Aug 21',
+              //       category: 'education',
+              //       tags: ['coding', 'workshop', 'something', 'anothertag'],
+              //       description: 'description description description description description description description description description',
+              //     ),
+              //   ]
+              // ),
             ],
           ),
         ),

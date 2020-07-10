@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -39,5 +41,17 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<!--images-->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Upload images to your event!</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Upload images to your event!</string>
+	<!-- location -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Comet Events requires your location to find events near you!</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Comet Events requires your location to find events near you!</string>
+	<key>io.flutter.embedded_views_preview</key>
+	<string>YES</string>
 </dict>
 </plist>

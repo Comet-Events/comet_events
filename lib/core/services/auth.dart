@@ -19,7 +19,6 @@ class AuthService {
     user.listen((user) { _u = user; });
   }
 
-
   // register with email and password
   Future<AuthResponse> registerWithEmailandPassword(String email, String password) async {
     try {

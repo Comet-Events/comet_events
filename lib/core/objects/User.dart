@@ -51,6 +51,19 @@ class User {
     } else data['events'] = UserEvents().toJson();
     return data;
   }
+
+  Map<String, dynamic> toUpdateJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['uid'] = this.uid;
+    if (this.name != null) data['name'] = this.name.toJson();
+    data['organization'] = this.organization;
+    data['description'] = this.description;
+    data['pfpUrl'] = this.pfpUrl;
+    data['followers'] = this.followers;
+    data['following'] = this.following;
+    if (this.events != null) data['events'] = this.events.toJson();
+    return data;
+  }
 }
 
 class UserName {

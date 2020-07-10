@@ -11,6 +11,7 @@ class CometTextField extends StatelessWidget {
     this.hint = 'Enter Text', 
     this.obscure = false,
     this.autocorrect = false,
+    this.backgroundColor,
     @required this.controller,
   }) : super(key: key);
 
@@ -19,6 +20,7 @@ class CometTextField extends StatelessWidget {
   final String hint;
   final bool obscure;
   final bool autocorrect;
+  final Color backgroundColor;
 
   final TextEditingController controller;
 
@@ -32,7 +34,7 @@ class CometTextField extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(7.0)),
-        color: _appTheme.mainMono
+        color: backgroundColor != null ? backgroundColor : _appTheme.mainMono
       ),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       child: Column(

@@ -1,3 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:comet_events/core/objects/objects.dart';
+import 'package:comet_events/core/services/tags.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
@@ -5,23 +8,19 @@ import 'package:flutter/material.dart';
 
 class EventTile extends StatelessWidget {
 
+  final Event event;
   final double width;
-  final String imageURL;
-  final String title;
-  final String date;
-  final String category;
-  final List<String> tags;
-  final String description;
+  final double scale;
+  final String iconFontFamily;
+  final String iconFontPackage;
 
   EventTile({
     Key key, 
     this.width,
-    @required this.imageURL, 
-    @required this.title, 
-    @required this.date, 
-    @required this.category, 
-    @required this.tags, 
-    @required this.description,
+    @required this.event, 
+    this.scale = 1, 
+    this.iconFontFamily = 'MaterialIcons', 
+    this.iconFontPackage = 'material_design_icons_flutter',
   }) : super(key: key);
 
   final ScrollController controller = ScrollController();
@@ -30,17 +29,31 @@ class EventTile extends StatelessWidget {
   Widget build(BuildContext context) {
 
     CometThemeData _appTheme = locator<CometThemeManager>().theme;
+    TagsService _tags = locator<TagsService>();
+    double titleScale = scale;
+    double textScale = scale < 1 ? scale*0.93 : 1;
+
+    Icon icon = Icon(
+      IconData(
+        event.categories.isNotEmpty 
+          ? _tags.categories.firstWhere((e) => e.name == event.categories[0]).category.iconCode
+          : 0xf034e, // map marker default
+        fontFamily: iconFontFamily, 
+        fontPackage: iconFontPackage
+      ),
+      color: _appTheme.mainColor
+    );
 
     return Container(
       width: width,
-      height: 90,
+      height: 90*scale,
       decoration: BoxDecoration(
-        color: _appTheme.secondaryMono,
-        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+        color: _appTheme.mainMono,
+        borderRadius: BorderRadius.all(Radius.circular(15.0*scale)),
         boxShadow: [
           BoxShadow(
             color: Color.fromARGB(41, 0, 0, 0),
-            offset: Offset(0, 4),
+            offset: Offset(0, 4*scale),
             blurRadius: 10,
           )
         ]
@@ -49,29 +62,38 @@ class EventTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Container(
-            width: 85,
-            height: 85,
-            margin: const EdgeInsets.all(3.5),
+            width: 85*scale,
+            height: 85*scale,
+            margin: EdgeInsets.all(3.5*scale),
             decoration: BoxDecoration(
               color: _appTheme.secondaryMono,
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12.0),
-                topRight: Radius.circular(12.0),
-                bottomLeft: Radius.circular(12.0),
+                topLeft: Radius.circular(12.0*scale),
+                topRight: Radius.circular(12.0*scale),
+                bottomLeft: Radius.circular(12.0*scale),
               ),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12.0),
-                topRight: Radius.circular(12.0),
-                bottomLeft: Radius.circular(12.0),
+                topLeft: Radius.circular(12.0*scale),
+                topRight: Radius.circular(12.0*scale),
+                bottomLeft: Radius.circular(12.0*scale),
               ),
-              child: Image.network(imageURL, fit: BoxFit.cover),
+              // child: Image.network(imageURL, fit: BoxFit.cover),
+              child: (event.coverImage != null && event.coverImage.isNotEmpty) 
+                ? CachedNetworkImage(
+                  imageUrl: event.coverImage,
+                  fit: BoxFit.cover,
+                  placeholder: (context, _) => icon,
+                  errorWidget: (context, _, __) => Icon(Icons.error),
+              ) : Center(
+                child: icon,
+              )
             )
           ),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
+              padding: EdgeInsets.symmetric(horizontal: 7.0, vertical: 10.0*scale),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 //mainAxisSize: MainAxisSize.max,
@@ -80,17 +102,17 @@ class EventTile extends StatelessWidget {
                     children: <Widget>[
                       Expanded(
                         child: Text(
-                          title,
-                          style: TextStyle(fontSize: 14),
+                          event.name,
+                          style: TextStyle(fontSize: 14*titleScale),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
+                        padding: EdgeInsets.only(right: 8.0),
                         child: Text(
-                          date,
+                          TimeOfDay.fromDateTime(DateTime.fromMillisecondsSinceEpoch(event.dates.start.millisecondsSinceEpoch)).format(context),
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 14*titleScale,
                             color: _appTheme.mainColor,
                             // decoration: TextDecoration.underline,
                           ),
@@ -98,24 +120,24 @@ class EventTile extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 4.5),
+                  SizedBox(height: 4.5*textScale),
                   FadingEdgeScrollView.fromSingleChildScrollView(
                     child: SingleChildScrollView(
                       controller: controller,
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: <Widget>[
-                          CategoryChip(category),
-                          ...tags.map((t) => TagChip(t)),
+                          ...event.categories.map((e) => CategoryChip(e, scale: textScale)),
+                          ...event.tags.map((t) => TagChip(t, scale: textScale)),
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(height: 4.5),
+                  SizedBox(height: 4.5*scale),
                   Expanded(
                     // width: 220,
-                    child: Text(description,
-                      style: TextStyle(fontSize: 9.5),
+                    child: Text(event.description,
+                      style: TextStyle(fontSize: 9.5*scale),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -137,6 +159,7 @@ class CategoryChip extends StatelessWidget {
   final EdgeInsets spacing;
   final double radius;
   final EdgeInsets margin;
+  final double scale;
 
   const CategoryChip(
     this.title, 
@@ -144,7 +167,8 @@ class CategoryChip extends StatelessWidget {
     this.fontSize = 9, 
     this.spacing = const EdgeInsets.only(left: 9.5, right: 9.5, top: 3, bottom: 3), 
     this.radius = 30,
-    this.margin = const EdgeInsets.only(right: 6.0),
+    this.margin = const EdgeInsets.only(right: 6.0), 
+    this.scale = 1,
   }) : super(key: key);
 
   @override
@@ -169,7 +193,7 @@ class CategoryChip extends StatelessWidget {
           textAlign: TextAlign.left,
           style: TextStyle(
             color: Color.fromARGB(255, 152, 125, 225),
-            fontSize: fontSize,
+            fontSize: fontSize*scale,
           ),
         ),
       ),
@@ -184,6 +208,7 @@ class TagChip extends StatelessWidget {
   final EdgeInsets spacing;
   final double radius;
   final EdgeInsets margin;
+  final double scale;
 
   const TagChip(
     this.title, 
@@ -191,7 +216,8 @@ class TagChip extends StatelessWidget {
     this.fontSize = 9, 
     this.spacing = const EdgeInsets.only(left: 9.5, right: 9.5, top: 3, bottom: 3), 
     this.radius = 30,
-    this.margin = const EdgeInsets.only(right: 6.0),
+    this.margin = const EdgeInsets.only(right: 6.0), 
+    this.scale = 1,
   }) : super(key: key);
 
   @override
@@ -214,7 +240,7 @@ class TagChip extends StatelessWidget {
         child: Text(
           title,
           textAlign: TextAlign.left,
-          style: TextStyle(fontSize: fontSize),
+          style: TextStyle(fontSize: fontSize*scale),
         ),
       ),
     );

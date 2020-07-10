@@ -1,40 +1,53 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 
 class Event {
+  String id;
   String name;
   String description;
+  String coverImage;
+  List<String> images;
   List<String> instructions;
   String host;
   bool active;
   Dates dates;
   List<String> tags;
-  String category;
+  List<String> categories;
   Stats stats;
   Location location;
   Settings settings;
 
   Event(
-      {this.name,
+      {this.id = "",
+      this.name = "",
       this.description,
+      this.coverImage,
+      this.images,
       this.instructions,
       this.host,
       this.active,
       this.dates,
       this.tags,
-      this.category,
+      this.categories,
       this.stats,
       this.location,
-      this.settings});
+      this.settings}) {
+        this.tags = [];
+        this.categories = [];
+      }
 
   Event.fromJson(Map<String, dynamic> json) {
+    id = json['id'] ?? "";
     name = json['name'] ?? "Untitled Event";
     description = json['description'] ?? "This event has no description...";
-    instructions = json['instructions'].cast<String>() ?? [];
+    coverImage = json['coverImage'] ?? "";
+    images = (json['images'] ?? []).cast<String>();
+    instructions = (json['instructions'] ?? []).cast<String>();
     host = json['host'];
     active = json['active'] ?? true;
     dates = json['dates'] != null ? new Dates.fromJson(json['dates']) : null;
-    tags = json['tags'].cast<String>() ?? [];
-    category = json['category'];
+    tags = (json['tags'] ?? []).cast<String>();
+    categories = (json['categories'] ?? []).cast<String>();
     stats = json['stats'] != null ? new Stats.fromJson(json['stats']) : null;
     location = json['location'] != null
         ? new Location.fromJson(json['location'])
@@ -46,15 +59,18 @@ class Event {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['name'] = this.name;
-    data['description'] = this.description;
-    data['host'] = this.host;
-    data['active'] = this.active;
+    data['id'] = this.id ?? "";
+    data['name'] = this.name ?? "";
+    data['description'] = this.description ?? "";
+    data['coverImage'] = this.coverImage ?? "";
+    data['images'] = this.images ?? [];
+    data['host'] = this.host ?? "";
+    data['active'] = this.active ?? false;
     if (this.dates != null) {
       data['dates'] = this.dates.toJson();
     }
-    data['tags'] = this.tags;
-    data['category'] = this.category;
+    data['tags'] = this.tags ?? [];
+    data['categories'] = this.categories ?? [];
     if (this.stats != null) {
       data['stats'] = this.stats.toJson();
     }
@@ -97,8 +113,8 @@ class Stats {
   Stats({this.rsvps, this.likes});
 
   Stats.fromJson(Map<String, dynamic> json) {
-    rsvps = json['rsvps'].cast<String>() ?? [];
-    likes = json['likes'].cast<String>() ?? [];
+    rsvps = (json['rsvps'] ?? []).cast<String>();
+    likes = (json['likes'] ?? []).cast<String>();
   }
 
   Map<String, dynamic> toJson() {
@@ -153,17 +169,43 @@ class Geo {
 }
 
 class Address {
-  String text;
+  String fullAddress;
+  String fullStreet;
+  String streetNum;
+  String street;
+  String city;
+  String state;
+  String country;
 
-  Address({this.text});
+  Address({
+    this.fullAddress, 
+    this.fullStreet, 
+    this.streetNum, 
+    this.street, 
+    this.city, 
+    this.state, 
+    this.country
+  });
 
   Address.fromJson(Map<String, dynamic> json) {
-    text = json['text'] ?? "";
+    fullAddress = json['fullAddress'] ?? "";
+    fullStreet = json['fullStreet'] ?? "";
+    streetNum = json['streetNum'] ?? "";
+    street = json['street'] ?? "";
+    city = json['city'] ?? "";
+    state = json['state'] ?? null;
+    country = json['country'] ?? "";
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['text'] = this.text ?? "";
+    data['fullAddress'] = this.fullAddress ?? "";
+    data['fullStreet'] = this.fullStreet ?? "";
+    data['streetNum'] = this.streetNum ?? "";
+    data['street'] = this.street ?? "";
+    data['city'] = this.city ?? "";
+    data['state'] = this.state ?? null;
+    data['country'] = this.country ?? "";
     return data;
   }
 }

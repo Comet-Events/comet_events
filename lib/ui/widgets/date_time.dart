@@ -1,29 +1,7 @@
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
-
-class SubBlockContainer extends StatelessWidget {
-  const SubBlockContainer({Key key, this.title, this.child, this.space = 5}) : super(key: key);
-
-  final String title;
-  final Widget child;
-  final double space;
-
-  @override
-  Widget build(BuildContext context) {
-    
-    Color labelTextColor = CometThemeManager.lighten(locator<CometThemeManager>().theme.secondaryMono, 0.3);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(title, style: TextStyle(color: labelTextColor)),
-        SizedBox(height: space),
-        child
-      ]
-    );
-  }
-}
+import 'package:comet_events/ui/widgets/layout_widgets.dart';
 
 class DateSelector extends StatefulWidget {
   const DateSelector({
@@ -33,6 +11,7 @@ class DateSelector extends StatefulWidget {
     this.inkwell = true, 
     this.daysPriorFirst = 0, 
     this.daysTillLast = 2, 
+    this.initDate,
     @required this.onChanged
   }) : super(key: key);
   
@@ -41,6 +20,7 @@ class DateSelector extends StatefulWidget {
   final bool inkwell;
   final int daysPriorFirst;
   final int daysTillLast;
+  final DateTime initDate;
   final Function(DateTime) onChanged;
 
   @override
@@ -54,10 +34,9 @@ class _DateSelectorState extends State<DateSelector> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     
-    selectedDate = DateTime.now();
+    selectedDate = widget.initDate ?? DateTime.now();
     now = DateTime.now();
     widget.onChanged(selectedDate);
   }
@@ -158,6 +137,7 @@ class TimeSelector extends StatefulWidget {
     this.backgroundColor, 
     this.textColor, 
     this.inkwell = true, 
+    this.initTime,
     @required this.onChanged
   }) : super(key: key);
   
@@ -165,11 +145,11 @@ class TimeSelector extends StatefulWidget {
   final Color textColor;
   final bool inkwell;
   final Function(TimeOfDay) onChanged;
+  final TimeOfDay initTime;
 
   @override
   _TimeSelectorState createState() => _TimeSelectorState();
 }
-
 class _TimeSelectorState extends State<TimeSelector> {
 
   TimeOfDay selectedTime;
@@ -177,10 +157,9 @@ class _TimeSelectorState extends State<TimeSelector> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     
-    selectedTime = TimeOfDay.now();
+    selectedTime = widget.initTime ?? TimeOfDay.now();
     now = TimeOfDay.now();
     widget.onChanged(selectedTime);
   }
@@ -222,15 +201,23 @@ class DateTimeRow extends StatelessWidget {
     Key key, 
     @required this.dateOnChange, 
     @required this.timeOnChange, 
+    this.initDate,
+    this.initTime,
     this.backgroundColor, 
     this.textColor, 
     this.inkwell = true, 
-    @required this.title
+    @required this.title, 
+    this.daysPriorFirst = 0, 
+    this.daysTillLast = 2
   }) : super(key: key);
 
   final String title;
   final Function(DateTime) dateOnChange;
   final Function(TimeOfDay) timeOnChange;
+  final DateTime initDate;
+  final TimeOfDay initTime;
+  final int daysPriorFirst;
+  final int daysTillLast;
   final Color backgroundColor;
   final Color textColor;
   final bool inkwell;
@@ -248,8 +235,11 @@ class DateTimeRow extends StatelessWidget {
           DateSelector(
             onChanged: dateOnChange,
             backgroundColor: backgroundColor,
+            initDate: initDate,
             textColor: textColor,
             inkwell: inkwell,
+            daysPriorFirst: daysPriorFirst,
+            daysTillLast: daysTillLast,
           ),
           TimeSelector(
             onChanged: timeOnChange,
@@ -280,7 +270,6 @@ class _HourPickerRowState extends State<HourPickerRow> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if(widget.hours >= 1) {
       setState(() {
@@ -318,7 +307,6 @@ class _HourPickerRowState extends State<HourPickerRow> {
     );
   }
 }
-
 class HourNode extends StatelessWidget {
 
   HourNode(this.selected, {Key key, this.value, this.onTap}) : super(key: key);
