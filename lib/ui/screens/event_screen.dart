@@ -24,6 +24,7 @@ class EventScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: _appTheme.secondaryMono,
       body: SafeArea(
+        bottom: false,
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
@@ -85,7 +86,7 @@ class EventScreen extends StatelessWidget {
                         scrollDirection: Axis.horizontal,
                       )
                     ),
-                    SizedBox(height: 12),
+                    SizedBox(height: 17),
                     // name & details
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -95,6 +96,7 @@ class EventScreen extends StatelessWidget {
                           style: TextStyle( fontSize: 28 ),
                         ),
                         // location
+                        SizedBox(height: 7),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
@@ -283,7 +285,7 @@ class EventScreen extends StatelessWidget {
                                     width: 80,
                                     // margin: EdgeInsets.symmetric(horizontal: 13),
                                     child: Text(
-                                      event.stats.rsvps.toString().replaceAll("[", "").replaceAll("]", ""),
+                                      event.stats.rsvps.length.toString(),
                                       textAlign: TextAlign.center,
                                       style: TextStyle(fontSize: 23),
                                     ),
@@ -356,7 +358,7 @@ class EventScreen extends StatelessWidget {
                                     width: 80,
                                     // margin: EdgeInsets.symmetric(horizontal: 13),
                                     child: Text(
-                                      event.stats.likes.toString().replaceAll("[", "").replaceAll("]", ""),
+                                      event.stats.likes.length.toString(),
                                       textAlign: TextAlign.center,
                                       style: TextStyle(fontSize: 23),
                                     ),
@@ -386,6 +388,7 @@ class EventScreen extends StatelessWidget {
               // RSVP list
               UserList(
                 title: 'RSVPs',
+                emptyText: 'There are no RSVPs...',
                 onViewAll: () => print('tried to view all of RSVPs'),
                 users: [],
                 // users: <UserIcon>[
@@ -407,6 +410,7 @@ class EventScreen extends StatelessWidget {
               // Likes List
               UserList(
                 title: 'Likes',
+                emptyText: 'There are no likes...',
                 onViewAll: () => print('tried to view all of likes'),
                 // users: <UserIcon>[
                 //   UserIcon(

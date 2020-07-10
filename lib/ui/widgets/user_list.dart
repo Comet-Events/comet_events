@@ -8,10 +8,12 @@ class UserList extends StatelessWidget {
     Key key, 
     this.title = 'People', 
     this.onViewAll, 
-    this.users,
+    this.users, 
+    this.emptyText = "This list is empty...",
   }) : super(key: key);
 
   final String title;
+  final String emptyText;
   final Function onViewAll;
   final List<UserIcon> users;
 
@@ -48,13 +50,18 @@ class UserList extends StatelessWidget {
           ),
           SizedBox(height: 8),
           Expanded(
-            child: ListView(
+            child: users.isNotEmpty ? ListView(
               scrollDirection: Axis.horizontal,
               children: <Widget>[
                 ...users
               ],
+            ) : Center(
+              child: Text(
+                emptyText,
+                style: TextStyle(color: _appTheme.lineBorder, fontSize: 14.5)
+              )
             ),
-          ),
+          )
         ]
       ),
     );
