@@ -33,13 +33,16 @@ class EventTile extends StatelessWidget {
     double titleScale = scale;
     double textScale = scale < 1 ? scale*0.93 : 1;
 
-    IconData iconData = IconData(
-                    event.categories.isNotEmpty 
-                      ? _tags.categories.firstWhere((e) => e.name == event.categories[0]).category.iconCode
-                      : 0xf034e, // map marker default
-                    fontFamily: iconFontFamily, 
-                    fontPackage: iconFontPackage
-                  );
+    Icon icon = Icon(
+      IconData(
+        event.categories.isNotEmpty 
+          ? _tags.categories.firstWhere((e) => e.name == event.categories[0]).category.iconCode
+          : 0xf034e, // map marker default
+        fontFamily: iconFontFamily, 
+        fontPackage: iconFontPackage
+      ),
+      color: _appTheme.mainColor
+    );
 
     return Container(
       width: width,
@@ -81,10 +84,10 @@ class EventTile extends StatelessWidget {
                 ? CachedNetworkImage(
                   imageUrl: event.coverImage,
                   fit: BoxFit.cover,
-                  placeholder: (context, _) => Icon( iconData ),
+                  placeholder: (context, _) => icon,
                   errorWidget: (context, _, __) => Icon(Icons.error),
               ) : Center(
-                child: Icon( iconData ),
+                child: icon,
               )
             )
           ),

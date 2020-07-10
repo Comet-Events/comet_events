@@ -1,10 +1,9 @@
-import 'dart:io';
 import 'package:comet_events/core/models/home_model.dart';
+import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:countdown/countdown.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
-import 'package:countdown_flutter/countdown_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -13,38 +12,33 @@ import 'dart:async';
 import 'package:comet_events/ui/widgets/location_marker.dart';
 import 'dart:ui' as ui;
 import 'package:file_cache/file_cache.dart';
-import 'package:http/http.dart' as http;
 
-class HomeMap extends StatefulWidget {
-  // //is this right lmao
-   HomeMapController controller = HomeMapController();
-
-   HomeMap( this.controller );
-
-  @override
-  State<HomeMap> createState() => HomeMapState();
-}
-
-//controller - idk if im doing this right
-class HomeMapController{
+class HomeMapController {
   String mapStyle;
   Completer<GoogleMapController> mapController = Completer();
   Map<MarkerId, Marker> allMarkers = <MarkerId, Marker>{};
   Map<MarkerId, MarkerEntry> allEntries = <MarkerId, MarkerEntry>{};
   Size minSize = Size(130, 154);
   Size maxSize = Size(156, 185);
+  HomeMapController();
 }
+class HomeMap extends StatefulWidget {
 
+  HomeMapController controller;
+  LatLng cameraPos;
+  List<Event> events;
+  HomeMap({
+    @required this.controller,
+    @required this.events,
+    @required this.cameraPos
+  });
+
+  @override
+  State<HomeMap> createState() => HomeMapState();
+}
 class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
-  // String mapStyle;
-  // Completer<GoogleMapController> mapController = Completer();
-  // Map<MarkerId, Marker> allMarkers = <MarkerId, Marker>{};
-
-  // Map<MarkerId, MarkerEntry> allEntries = <MarkerId, MarkerEntry>{};
-  // Size minSize = Size(130, 154);
-  // Size maxSize = Size(156, 185);
-  // Animation<Size> bloopAnimation;
-  // AnimationController bloopAnimationController;
+  
+  LatLng currentCameraPos;
 
   @override
   void initState() {
@@ -69,11 +63,53 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
 
   }
 
+  updateCamera() async { 
+    if(currentCameraPos != widget.cameraPos) {
+      currentCameraPos = widget.cameraPos;
+      final GoogleMapController controller = await widget.controller.mapController.future;
+        controller.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(target: currentCameraPos, zoom: 14.760)));
+    }
+  }
+
+  checkEvents() {
+    List<String> eventIds = widget.events.map((e) => e.id).toList();
+    List<String> markerIds = widget.controller.allEntries.keys.toList().map((e) => e.value).toList();
+    List<String> newEvents = eventIds.where((e) => !markerIds.contains(e)).toList();
+    List<String> removedEvents = markerIds.where((e) => !eventIds.contains(e)).toList();
+    if(newEvents.isNotEmpty) {
+      newEvents.forEach((eventId) {
+        Event _event = widget.events.firstWhere((e) => e.id == eventId);
+        int _now = DateTime.now().millisecondsSinceEpoch;
+        Duration _timeLeft = Duration(seconds: 0);
+
+        if(_event.dates.premiere.millisecondsSinceEpoch <= _now && _event.dates.start.millisecondsSinceEpoch > _now) {
+          _timeLeft = Duration(milliseconds: _event.dates.start.millisecondsSinceEpoch - _now);
+        } else _timeLeft = Duration(seconds: 0);
+        print('added marker');
+        _addMarker(
+          _event.coverImage, 
+          LatLng(_event.location.geo.geopoint.latitude, _event.location.geo.geopoint.longitude), 
+          eventId, 
+          _timeLeft
+        );
+      });
+    }
+    // if(removedEvents.isNotEmpty) {
+    //   removedEvents.forEach((eventId) {
+    //     Event _event = widget.events.firstWhere((e) => e.id == eventId);
+        
+    //   });
+    // }
+  }
+
   @override
   Widget build(BuildContext context) {
+    updateCamera();
+    checkEvents();
     return UserViewModelBuilder<HomeModel>.reactive(
       userViewModelBuilder: () => HomeModel(),
-      builder: (context, model, user, child) =>Scaffold(
+      builder: (context, model, user, child) => Scaffold(
           resizeToAvoidBottomPadding: false,
           body: Stack(
             children: <Widget>[

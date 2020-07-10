@@ -1,9 +1,12 @@
 import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/core/services/services.dart';
 import 'package:comet_events/ui/screens/filter_screen.dart';
+import 'package:comet_events/ui/screens/map.dart';
 import 'package:comet_events/ui/widgets/event_tile.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:comet_events/ui/screens/screens.dart';
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -39,6 +42,8 @@ class HomeModel extends MultipleStreamViewModel {
     //  title: 'Fwood Pwarty', date: '11:30 PM', category: 'Food', tags: ['Fun', 'Cool', 'Fresh'], description: 'Free buffet for all'),
     //EventTile(scale: 1.2, imageURL: 'https://picsum.photos/200', title: "Neha's the best", date: 'Everyday', category: 'Relegious', tags: ['True', 'Words', 'to' ,'Live', 'By'], description: 'Rare chance to hangout wiht the best person on earth!'),
   // ];
+  HomeMapController homeMapController = HomeMapController();
+  LatLng mapCameraPos;
   
   //List<EventList> get events => eventList.map((e) => EventTile(event: e, scale: 1.2)).toList();
   List<Event> get events => _event.events.value;
@@ -63,8 +68,15 @@ class HomeModel extends MultipleStreamViewModel {
       return;
     } else {
       await getLocation();
+      
+      mapCameraPos = LatLng(location.latitude, location.longitude);
       await _event.start(cb: applyFilters);
     }
+  }
+
+  // runs every build
+  rebuild() {
+    
   }
 
   List<Event> applyFilters(List<Event> list) {

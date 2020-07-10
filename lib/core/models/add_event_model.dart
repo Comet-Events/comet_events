@@ -185,6 +185,7 @@ class AddEventModel extends ChangeNotifier {
 
     // * data is valid
 
+    newEvent.id = postID;
     newEvent.coverImage = coverUrl ?? "";
     newEvent.images = imageUrls ?? [];
     // set up firebase timestamps and other fields

@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onModelReady: (model, _) => model.init(),
       userViewModelBuilder: () => HomeModel(),
       builder: (context, model, user, child) {
-        // print(model.eventList.map((e) => e.name).toList());
+        model.rebuild();
         return Scaffold(
         extendBody: true,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -39,7 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: _appTheme.secondaryMono,
         body: Stack(
           children: <Widget>[
-            HomeMap(),
+            HomeMap(
+              controller: model.homeMapController,
+              events: model.events,
+              cameraPos: model.mapCameraPos,
+            ),
             Column(
               children: <Widget>[
                 _topAppBar(model),
