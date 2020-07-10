@@ -22,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onModelReady: (model, _) => model.init(),
       userViewModelBuilder: () => HomeModel(),
       builder: (context, model, user, child) {
+        print(model.eventList.map((e) => e.name).toList());
         return Scaffold(
         extendBody: true,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

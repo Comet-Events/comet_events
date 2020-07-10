@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/core/services/services.dart';
 import 'package:comet_events/ui/screens/filter_screen.dart';
@@ -7,6 +8,15 @@ import 'package:comet_events/ui/screens/screens.dart';
 import 'package:location/location.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+
+extension on List {
+  bool listContains(List list) {
+    for(int i = 0; i < list.length; i++) {
+      if(this.contains(list[i])) return true;
+    }
+    return false;
+  }
+}
 
 class HomeModel extends MultipleStreamViewModel {
 
@@ -32,6 +42,7 @@ class HomeModel extends MultipleStreamViewModel {
   ];
   
   List<EventTile> get events => _events;
+  List<Event> get eventList => _event.events.value;
   LocationData get location => _location.currentLocation;
   String get rad => _event.filter.value.radius.toString();
 
@@ -53,8 +64,23 @@ class HomeModel extends MultipleStreamViewModel {
       return;
     } else {
       await getLocation();
-      await _event.start();
+      await _event.start(cb: applyFilters);
     }
+  }
+
+  List<Event> applyFilters(List<Event> list) {
+    EventFilters filter = _event.filter.value;
+    if(list.length > 0) print(list[0].dates.start);
+    // tags & categories
+    if(filter.categories != null && filter.categories.isNotEmpty) list = list.where((e) => e.categories.listContains(filter.categories)).toList();
+    if(filter.tags != null && filter.tags.isNotEmpty) list = list.where((e) => e.tags.listContains(filter.tags)).toList();
+    // timing
+    if(filter.endRangeEnd != null) list = list.where((e) => e.dates.end.millisecondsSinceEpoch <= filter.endRangeEnd.millisecondsSinceEpoch ).toList();
+    if(filter.endRangeStart != null) list = list.where((e) => e.dates.end.millisecondsSinceEpoch >= filter.endRangeStart.millisecondsSinceEpoch ).toList();
+    if(filter.startRangeEnd != null) list = list.where((e) => e.dates.start.millisecondsSinceEpoch <= filter.startRangeEnd.millisecondsSinceEpoch ).toList();
+    if(filter.startRangeStart != null) list = list.where((e) => e.dates.start.millisecondsSinceEpoch >= filter.startRangeStart.millisecondsSinceEpoch ).toList();
+    
+    return list;
   }
 
   update() { notifyListeners(); }

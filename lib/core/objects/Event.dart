@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Event {
   String name;
   String description;
+  List<String> images;
   List<String> instructions;
   String host;
   bool active;
@@ -16,6 +17,7 @@ class Event {
   Event(
       {this.name = "",
       this.description,
+      this.images,
       this.instructions,
       this.host,
       this.active,
@@ -32,6 +34,7 @@ class Event {
   Event.fromJson(Map<String, dynamic> json) {
     name = json['name'] ?? "Untitled Event";
     description = json['description'] ?? "This event has no description...";
+    images = (json['images'] ?? []).cast<String>();
     instructions = (json['instructions'] ?? []).cast<String>();
     host = json['host'];
     active = json['active'] ?? true;
@@ -51,6 +54,7 @@ class Event {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = this.name ?? "";
     data['description'] = this.description ?? "";
+    data['images'] = this.images ?? [];
     data['host'] = this.host ?? "";
     data['active'] = this.active ?? false;
     if (this.dates != null) {
