@@ -1,28 +1,20 @@
+import 'package:comet_events/core/objects/objects.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 
 class EventTile extends StatelessWidget {
 
+  final Event event;
   final double width;
-  final String imageURL;
-  final String title;
-  final String date;
-  final String category;
-  final List<String> tags;
-  final String description;
   final double scale;
 
   EventTile({
     Key key, 
     this.width,
-    @required this.imageURL, 
-    @required this.title, 
-    @required this.date, 
-    @required this.category, 
-    @required this.tags, 
-    @required this.description, 
+    @required this.event, 
     this.scale = 1,
   }) : super(key: key);
 
@@ -70,7 +62,12 @@ class EventTile extends StatelessWidget {
                 topRight: Radius.circular(12.0*scale),
                 bottomLeft: Radius.circular(12.0*scale),
               ),
-              child: Image.network(imageURL, fit: BoxFit.cover),
+              // child: Image.network(imageURL, fit: BoxFit.cover),
+              child: AssetThumb(
+                asset: event.coverImage,
+                width: 85*scale.floor(),
+                height: 85*scale.floor()
+              )
             )
           ),
           Expanded(
@@ -84,7 +81,7 @@ class EventTile extends StatelessWidget {
                     children: <Widget>[
                       Expanded(
                         child: Text(
-                          title,
+                          event.name,
                           style: TextStyle(fontSize: 14*titleScale),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -92,7 +89,7 @@ class EventTile extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(right: 8.0),
                         child: Text(
-                          date,
+                          event.dates.start.toString(),
                           style: TextStyle(
                             fontSize: 14*titleScale,
                             color: _appTheme.mainColor,
@@ -109,8 +106,8 @@ class EventTile extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: <Widget>[
-                          CategoryChip(category, scale: textScale),
-                          ...tags.map((t) => TagChip(t, scale: textScale)),
+                          ...event.categories.map((e) => CategoryChip(e, scale: textScale)),
+                          ...event.tags.map((t) => TagChip(t, scale: textScale)),
                         ],
                       ),
                     ),
@@ -118,7 +115,7 @@ class EventTile extends StatelessWidget {
                   SizedBox(height: 4.5*scale),
                   Expanded(
                     // width: 220,
-                    child: Text(description,
+                    child: Text(event.description,
                       style: TextStyle(fontSize: 9.5*scale),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

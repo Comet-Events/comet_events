@@ -13,6 +13,7 @@ class Event {
   Stats stats;
   Location location;
   List<Asset> images;
+  Asset coverImage;
   Settings settings;
 
   Event(

@@ -9,7 +9,7 @@ import 'package:comet_events/ui/widgets/layout_widgets.dart';
 class ImageUploader extends StatefulWidget {
   final String title;
   final Function(Asset) onTap;
-  final Function(List<Asset>) onChange;
+  final Function(List<Asset>, Asset) onChange;
   final Function(String) showErrorSnack;
   final int maxPics;
 
@@ -107,7 +107,7 @@ class _ImageUploaderState extends State<ImageUploader> {
       }
 
       images.addAll(resultList);
-      widget.onChange(images);
+      widget.onChange(images, images[chosenCover]);
 
       if (error == null)
         _error = 'No Error Dectected';
@@ -139,7 +139,7 @@ class _ImageUploaderState extends State<ImageUploader> {
 
           if( i < chosenCover )
             chosenCover--;
-          widget.onChange(images);
+          widget.onChange(images, images[chosenCover]);
         });
       }
       else{ //tap on star *-*

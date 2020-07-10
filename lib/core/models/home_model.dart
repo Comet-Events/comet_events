@@ -17,9 +17,9 @@ class HomeModel extends BaseModel {
 
   // * ----- Variables -----
   List<EventTile> _events = [
-    EventTile(scale: 1.2, imageURL: 'https://picsum.photos/200',
-     title: 'Fwood Pwarty', date: '11:30 PM', category: 'Food', tags: ['Fun', 'Cool', 'Fresh'], description: 'Free buffet for all'),
-    EventTile(scale: 1.2, imageURL: 'https://picsum.photos/200', title: "Neha's the best", date: 'Everyday', category: 'Relegious', tags: ['True', 'Words', 'to' ,'Live', 'By'], description: 'Rare chance to hangout wiht the best person on earth!'),
+    // EventTile(scale: 1.2, imageURL: 'https://picsum.photos/200',
+    //  title: 'Fwood Pwarty', date: '11:30 PM', category: 'Food', tags: ['Fun', 'Cool', 'Fresh'], description: 'Free buffet for all'),
+    // EventTile(scale: 1.2, imageURL: 'https://picsum.photos/200', title: "Neha's the best", date: 'Everyday', category: 'Relegious', tags: ['True', 'Words', 'to' ,'Live', 'By'], description: 'Rare chance to hangout wiht the best person on earth!'),
   ];
   
   List<EventTile> get events => _events;

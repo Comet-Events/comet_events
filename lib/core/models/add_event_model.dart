@@ -227,7 +227,7 @@ class AddEventModel extends ChangeNotifier {
   tagsOnChange(List<String> tags) { newEvent.tags = tags; }
 
   //images
-  imageOnChange(List<Asset> images) { newEvent.images = images; }
+  imageOnChange(List<Asset> images, Asset coverImage) { newEvent.images = images; newEvent.coverImage = coverImage; }
 
   // location
   void showPlacePicker(BuildContext context) async {
