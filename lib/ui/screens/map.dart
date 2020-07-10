@@ -13,10 +13,10 @@ import 'package:file_cache/file_cache.dart';
 import 'package:http/http.dart' as http;
 
 class HomeMap extends StatefulWidget {
-  //is this right lmao
-  HomeMapController controller = HomeMapController();
+  // //is this right lmao
+  // HomeMapController controller = HomeMapController();
 
-  HomeMap( this.controller );
+  // HomeMap( this.controller );
 
   @override
   State<HomeMap> createState() => HomeMapState();
@@ -31,23 +31,38 @@ class HomeMapController{
 }
 
 class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
-  // String _mapStyle;
-  // Completer<GoogleMapController> _controller = Completer();
-  // Map<MarkerId, Marker> allMarkers = <MarkerId, Marker>{};
-  // Map<MarkerId, CountDown> allTimers = <MarkerId, CountDown>{};
+  String mapStyle;
+  Completer<GoogleMapController> mapController = Completer();
+  Map<MarkerId, Marker> allMarkers = <MarkerId, Marker>{};
+  Map<MarkerId, CountDown> allTimers = <MarkerId, CountDown>{};
+  Map<MarkerId, Size> allSizes = <MarkerId, Size>{};
+  Size minSize = Size(130, 154);
+  Size maxSize = Size(156, 185);
+  Size currentSize = Size(130, 154);
+  Animation<Size> bloopAnimation;
+  AnimationController bloopAnimationController;
 
   @override
   void initState() {
     super.initState();
 
     rootBundle.loadString('assets/map_styles/pretty.txt').then((string) {
-      widget.controller.mapStyle = string;
+      mapStyle = string;
     });
 
-    _addMarker('https://picsum.photos/200', LatLng(29.722151, -95.389622),
-        'myMarker', Duration(hours: 1, minutes: 1));
-    _addMarker('https://picsum.photos/200', LatLng(29.704940, -95.425814),
-        'randalls', Duration(minutes: 30));
+    _addMarker('https://picsum.photos/200', LatLng(29.722151, -95.389622),'myMarker', Duration(hours: 1, minutes: 1));
+    _addMarker('https://picsum.photos/200', LatLng(29.704940, -95.425814), 'randalls', Duration(minutes: 30));
+
+    bloopAnimationController = AnimationController(
+      duration: Duration(milliseconds: 1500),
+      vsync: this
+    );
+
+    bloopAnimation = Tween<Size>(
+      begin: Size(130, 154),
+      end: Size(156, 185)
+    ).animate(bloopAnimationController);
+
   }
 
   @override
@@ -59,11 +74,18 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
             GoogleMap(
               zoomControlsEnabled: false,
               myLocationEnabled: true,
-              markers: Set<Marker>.of(widget.controller.allMarkers.values),
+              markers: Set<Marker>.of(allMarkers.values),
               initialCameraPosition: _kHome,
               onMapCreated: (GoogleMapController controller) {
-                widget.controller.mapController.complete(controller);
-                controller.setMapStyle(widget.controller.mapStyle);
+                mapController.complete(controller);
+                controller.setMapStyle(mapStyle);
+              },
+              onTap: (LatLng pos){
+                // allSizes.forEach((key, value) {
+                //   if( allSizes[key] != minSize )
+                //     // _updateMarker(key, )
+                //   allSizes[key] = minSize;
+                // });
               },
             ),
             Positioned(
@@ -84,6 +106,12 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
       );
   }
 
+  @override
+  void dispose(){
+    bloopAnimationController.dispose();
+    super.dispose();
+  }
+
   static final CameraPosition _kHome = CameraPosition(
     target: LatLng(29.722151, -95.389622),
     //target: LatLng(-50.606805, 165.972134),
@@ -91,7 +119,7 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
   );
 
   Future<void> _moveToRandalls() async {
-    final GoogleMapController controller = await widget.controller.mapController.future;
+    final GoogleMapController controller = await mapController.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(
         CameraPosition(target: LatLng(29.704940, -95.425814), zoom: 14.760)));
   }
@@ -101,11 +129,13 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
     final id = MarkerId(markerId); 
     ValueNotifier<String> countdown = ValueNotifier("loading...");
     
+    //create countdown for marker <--will persist through marker updates
     CountDown cd = CountDown(duration);
-    widget.controller.allTimers[id] = cd;
+    allTimers[id] = cd;
     var sub = cd.stream.listen(null);
     
     sub.onData((Duration d) {
+      //update display string and redraw marker at this position accordingly
       if( countdown.value != _getDurationString(d)){
         countdown.value = _getDurationString(d);
         _updateMarker(id, imageURL, position, countdown);
@@ -118,29 +148,43 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
       sub.cancel();
     });
     
-    final Uint8List bitmap = await _getMarkerIcon(imageURL, countdown);
+    final Uint8List bitmap = await _getMarkerIcon(imageURL, countdown, minSize);
 
     Marker newMarker = Marker(
       markerId: id,
       position: position,
       icon: BitmapDescriptor.fromBytes(bitmap),
+      onTap: () {
+        // _animateMarker(id, imageURL, position, countdown);
+         setState(() {
+           allSizes[id] = maxSize;
+         }); 
+        _updateMarker(id, imageURL, position, countdown);
+      },
     );
 
     setState(() {
-      widget.controller.allMarkers[id] = newMarker;
+      allMarkers[id] = newMarker;
     });
   }
  
-  //to repaint a marker when its timer changes
+  //to repaint a marker when its timer changes or onTap
   void _updateMarker(MarkerId markerId, String imageURL, LatLng position, ValueNotifier<String> updatedTime) async {
     print('update');
-    final Uint8List bitmap = await _getMarkerIcon(imageURL, updatedTime);
+    final Uint8List bitmap = await _getMarkerIcon(imageURL, updatedTime, allSizes[markerId]);
 
     setState(() {
-      widget.controller.allMarkers[markerId] = Marker(
+      allMarkers[markerId] = Marker(
         markerId: markerId,
         position: position,
-        icon: BitmapDescriptor.fromBytes(bitmap)
+        icon: BitmapDescriptor.fromBytes(bitmap),
+        onTap: () {
+          // _animateMarker(markerId, imageURL, position, updatedTime);
+          setState(() {
+            allSizes[markerId] = maxSize;
+          });
+          _updateMarker(markerId, imageURL, position, updatedTime);
+        }
       );
     });
   }
@@ -176,30 +220,40 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
     return completer.future;
   }
 
-  //this will also eventually need to take in a duration, since every marker has a diff timer
-  Future<Uint8List> _getMarkerIcon(String imageURL, ValueNotifier<String> countdown) async {
+  //draws marker and saves as image
+  Future<Uint8List> _getMarkerIcon(String imageURL, ValueNotifier<String> countdown, Size markerSize) async {
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder);
-    final Size widgetSize = Size(130, 154);
+    // final Size widgetSize = Size(130, 154);
 
     //create custompainter
     MarkerPainter myPainter = MarkerPainter(
       time: countdown,
       image: await _initImage(imageURL),
-      markerSize: widgetSize
+      markerSize: markerSize
     );
 
     //paint a pwetty pwicture
-    myPainter.paint(canvas, widgetSize);
+    myPainter.paint(canvas, markerSize);
 
     //get image
     final ui.Image markerAsImage = await recorder
         .endRecording()
-        .toImage(widgetSize.width.round(), widgetSize.height.round());
+        .toImage(markerSize.width.round(), markerSize.height.round());
 
     //convert image to bytes
     final ByteData byteData = await markerAsImage.toByteData(format: ui.ImageByteFormat.png);
     return byteData.buffer.asUint8List();
   } 
+
+  void _animateMarker(MarkerId id, String imageURL, LatLng position, ValueNotifier<String> countdown){
+    print('animation started');
+    bloopAnimationController.forward();
+    print(bloopAnimationController.status);
+    while( bloopAnimationController.status != AnimationStatus.completed ){
+      _updateMarker(id, imageURL, position, countdown);
+    }
+      // print(bloopAnimationController.status);
+  }
 
 }

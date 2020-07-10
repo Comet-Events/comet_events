@@ -23,9 +23,9 @@ class MarkerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint();
-    final topMargin = size.height/5;
+    Paint paint = Paint();    
     size = markerSize;
+    final topMargin = size.height/5;
 
     //draw outline for marker
     paint.color = _appTheme.mainColor;
