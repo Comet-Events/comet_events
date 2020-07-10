@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/core/services/services.dart';
 import 'package:comet_events/ui/screens/filter_screen.dart';
@@ -35,14 +34,14 @@ class HomeModel extends MultipleStreamViewModel {
   NavigationService _navigation = locator<NavigationService>();
 
   // * ----- Variables -----
-  List<EventTile> _events = [
-    EventTile(scale: 1.2, imageURL: 'https://picsum.photos/200',
-     title: 'Fwood Pwarty', date: '11:30 PM', category: 'Food', tags: ['Fun', 'Cool', 'Fresh'], description: 'Free buffet for all'),
-    EventTile(scale: 1.2, imageURL: 'https://picsum.photos/200', title: "Neha's the best", date: 'Everyday', category: 'Relegious', tags: ['True', 'Words', 'to' ,'Live', 'By'], description: 'Rare chance to hangout wiht the best person on earth!'),
-  ];
+  // List<EventTile> _events = [
+    //EventTile(scale: 1.2, imageURL: 'https://picsum.photos/200)',
+    //  title: 'Fwood Pwarty', date: '11:30 PM', category: 'Food', tags: ['Fun', 'Cool', 'Fresh'], description: 'Free buffet for all'),
+    //EventTile(scale: 1.2, imageURL: 'https://picsum.photos/200', title: "Neha's the best", date: 'Everyday', category: 'Relegious', tags: ['True', 'Words', 'to' ,'Live', 'By'], description: 'Rare chance to hangout wiht the best person on earth!'),
+  // ];
   
-  List<EventTile> get events => _events;
-  List<Event> get eventList => _event.events.value;
+  //List<EventList> get events => eventList.map((e) => EventTile(event: e, scale: 1.2)).toList();
+  List<Event> get events => _event.events.value;
   LocationData get location => _location.currentLocation;
   String get rad => _event.filter.value.radius.toString();
 
@@ -70,16 +69,17 @@ class HomeModel extends MultipleStreamViewModel {
 
   List<Event> applyFilters(List<Event> list) {
     EventFilters filter = _event.filter.value;
-    if(list.length > 0) print(list[0].dates.start);
-    // tags & categories
+    // print(list.map((e) => e.name).toList());
+    // * tags & categories
     if(filter.categories != null && filter.categories.isNotEmpty) list = list.where((e) => e.categories.listContains(filter.categories)).toList();
     if(filter.tags != null && filter.tags.isNotEmpty) list = list.where((e) => e.tags.listContains(filter.tags)).toList();
-    // timing
+    // * timing
     if(filter.endRangeEnd != null) list = list.where((e) => e.dates.end.millisecondsSinceEpoch <= filter.endRangeEnd.millisecondsSinceEpoch ).toList();
     if(filter.endRangeStart != null) list = list.where((e) => e.dates.end.millisecondsSinceEpoch >= filter.endRangeStart.millisecondsSinceEpoch ).toList();
     if(filter.startRangeEnd != null) list = list.where((e) => e.dates.start.millisecondsSinceEpoch <= filter.startRangeEnd.millisecondsSinceEpoch ).toList();
     if(filter.startRangeStart != null) list = list.where((e) => e.dates.start.millisecondsSinceEpoch >= filter.startRangeStart.millisecondsSinceEpoch ).toList();
     
+    // print(list.map((e) => e.name).toList());
     return list;
   }
 

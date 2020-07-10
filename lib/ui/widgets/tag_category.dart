@@ -1,7 +1,7 @@
 import 'package:comet_events/core/objects/Tag.dart';
 import 'package:comet_events/ui/theme/theme.dart';
-import 'package:comet_events/ui/widgets/date_time.dart';
 import 'package:comet_events/utils/locator.dart';
+import 'package:comet_events/ui/widgets/layout_widgets.dart';
 import 'package:fading_edge_scrollview/fading_edge_scrollview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';

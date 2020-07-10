@@ -70,8 +70,8 @@ class EventService extends DatabaseService {
 
 
   // ! ---------- CRUD ----------
-  Future<void> addNewEvent(Event event) async {
-    await eventsCollection.document().setData(event.toJson());
+  Future<void> addNewEvent(Event event, String id) async {
+    await eventsCollection.document(id).setData(event.toJson());
   }
 
   Future<void> updateEvent(String id, Event updatedEvent) async {

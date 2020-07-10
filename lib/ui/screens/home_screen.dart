@@ -1,5 +1,7 @@
 import 'package:comet_events/core/models/home_model.dart';
+import 'package:comet_events/ui/screens/map.dart';
 import 'package:comet_events/ui/theme/theme.dart';
+import 'package:comet_events/ui/widgets/event_tile.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   CometThemeData _appTheme = locator<CometThemeManager>().theme;
+  CarouselController carouselController = CarouselController();
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onModelReady: (model, _) => model.init(),
       userViewModelBuilder: () => HomeModel(),
       builder: (context, model, user, child) {
-        print(model.eventList.map((e) => e.name).toList());
+        // print(model.eventList.map((e) => e.name).toList());
         return Scaffold(
         extendBody: true,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -36,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: _appTheme.secondaryMono,
         body: Stack(
           children: <Widget>[
-            // Map(),
+            HomeMap(),
             Column(
               children: <Widget>[
                 _topAppBar(model),
@@ -170,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return Builder(
             builder: (BuildContext context) {
               return Container(
-                child: i,
+                child: EventTile(event: i, scale: 1.2,),
               );
             },
           );
@@ -179,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 90*1.2,
           viewportFraction: 0.84,
           initialPage: 0,
-          enableInfiniteScroll: true,
+          // enableInfiniteScroll: true,
           reverse: false,
           autoPlay: false,
           enlargeCenterPage: true,
@@ -187,7 +190,8 @@ class _HomeScreenState extends State<HomeScreen> {
             //update google maps camera position
           },
           scrollDirection: Axis.horizontal,
-        )  
+        ),
+        carouselController: carouselController,  
       ),
     );
   }

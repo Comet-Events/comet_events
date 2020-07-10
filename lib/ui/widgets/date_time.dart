@@ -1,29 +1,7 @@
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
-
-class SubBlockContainer extends StatelessWidget {
-  const SubBlockContainer({Key key, this.title, this.child, this.space = 5}) : super(key: key);
-
-  final String title;
-  final Widget child;
-  final double space;
-
-  @override
-  Widget build(BuildContext context) {
-    
-    Color labelTextColor = CometThemeManager.lighten(locator<CometThemeManager>().theme.secondaryMono, 0.3);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(title, style: TextStyle(color: labelTextColor), overflow: TextOverflow.fade, maxLines: 4,),
-        SizedBox(height: space),
-        child
-      ]
-    );
-  }
-}
+import 'package:comet_events/ui/widgets/layout_widgets.dart';
 
 class DateSelector extends StatefulWidget {
   const DateSelector({
@@ -292,7 +270,6 @@ class _HourPickerRowState extends State<HourPickerRow> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if(widget.hours >= 1) {
       setState(() {

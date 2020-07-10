@@ -4,12 +4,12 @@ import 'package:comet_events/ui/widgets/comet_buttons.dart';
 import 'package:comet_events/ui/widgets/comet_loading.dart';
 import 'package:comet_events/ui/widgets/comet_text_field.dart';
 import 'package:comet_events/ui/widgets/date_time.dart';
+import 'package:comet_events/ui/widgets/upload_image.dart';
 import 'package:comet_events/ui/widgets/tag_category.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/ui/widgets/layout_widgets.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_animations/loading_animations.dart';
 import 'dart:ui';
 
 
@@ -100,6 +100,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
                                     _dateBlock(context, model),
                                     BlockDivider(),
                                     _tagBlock(context, model),
+                                    BlockDivider(),
+                                    _imageBlock(context, model),
                                     BlockDivider(),
                                     _locationBlock(context, model),
                                     BlockDivider(),
@@ -226,6 +228,25 @@ class _AddEventScreenState extends State<AddEventScreen> {
             )
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _imageBlock(BuildContext context, AddEventModel model){
+    return BlockContainer(
+      title: 'Images',
+      children: [
+        ImageUploader(
+          onTap: (asset) => model.viewFullScreen(asset),
+          onChange: (images, coverImage) => model.imageOnChange(images, coverImage),
+          showErrorSnack: (error) => model.cometSnackBar(
+            title: 'Too Many Images',
+            message: error,
+            iconData: Icons.error,
+            duration: Duration(seconds: 10)
+          ),
+        )
+        // SizedBox(height: 10),
       ],
     );
   }

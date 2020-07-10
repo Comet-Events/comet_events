@@ -2,12 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/core/services/services.dart';
 import 'package:comet_events/ui/widgets/tag_category.dart';
+import 'package:comet_events/ui/widgets/upload_image.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:dart_geohash/dart_geohash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:place_picker/place_picker.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:uuid/uuid.dart';
+
 
 extension on DateTime{
   /// Checks if the dates are the same down to the minute
@@ -29,6 +33,7 @@ class AddEventModel extends ChangeNotifier {
   RemoteConfigService _rc = locator<RemoteConfigService>();
   NavigationService _navigate = locator<NavigationService>();
   SnackbarService _snack = locator<SnackbarService>(); // yum
+  StorageService _storage = locator<StorageService>();
 
   TextEditingController _name = TextEditingController();
   TextEditingController _description = TextEditingController();
@@ -42,10 +47,14 @@ class AddEventModel extends ChangeNotifier {
   Location newLocation = Location();
   Stats newStats = Stats(likes: [], rsvps: []);
   Settings newSettings = Settings();
+  Asset coverImage;
+  List<Asset> images = [];
 
   bool loading = false;
   CategoryPickerController categoryController = CategoryPickerController();
   TagPickerController tagController = TagPickerController();
+  List<Tag> categories = [];
+  // List<FirebaseStorageResult> images = [];
   // Timestamp premiere;
   // Timestamp start;
   // Timestamp end;
@@ -70,7 +79,6 @@ class AddEventModel extends ChangeNotifier {
       borderRadius: 15,
       shouldIconPulse: true,
       margin: const EdgeInsets.symmetric(horizontal: 10),
-       
     );
   }
   // ! Validator function !
@@ -152,7 +160,33 @@ class AddEventModel extends ChangeNotifier {
       return;
     }
 
+    // add event to firebase
+    loading = true;
+    notifyListeners();
+
+    Uuid uuid = Uuid();
+    String postID = uuid.v1();
+
+    // * setup images
+    String coverUrl;
+    if(coverImage != null) {
+      FirebaseStorageResult coverResult = await _storage.uploadImage(imageToUpload: coverImage, title: postID);
+      if(coverResult.success && coverResult.imageUrl != null) coverUrl = coverResult.imageUrl;
+    }
+    List<String> imageUrls = [];
+    for(int i = 0; i < images.length; i++) {
+      FirebaseStorageResult result = await _storage.uploadImage(imageToUpload: images[i], title: "${postID}_${i+1}");
+      if(result.success && result.imageUrl != null) imageUrls.add(result.imageUrl);
+    }
+    if(coverUrl == null && imageUrls.length > 0) {
+      coverUrl = imageUrls[0];
+      imageUrls.remove(coverUrl);
+    }
+
     // * data is valid
+
+    newEvent.coverImage = coverUrl ?? "";
+    newEvent.images = imageUrls ?? [];
     // set up firebase timestamps and other fields
     newDates.premiere = Timestamp.fromDate(startDate.subtract(Duration(hours: premiereHours)));
     newDates.start = Timestamp.fromDate(startDate);
@@ -166,38 +200,31 @@ class AddEventModel extends ChangeNotifier {
     newEvent.stats = newStats;
     newEvent.settings = newSettings;
 
-    // add event to firebase
-    loading = true;
-    notifyListeners();
+    
     /// * ----firebase----
-    await _events.addNewEvent(newEvent);
+    await _events.addNewEvent(newEvent, postID);
     // can be syncronous
     _tags.incrementTags(newEvent.tags);
     _tags.incrementCategories(newEvent.categories);
+
     /// * ----firebase----
     loading = false;
     notifyListeners();
 
     // pop back to home screen
-    print('Success!');
     _navigate.popRepeated(1);
   }
-  // void checkDates() {
-  //   print(formattedDate(startDate));
-  //   print(formattedDate(endDate));
-  //   print("${startTime.hour}:${startTime.minute}");
-  //   print("${endTime.hour}:${endTime.minute}");
 
-  //   print(newEvent.categories);
-  //   print(newEvent.tags);
+  // image functions
+  void viewFullScreen(Asset img){
+    _navigate.navigateWithTransition(
+      FullImageScreen(image: img),
+      opaque: false,
+      transition: NavigationTransition.Fade
+    );
+  }
 
-  //   print(newLocation.address.toJson().toString());
 
-  // }
-
-  // String formattedDate(DateTime date) {
-  //   return "${date.month}-${date.day}-${date.year}, ${date.hour}:${date.minute}:${date.second}";
-  // }
   // * ----- onChange handlers -----
   // dates and times
   premiereOnChange(int hour) { premiereHours = hour; }
@@ -209,6 +236,9 @@ class AddEventModel extends ChangeNotifier {
   // categories and tags
   categoryOnChange(List<Tag> categories) { newEvent.categories = categories.map((e) => e.name).toList(); }
   tagsOnChange(List<String> tags) { newEvent.tags = tags; }
+
+  //images
+  imageOnChange(List<Asset> imgs, Asset coverImg) { images = imgs ?? []; coverImage = coverImg; }
 
   // location
   void showPlacePicker(BuildContext context) async {

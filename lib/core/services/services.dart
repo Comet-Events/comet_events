@@ -5,3 +5,4 @@ export './event.dart';
 export './location.dart';
 export './rc.dart';
 export './tags.dart';
+export './storage.dart';

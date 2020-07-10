@@ -34,6 +34,8 @@ class CometEvents extends StatelessWidget {
       child: LayoutBuilder(
         // this is for the SizeConfig initialization
         builder: (context, constraints) {
+          // TODO: create one init function that all services use to initialize stuff
+          locator<TagsService>().fetchCategories();
           // SizeConfig().init(constraints, Orientation.portrait);
           return Consumer<CometThemeManager>(
             builder: (context, manager, _) => MaterialApp(

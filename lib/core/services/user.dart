@@ -8,6 +8,6 @@ class UserService extends DatabaseService {
   }
 
   Future<void> updateUser(User user) async {
-    await usersCollection.document(user.uid).setData(user.toJson(), merge: true);
+    await usersCollection.document(user.uid).setData(user.toUpdateJson(), merge: true);
   }
 }

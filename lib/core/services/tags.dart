@@ -4,7 +4,15 @@ import 'package:comet_events/core/services/services.dart';
 
 class TagsService extends DatabaseService {
 
+  List<Tag> _categories = [];
+  List<Tag> get categories => _categories;
+
+  TagsService() {
+    fetchCategories().then((c) { _categories = c; });
+  }
+
   Future<List<Tag>> fetchCategories({bool orderByPopularity = true}) async {
+    if(categories.length > 0) return categories;
     QuerySnapshot snapshot;
     try {
     if(orderByPopularity) {
@@ -20,7 +28,8 @@ class TagsService extends DatabaseService {
     } catch (err) {
       print(err);
     }
-    return snapshot != null ? snapshot.documents.map((e) => Tag.fromJson(e.data)).toList() : [];
+    _categories = snapshot != null ? snapshot.documents.map((e) => Tag.fromJson(e.data)).toList() : [];
+    return categories;
   }
 
   Future<void> incrementCategories(List<String> categories) async {

@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 
 class Event {
   String name;
   String description;
+  String coverImage;
   List<String> images;
   List<String> instructions;
   String host;
@@ -17,6 +19,7 @@ class Event {
   Event(
       {this.name = "",
       this.description,
+      this.coverImage,
       this.images,
       this.instructions,
       this.host,
@@ -34,6 +37,7 @@ class Event {
   Event.fromJson(Map<String, dynamic> json) {
     name = json['name'] ?? "Untitled Event";
     description = json['description'] ?? "This event has no description...";
+    coverImage = json['coverImage'] ?? "";
     images = (json['images'] ?? []).cast<String>();
     instructions = (json['instructions'] ?? []).cast<String>();
     host = json['host'];
@@ -54,6 +58,7 @@ class Event {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = this.name ?? "";
     data['description'] = this.description ?? "";
+    data['coverImage'] = this.coverImage ?? "";
     data['images'] = this.images ?? [];
     data['host'] = this.host ?? "";
     data['active'] = this.active ?? false;

@@ -19,13 +19,13 @@ class MarkerPainter extends CustomPainter {
     @required this.markerSize,
     @required this.time,
     @required this.image,
-  }) : super(repaint: time);
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint();
-    final topMargin = size.height/5;
+    Paint paint = Paint();    
     size = markerSize;
+    final topMargin = size.height/5;
 
     //draw outline for marker
     paint.color = _appTheme.mainColor;
@@ -50,6 +50,7 @@ class MarkerPainter extends CustomPainter {
       bottomLeft: Radius.circular(innerRadius)
     );
 
+    paint.color = _appTheme.opposite;
     //write time label and one day it'll work
     TextPainter textPainter = TextPainter(
       textDirection: TextDirection.ltr,
@@ -76,14 +77,10 @@ class MarkerPainter extends CustomPainter {
     final FittedSizes sizes = applyBoxFit(BoxFit.cover, imageSize, innerRect.size);
     final Rect inputSubrect = Alignment.center.inscribe(sizes.source, Offset.zero & imageSize);
     final Rect outputSubrect = Alignment.center.inscribe(sizes.destination, innerRect);
+
     canvas.drawImageRect(image, inputSubrect, outputSubrect, paint);
   }
 
   @override
-  bool shouldRepaint(MarkerPainter old){
-    if(markerSize!= old.markerSize)
-      print('different');
-    return time.value != old.time.value ||
-    markerSize != old.markerSize;
-  }
-}
+  bool shouldRepaint(MarkerPainter old) => false;
+}  
