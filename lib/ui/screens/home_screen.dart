@@ -17,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _state = false;
   CometThemeData _appTheme = locator<CometThemeManager>().theme;
+  CarouselController carouselController = CarouselController();
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +183,8 @@ class _HomeScreenState extends State<HomeScreen> {
             //update google maps camera position
           },
           scrollDirection: Axis.horizontal,
-        )  
+        ),
+        carouselController: carouselController,  
       ),
     );
   }

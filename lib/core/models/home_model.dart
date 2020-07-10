@@ -55,6 +55,7 @@ class HomeModel extends BaseModel {
       transition: NavigationTransition.Fade
     );
   }
+  
 
   signOut() {
     _auth.signOut();

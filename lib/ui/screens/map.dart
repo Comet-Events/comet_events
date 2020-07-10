@@ -1,7 +1,10 @@
 import 'dart:io';
+import 'package:comet_events/core/models/home_model.dart';
+import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:countdown/countdown.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/utils/locator.dart';
+import 'package:countdown_flutter/countdown_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -34,13 +37,15 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
   String mapStyle;
   Completer<GoogleMapController> mapController = Completer();
   Map<MarkerId, Marker> allMarkers = <MarkerId, Marker>{};
-  Map<MarkerId, CountDown> allTimers = <MarkerId, CountDown>{};
-  Map<MarkerId, Size> allSizes = <MarkerId, Size>{};
+  // Map<MarkerId, CountDown> allTimers = <MarkerId, CountDown>{};
+  // Map<MarkerId, Size> allSizes = <MarkerId, Size>{};
+
+  Map<MarkerId, MarkerEntry> allEntries = <MarkerId, MarkerEntry>{};
   Size minSize = Size(130, 154);
   Size maxSize = Size(156, 185);
-  Size currentSize = Size(130, 154);
-  Animation<Size> bloopAnimation;
-  AnimationController bloopAnimationController;
+  // Size currentSize = Size(130, 154);
+  // Animation<Size> bloopAnimation;
+  // AnimationController bloopAnimationController;
 
   @override
   void initState() {
@@ -53,64 +58,70 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
     _addMarker('https://picsum.photos/200', LatLng(29.722151, -95.389622),'myMarker', Duration(hours: 1, minutes: 1));
     _addMarker('https://picsum.photos/200', LatLng(29.704940, -95.425814), 'randalls', Duration(minutes: 30));
 
-    bloopAnimationController = AnimationController(
-      duration: Duration(milliseconds: 1500),
-      vsync: this
-    );
+    // bloopAnimationController = AnimationController(
+    //   duration: Duration(milliseconds: 1500),
+    //   vsync: this
+    // );
 
-    bloopAnimation = Tween<Size>(
-      begin: Size(130, 154),
-      end: Size(156, 185)
-    ).animate(bloopAnimationController);
+    // bloopAnimation = Tween<Size>(
+    //   begin: Size(130, 154),
+    //   end: Size(156, 185)
+    // ).animate(bloopAnimationController);
 
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-        resizeToAvoidBottomPadding: false,
-        body: Stack(
-          children: <Widget>[
-            GoogleMap(
-              zoomControlsEnabled: false,
-              myLocationEnabled: true,
-              markers: Set<Marker>.of(allMarkers.values),
-              initialCameraPosition: _kHome,
-              onMapCreated: (GoogleMapController controller) {
-                mapController.complete(controller);
-                controller.setMapStyle(mapStyle);
-              },
-              onTap: (LatLng pos){
-                // allSizes.forEach((key, value) {
-                //   if( allSizes[key] != minSize )
-                //     // _updateMarker(key, )
-                //   allSizes[key] = minSize;
-                // });
-              },
-            ),
-            Positioned(
-              top: 100,
-              left: MediaQuery.of(context).size.width * 0.05,
-              child: GestureDetector(
-                onTap: _moveToRandalls,
-                child: Container(
-                  color: locator<CometThemeManager>().theme.mainMono,
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                  child: Text('Go to Randalls!')
-                )
+    return UserViewModelBuilder<HomeModel>.reactive(
+      userViewModelBuilder: () => HomeModel(),
+      builder: (context, model, user, child) =>Scaffold(
+          resizeToAvoidBottomPadding: false,
+          body: Stack(
+            children: <Widget>[
+              GoogleMap(
+                zoomControlsEnabled: false,
+                myLocationEnabled: true,
+                markers: Set<Marker>.of(allMarkers.values),
+                initialCameraPosition: _kHome,
+                onMapCreated: (GoogleMapController controller) {
+                  mapController.complete(controller);
+                  controller.setMapStyle(mapStyle);
+                },
+                onTap: (LatLng pos){
+                  allEntries.forEach((key, value) {
+                    if( allEntries[key].currentSize != minSize ){
+                      setState(() {
+                        allEntries[key].currentSize = minSize;
+                      });
+                    }
+                    _updateMarker(allEntries[key]);
+                  });
+                },
               ),
-            ),
-          ],
-        )
-      );
+              Positioned(
+                top: 100,
+                left: MediaQuery.of(context).size.width * 0.05,
+                child: GestureDetector(
+                  onTap: _moveToRandalls,
+                  child: Container(
+                    color: locator<CometThemeManager>().theme.mainMono,
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                    child: Text('Go to Randalls!')
+                  )
+                ),
+              ),
+            ],
+          )
+        ),
+    );
   }
 
-  @override
-  void dispose(){
-    bloopAnimationController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose(){
+  //   bloopAnimationController.dispose();
+  //   super.dispose();
+  // }
 
   static final CameraPosition _kHome = CameraPosition(
     target: LatLng(29.722151, -95.389622),
@@ -131,62 +142,77 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
     
     //create countdown for marker <--will persist through marker updates
     CountDown cd = CountDown(duration);
-    allTimers[id] = cd;
     var sub = cd.stream.listen(null);
+
+    MarkerEntry newEntry = MarkerEntry(id, imageURL, cd, countdown, position);
+    Marker newMarker = await _createMarker(newEntry);
+
+    setState(() {
+      allMarkers[id] = newMarker;
+      allEntries[id] = newEntry;
+    });
     
     sub.onData((Duration d) {
       //update display string and redraw marker at this position accordingly
       if( countdown.value != _getDurationString(d)){
         countdown.value = _getDurationString(d);
-        _updateMarker(id, imageURL, position, countdown);
+        _updateMarker(newEntry);
       }
     });
 
     sub.onDone(() {
       countdown.value = "Live!";
-      _updateMarker(id, imageURL, position, countdown);
+      _updateMarker(newEntry);
       sub.cancel();
     });
     
-    final Uint8List bitmap = await _getMarkerIcon(imageURL, countdown, minSize);
+    // final Uint8List bitmap = await _getMarkerIcon(imageURL, countdown, minSize);
 
-    Marker newMarker = Marker(
-      markerId: id,
-      position: position,
-      icon: BitmapDescriptor.fromBytes(bitmap),
-      onTap: () {
-        // _animateMarker(id, imageURL, position, countdown);
-         setState(() {
-           allSizes[id] = maxSize;
-         }); 
-        _updateMarker(id, imageURL, position, countdown);
-      },
-    );
+    // Marker newMarker = Marker(
+    //   markerId: id,
+    //   position: position,
+    //   icon: BitmapDescriptor.fromBytes(bitmap),
+    //   onTap: () {
+    //     // _animateMarker(id, imageURL, position, countdown);
+    //      setState(() {
+    //        allEntries[id].currentSize = maxSize;
+    //      }); 
+    //     _updateMarker(id, imageURL, position, countdown);
+    //   },
+    // );
+    // MarkerEntry newEntry = MarkerEntry(id, imageURL, cd, position);
+    // Marker newMarker = await _createMarker(newEntry, countdown);
 
-    setState(() {
-      allMarkers[id] = newMarker;
-    });
+    // setState(() {
+    //   allMarkers[id] = newMarker;
+    //   allEntries[id] = newEntry;
+    // });
   }
  
   //to repaint a marker when its timer changes or onTap
-  void _updateMarker(MarkerId markerId, String imageURL, LatLng position, ValueNotifier<String> updatedTime) async {
+  void _updateMarker(MarkerEntry entry) async {
     print('update');
-    final Uint8List bitmap = await _getMarkerIcon(imageURL, updatedTime, allSizes[markerId]);
 
+    Marker newMarker = await _createMarker(entry);
     setState(() {
-      allMarkers[markerId] = Marker(
-        markerId: markerId,
-        position: position,
-        icon: BitmapDescriptor.fromBytes(bitmap),
-        onTap: () {
-          // _animateMarker(markerId, imageURL, position, updatedTime);
-          setState(() {
-            allSizes[markerId] = maxSize;
-          });
-          _updateMarker(markerId, imageURL, position, updatedTime);
-        }
-      );
+      allMarkers[entry.markerId] = newMarker;
     });
+  }
+
+  Future<Marker> _createMarker(MarkerEntry entry) async{
+    final Uint8List bitmap = await _getMarkerIcon(entry.imageURL, entry.countdown, entry.currentSize);
+    
+    return Marker(
+      markerId: entry.markerId,
+      position: entry.position,
+      icon: BitmapDescriptor.fromBytes(bitmap),
+      onTap: (){
+        setState(() {
+          allEntries[entry.markerId].currentSize = maxSize;
+        });
+        _updateMarker(entry);
+      }
+    );
   }
 
   //convert duration to hour accuracy
@@ -246,14 +272,32 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
     return byteData.buffer.asUint8List();
   } 
 
-  void _animateMarker(MarkerId id, String imageURL, LatLng position, ValueNotifier<String> countdown){
-    print('animation started');
-    bloopAnimationController.forward();
-    print(bloopAnimationController.status);
-    while( bloopAnimationController.status != AnimationStatus.completed ){
-      _updateMarker(id, imageURL, position, countdown);
-    }
-      // print(bloopAnimationController.status);
-  }
+  // void _animateMarker(MarkerId id, String imageURL, LatLng position, ValueNotifier<String> countdown){
+  //   print('animation started');
+  //   bloopAnimationController.forward();
+  //   print(bloopAnimationController.status);
+  //   while( bloopAnimationController.status != AnimationStatus.completed ){
+  //     _updateMarker(id, imageURL, position, countdown);
+  //   }
+  //     // print(bloopAnimationController.status);
+  // }
+
+}
+
+class MarkerEntry{
+  MarkerId markerId = MarkerId('hello');
+  String imageURL = "";
+  CountDown cd;
+  LatLng position = LatLng(0,0);
+  ValueNotifier<String> countdown = ValueNotifier("loading...");
+  Size currentSize = Size(130, 154);
+
+  MarkerEntry(
+    MarkerId markerId,
+    String imageURL,
+    CountDown cd,
+    ValueNotifier<String> countdown,
+    LatLng position
+  ) : markerId = markerId, position = position, cd = cd, countdown = countdown, imageURL = imageURL;
 
 }
