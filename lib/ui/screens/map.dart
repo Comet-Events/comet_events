@@ -207,7 +207,7 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
       icon: BitmapDescriptor.fromBytes(bitmap),
       onTap: (){
         setState(() {
-          widget.controller.allEntries[entry.markerId].currentSize = maxSize;
+          widget.controller.allEntries[entry.markerId].currentSize = widget.controller.maxSize;
         });
         _updateMarker(entry);
       }
