@@ -17,9 +17,9 @@ import 'package:http/http.dart' as http;
 
 class HomeMap extends StatefulWidget {
   // //is this right lmao
-  // HomeMapController controller = HomeMapController();
+   HomeMapController controller = HomeMapController();
 
-  // HomeMap( this.controller );
+   HomeMap( this.controller );
 
   @override
   State<HomeMap> createState() => HomeMapState();
@@ -30,20 +30,19 @@ class HomeMapController{
   String mapStyle;
   Completer<GoogleMapController> mapController = Completer();
   Map<MarkerId, Marker> allMarkers = <MarkerId, Marker>{};
-  Map<MarkerId, CountDown> allTimers = <MarkerId, CountDown>{};
-}
-
-class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
-  String mapStyle;
-  Completer<GoogleMapController> mapController = Completer();
-  Map<MarkerId, Marker> allMarkers = <MarkerId, Marker>{};
-  // Map<MarkerId, CountDown> allTimers = <MarkerId, CountDown>{};
-  // Map<MarkerId, Size> allSizes = <MarkerId, Size>{};
-
   Map<MarkerId, MarkerEntry> allEntries = <MarkerId, MarkerEntry>{};
   Size minSize = Size(130, 154);
   Size maxSize = Size(156, 185);
-  // Size currentSize = Size(130, 154);
+}
+
+class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
+  // String mapStyle;
+  // Completer<GoogleMapController> mapController = Completer();
+  // Map<MarkerId, Marker> allMarkers = <MarkerId, Marker>{};
+
+  // Map<MarkerId, MarkerEntry> allEntries = <MarkerId, MarkerEntry>{};
+  // Size minSize = Size(130, 154);
+  // Size maxSize = Size(156, 185);
   // Animation<Size> bloopAnimation;
   // AnimationController bloopAnimationController;
 
@@ -52,7 +51,7 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
     super.initState();
 
     rootBundle.loadString('assets/map_styles/pretty.txt').then((string) {
-      mapStyle = string;
+      widget.controller.mapStyle = string;
     });
 
     _addMarker('https://picsum.photos/200', LatLng(29.722151, -95.389622),'myMarker', Duration(hours: 1, minutes: 1));
@@ -81,20 +80,20 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
               GoogleMap(
                 zoomControlsEnabled: false,
                 myLocationEnabled: true,
-                markers: Set<Marker>.of(allMarkers.values),
+                markers: Set<Marker>.of(widget.controller.allMarkers.values),
                 initialCameraPosition: _kHome,
                 onMapCreated: (GoogleMapController controller) {
-                  mapController.complete(controller);
-                  controller.setMapStyle(mapStyle);
+                  widget.controller.mapController.complete(controller);
+                  controller.setMapStyle(widget.controller.mapStyle);
                 },
                 onTap: (LatLng pos){
-                  allEntries.forEach((key, value) {
-                    if( allEntries[key].currentSize != minSize ){
+                  widget.controller.allEntries.forEach((key, value) {
+                    if( widget.controller.allEntries[key].currentSize != widget.controller.minSize ){
                       setState(() {
-                        allEntries[key].currentSize = minSize;
+                        widget.controller.allEntries[key].currentSize = widget.controller.minSize;
                       });
                     }
-                    _updateMarker(allEntries[key]);
+                    _updateMarker(widget.controller.allEntries[key]);
                   });
                 },
               ),
@@ -130,7 +129,7 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
   );
 
   Future<void> _moveToRandalls() async {
-    final GoogleMapController controller = await mapController.future;
+    final GoogleMapController controller = await widget.controller.mapController.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(
         CameraPosition(target: LatLng(29.704940, -95.425814), zoom: 14.760)));
   }
@@ -148,8 +147,8 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
     Marker newMarker = await _createMarker(newEntry);
 
     setState(() {
-      allMarkers[id] = newMarker;
-      allEntries[id] = newEntry;
+      widget.controller.allMarkers[id] = newMarker;
+      widget.controller.allEntries[id] = newEntry;
     });
     
     sub.onData((Duration d) {
@@ -195,7 +194,7 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
 
     Marker newMarker = await _createMarker(entry);
     setState(() {
-      allMarkers[entry.markerId] = newMarker;
+      widget.controller.allMarkers[entry.markerId] = newMarker;
     });
   }
 
@@ -208,7 +207,7 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
       icon: BitmapDescriptor.fromBytes(bitmap),
       onTap: (){
         setState(() {
-          allEntries[entry.markerId].currentSize = maxSize;
+          widget.controller.allEntries[entry.markerId].currentSize = maxSize;
         });
         _updateMarker(entry);
       }
