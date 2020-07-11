@@ -25,14 +25,10 @@ class HomeMap extends StatefulWidget {
   HomeMapController controller;
   LatLng cameraPos;
   List<Event> events;
-  Size minSize;
-  Size maxSize;
   HomeMap({
     @required this.controller,
     @required this.events,
-    @required this.cameraPos,
-    this.minSize = const Size(130, 154),
-    this.maxSize = const Size(156, 185)
+    @required this.cameraPos
   });
 
   @override
@@ -41,6 +37,8 @@ class HomeMap extends StatefulWidget {
 class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
   
   LatLng currentCameraPos;
+  Size minSize = Size(130, 154);
+  Size maxSize = Size(156, 185);
 
   @override
   void initState() {
@@ -116,9 +114,9 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
                 },
                 onTap: (LatLng pos){
                   widget.controller.allEntries.forEach((key, value) {
-                    if( widget.controller.allEntries[key].currentSize != widget.minSize ){
+                    if( widget.controller.allEntries[key].currentSize != minSize ){
                       setState(() {
-                        widget.controller.allEntries[key].currentSize = widget.minSize;
+                        widget.controller.allEntries[key].currentSize = minSize;
                       });
                     }
                     _updateMarker(widget.controller.allEntries[key]);
@@ -201,8 +199,8 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
 
   Future<Marker> _createMarker(MarkerEntry entry) async{
     final Uint8List bitmap = await _getMarkerIcon(entry.imageURL, entry.countdown, entry.currentSize);
-    final double xOffset = -0.00012*entry.currentSize.width/widget.minSize.width;
-    final double yOffset = -0.0013*entry.currentSize.height/widget.minSize.height;
+    final double xOffset = -0.00012*entry.currentSize.width/minSize.width;
+    final double yOffset = -0.0013*entry.currentSize.height/minSize.height;
 
     return Marker(
       markerId: entry.markerId,
@@ -210,7 +208,7 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
       icon: BitmapDescriptor.fromBytes(bitmap),
       onTap: (){
         setState(() {
-          widget.controller.allEntries[entry.markerId].currentSize = widget.maxSize;
+          widget.controller.allEntries[entry.markerId].currentSize = maxSize;
         });
         _updateMarker(entry);
       }
