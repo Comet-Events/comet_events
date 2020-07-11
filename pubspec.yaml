@@ -61,6 +61,7 @@ dependencies:
   multi_image_picker: ^4.6.7
   countdown: ^0.1.0
   cached_network_image: ^2.2.0+1
+  add_to_calendar: ^1.2.0+1
 
 
 

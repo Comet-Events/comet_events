@@ -1,10 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:comet_events/core/objects/objects.dart';
 import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/comet_buttons.dart';
-import 'package:comet_events/ui/widgets/event_list.dart';
 import 'package:comet_events/ui/widgets/event_tile.dart';
 import 'package:comet_events/ui/widgets/user_list.dart';
+import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/utils/locator.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -107,12 +106,15 @@ class EventScreen extends StatelessWidget {
                                 fontSize: 15,
                               ),
                             ),
-                            Text(
-                              TimeOfDay.fromDateTime(DateTime.fromMillisecondsSinceEpoch(event.dates.start.millisecondsSinceEpoch)).format(context),
-                              style: TextStyle(
-                                color: _appTheme.mainColor,
-                                fontSize: 15,
-                                decoration: TextDecoration.underline,
+                            InkWell(
+                              onTap: () {},
+                              child: Text(
+                                TimeOfDay.fromDateTime(DateTime.fromMillisecondsSinceEpoch(event.dates.start.millisecondsSinceEpoch)).format(context),
+                                style: TextStyle(
+                                  color: _appTheme.mainColor,
+                                  fontSize: 15,
+                                  decoration: TextDecoration.underline,
+                                ),
                               ),
                             ),
                           ],
@@ -120,12 +122,15 @@ class EventScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Text(
-                              event.location.address.fullStreet,
-                              style: TextStyle(
-                                color: _appTheme.mainColor,
-                                fontSize: 15,
-                                decoration: TextDecoration.underline,
+                            InkWell(
+                              onTap: () {},
+                              child: Text(
+                                event.location.address.fullStreet,
+                                style: TextStyle(
+                                  color: _appTheme.mainColor,
+                                  fontSize: 15,
+                                  decoration: TextDecoration.underline,
+                                ),
                               ),
                             ),
                             Text(

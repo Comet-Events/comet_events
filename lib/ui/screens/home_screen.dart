@@ -4,6 +4,7 @@ import 'package:comet_events/ui/theme/theme.dart';
 import 'package:comet_events/ui/widgets/event_tile.dart';
 import 'package:comet_events/ui/widgets/user_view_model_builder.dart';
 import 'package:comet_events/utils/locator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -46,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Column(
               children: <Widget>[
-                _topAppBar(model),
+                _topAppBar(model, user),
                 SizedBox(height: 7),
                 Expanded(
                   child: Column(
@@ -69,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _topAppBar(HomeModel model){
+  Widget _topAppBar(HomeModel model, FirebaseUser user){
     return Container(
       // height: MediaQuery.of(context).size.height*0.12,
       padding: EdgeInsets.symmetric(horizontal: 23, vertical: 15),
@@ -86,15 +87,18 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Icon(
-              Icons.settings, 
-              size: 30, 
-              color: locator<CometThemeManager>().theme.mainColor,
+            InkWell(
+              onTap: model.signOut,
+              child: Icon(
+                Icons.settings, 
+                size: 30, 
+                color: locator<CometThemeManager>().theme.mainColor,
+              ),
             ),
             GestureDetector(
               onTap: model.update,
               child: Text(
-                model.rad ?? "",
+                "WELCOME, COMET" ?? "",
                 style: TextStyle(
                   fontFamily: "Lexend Deca",
                   fontSize: 18,

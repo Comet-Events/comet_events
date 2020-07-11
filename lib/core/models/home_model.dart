@@ -33,6 +33,7 @@ class HomeModel extends MultipleStreamViewModel {
 
   // * ----- Services -----
   EventService _event = locator<EventService>();
+  AuthService _auth = locator<AuthService>();
   SnackbarService _snack = locator<SnackbarService>();
   LocationService _location = locator<LocationService>();
   NavigationService _navigation = locator<NavigationService>();
@@ -128,5 +129,9 @@ class HomeModel extends MultipleStreamViewModel {
 
   moveToEventDetails(Event event) {
     _navigation.navigateTo(Routes.event, arguments: event);
+  }
+
+  signOut() {
+    _auth.signOut();
   }
 }
