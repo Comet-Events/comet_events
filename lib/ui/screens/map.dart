@@ -18,8 +18,6 @@ class HomeMapController {
   Completer<GoogleMapController> mapController = Completer();
   Map<MarkerId, Marker> allMarkers = <MarkerId, Marker>{};
   Map<MarkerId, MarkerEntry> allEntries = <MarkerId, MarkerEntry>{};
-  Size minSize = Size(130, 154);
-  Size maxSize = Size(156, 185);
   HomeMapController();
 }
 class HomeMap extends StatefulWidget {
@@ -27,10 +25,14 @@ class HomeMap extends StatefulWidget {
   HomeMapController controller;
   LatLng cameraPos;
   List<Event> events;
+  Size minSize;
+  Size maxSize;
   HomeMap({
     @required this.controller,
     @required this.events,
-    @required this.cameraPos
+    @required this.cameraPos,
+    this.minSize = const Size(130, 154),
+    this.maxSize = const Size(156, 185)
   });
 
   @override
@@ -50,16 +52,6 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
 
     _addMarker('https://picsum.photos/200', LatLng(29.722151, -95.389622),'myMarker', Duration(hours: 1, minutes: 1));
     _addMarker('https://picsum.photos/200', LatLng(29.704940, -95.425814), 'randalls', Duration(minutes: 30));
-
-    // bloopAnimationController = AnimationController(
-    //   duration: Duration(milliseconds: 1500),
-    //   vsync: this
-    // );
-
-    // bloopAnimation = Tween<Size>(
-    //   begin: Size(130, 154),
-    //   end: Size(156, 185)
-    // ).animate(bloopAnimationController);
 
   }
 
@@ -124,9 +116,9 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
                 },
                 onTap: (LatLng pos){
                   widget.controller.allEntries.forEach((key, value) {
-                    if( widget.controller.allEntries[key].currentSize != widget.controller.minSize ){
+                    if( widget.controller.allEntries[key].currentSize != widget.minSize ){
                       setState(() {
-                        widget.controller.allEntries[key].currentSize = widget.controller.minSize;
+                        widget.controller.allEntries[key].currentSize = widget.minSize;
                       });
                     }
                     _updateMarker(widget.controller.allEntries[key]);
@@ -151,12 +143,6 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
         ),
     );
   }
-
-  // @override
-  // void dispose(){
-  //   bloopAnimationController.dispose();
-  //   super.dispose();
-  // }
 
   static final CameraPosition _kHome = CameraPosition(
     target: LatLng(29.722151, -95.389622),
@@ -201,27 +187,6 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
       sub.cancel();
     });
     
-    // final Uint8List bitmap = await _getMarkerIcon(imageURL, countdown, minSize);
-
-    // Marker newMarker = Marker(
-    //   markerId: id,
-    //   position: position,
-    //   icon: BitmapDescriptor.fromBytes(bitmap),
-    //   onTap: () {
-    //     // _animateMarker(id, imageURL, position, countdown);
-    //      setState(() {
-    //        allEntries[id].currentSize = maxSize;
-    //      }); 
-    //     _updateMarker(id, imageURL, position, countdown);
-    //   },
-    // );
-    // MarkerEntry newEntry = MarkerEntry(id, imageURL, cd, position);
-    // Marker newMarker = await _createMarker(newEntry, countdown);
-
-    // setState(() {
-    //   allMarkers[id] = newMarker;
-    //   allEntries[id] = newEntry;
-    // });
   }
  
   //to repaint a marker when its timer changes or onTap
@@ -236,14 +201,16 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
 
   Future<Marker> _createMarker(MarkerEntry entry) async{
     final Uint8List bitmap = await _getMarkerIcon(entry.imageURL, entry.countdown, entry.currentSize);
-    
+    final double xOffset = -0.00012*entry.currentSize.width/widget.minSize.width;
+    final double yOffset = -0.0013*entry.currentSize.height/widget.minSize.height;
+
     return Marker(
       markerId: entry.markerId,
-      position: entry.position,
+      position: LatLng(entry.position.latitude+xOffset, entry.position.longitude+yOffset),
       icon: BitmapDescriptor.fromBytes(bitmap),
       onTap: (){
         setState(() {
-          widget.controller.allEntries[entry.markerId].currentSize = widget.controller.maxSize;
+          widget.controller.allEntries[entry.markerId].currentSize = widget.maxSize;
         });
         _updateMarker(entry);
       }
@@ -307,15 +274,6 @@ class HomeMapState extends State<HomeMap> with SingleTickerProviderStateMixin {
     return byteData.buffer.asUint8List();
   } 
 
-  // void _animateMarker(MarkerId id, String imageURL, LatLng position, ValueNotifier<String> countdown){
-  //   print('animation started');
-  //   bloopAnimationController.forward();
-  //   print(bloopAnimationController.status);
-  //   while( bloopAnimationController.status != AnimationStatus.completed ){
-  //     _updateMarker(id, imageURL, position, countdown);
-  //   }
-  //     // print(bloopAnimationController.status);
-  // }
 
 }
 

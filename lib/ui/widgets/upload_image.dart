@@ -127,7 +127,7 @@ class _ImageUploaderState extends State<ImageUploader> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       color: locator<CometThemeManager>().theme.secondaryMono
     ).then<void>((int delta){
-      if( delta == null ) //if they tap outside of the pop up
+      if( delta == null ) //if they tap outside of the pop up, close it
         return;
       else if( delta == 0){ //tap on delete
         setState(() {
@@ -139,6 +139,7 @@ class _ImageUploaderState extends State<ImageUploader> {
 
           if( i < chosenCover )
             chosenCover--;
+
           widget.onChange(images, images[chosenCover]);
         });
       }
@@ -146,8 +147,8 @@ class _ImageUploaderState extends State<ImageUploader> {
         setState(() {
           chosenCover = i;
         });
-      }
-      
+        widget.onChange(images, images[chosenCover]);
+      }      
     });
   }
 
