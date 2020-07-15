@@ -4,6 +4,11 @@
 This app provides a way for people to find and host events happening near them in real time. The user can pop open the app and see a map of all the events happening within their proximity on the spot. The location spots are marked with a pin, that varies in color and shape based on the type of event. You can also premiere events happening soon, which will show an event countdown. Tapping on an event will take you to a detail page, where you can see the event name, description, rating, a list people attending the event, and an RSVP option you can press to indicate you are joining. 
 
 ## Contributers 
+  #### Design
+  * Zach Allen
+  * Jimmy
+  
+  #### Implementation
   * [Neha Rode](https://github.com/Neha-Rode)
   * [Soham Mukherjee](https://github.com/Zakenmaru)
   * [Emily Lam](https://github.com/ejlam)
@@ -12,9 +17,6 @@ This app provides a way for people to find and host events happening near them i
   * [Bach Nguyen](https://github.com/bachnguyenTE)
   * [Trevor Tomer](https://github.com/Tmtomer)
   * [Jafar](https://github.com/jafrilli)
-  #### Design
-  * [Zach Allen]
-  * [Jimmy]
 
 ## Minimum Viable Product 
 
