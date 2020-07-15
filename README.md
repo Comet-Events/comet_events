@@ -12,7 +12,7 @@ This app provides a way for people to find and host events happening near them i
   * [Bach Nguyen](https://github.com/bachnguyenTE)
   * [Trevor Tomer](https://github.com/Tmtomer)
   * [Jafar](https://github.com/jafrilli)
-  Design
+  #### Design
   * [Zach Allen]
   * [Jimmy]
 
